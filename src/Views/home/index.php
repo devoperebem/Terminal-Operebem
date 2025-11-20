@@ -277,29 +277,27 @@ html.all-black .hero-stat-icon {
                 <div class="hero-content">
                     <div class="hero-badge animate-fade-in-up animate-delay-100">
                         <i class="fas fa-star me-2"></i>
-                        Plataforma #1 para Traders
+                        ACESSO ANTECIPADO + BONUS
                     </div>
                     <h1 class="hero-title animate-fade-in-up animate-delay-200">
                         Terminal Operebem
                         <span class="text-gradient">Alpha 1.2</span>
                     </h1>
                     <p class="hero-subtitle animate-fade-in-up animate-delay-300">
-                        A plataforma perfeita para traders e investidores. 
-                        Análise em tempo real, dados precisos e ferramentas profissionais 
-                        para maximizar seus resultados.
+                        O melhor farol paras Traders. Pare de operar no escuro. Tenha acesso a mais contexto e seja movido por dados!
                     </p>
                     <div class="hero-features animate-fade-in-up animate-delay-400">
                         <div class="feature-item">
                             <i class="fas fa-check-circle text-primary"></i>
-                            <span>Dados em tempo real</span>
+                            <span>Cotações globais em tempo real</span>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle text-primary"></i>
-                            <span>Notícias em primeira mão</span>
+                            <span>Indicatores Técnicos, de Sentimento e Volatilidade</span>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle text-primary"></i>
-                            <span>Indicadores Técnicos e de Sentimento</span>
+                            <span>Curadoria de Notícias (Bloomberg, Reuters, Bancos Centrais...)</span>
                         </div>
                     </div>
                     <div class="hero-buttons animate-fade-in-up animate-delay-500">
@@ -380,7 +378,7 @@ html.all-black .hero-stat-icon {
         <div class="row">
             <div class="col-12 text-center mb-5">
                 <h2 class="section-title">Recursos Avançados</h2>
-                <p class="section-subtitle">Tudo que você precisa para análise financeira profissional</p>
+                <p class="section-subtitle">Tudo que você precisa para contexto no trading profissional</p>
             </div>
         </div>
         
@@ -393,10 +391,10 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h3 class="feature-title">Segurança Total</h3>
                     <p class="feature-description">
-                        Proteção avançada com criptografia padrão militar, headers de segurança, proteção contra Robos e Ataques.
+                        Proteção avançada com criptografia padrão militar, headers de segurança e sistemas contra Robos e Ataques.
                     </p>
                     <div class="feature-highlight">
-                        <span class="highlight-text">99.9% Uptime</span>
+                        <span class="highlight-text">99.8% Uptime</span>
                     </div>
                 </div>
             </div>
@@ -409,7 +407,7 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h3 class="feature-title">Cotações em Tempo Real</h3>
                     <p class="feature-description">
-                        Acompanhe cotações e indicadores financeiros com dados atualizados a cada segundo.
+                        Acompanhe cotações globais e indicadores financeiros com dados atualizados a cada segundo.
                     </p>
                     <div class="feature-highlight">
                         <span class="highlight-text">Dados em tempo real</span>
@@ -423,12 +421,12 @@ html.all-black .hero-stat-icon {
                     <div class="feature-icon">
                         <i class="fas fa-heartbeat"></i>
                     </div>
-                    <h3 class="feature-title">Indicadores de Sentimento</h3>
+                    <h3 class="feature-title">Sentimento do Mercado</h3>
                     <p class="feature-description">
-                        Leia o humor do mercado com medidores de sentimento e fluxos de risco.
+                        Desde indicadores famosos como o CNN Fear Greed Index, até indicadores exclusivos e autorais como o Operebem Risk Momentum!
                     </p>
                     <div class="feature-highlight">
-                        <span class="highlight-text">Sentimento em tempo real</span>
+                        <span class="highlight-text">Análise de Sentimento Avançada</span>
                     </div>
                 </div>
             </div>
@@ -439,7 +437,7 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h3 class="feature-title">Notícias em Primeira Mão</h3>
                     <p class="feature-description">
-                        Acompanhe as notícias mais relevantes do mercado em tempo real.
+                        Acompanhe as notícias mais relevantes do mercado, originais ou traduzidas, em tempo real.
                     </p>
                     <div class="feature-highlight">
                         <span class="highlight-text">Curadoria profissional</span>
@@ -453,10 +451,10 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h3 class="feature-title">Indicadores Técnicos</h3>
                     <p class="feature-description">
-                        Painéis com médias, RSI, MACD, Bollinger e muito mais.
+                        Indicadores de Tendência, Market Barometers e tudo que você precisa
                     </p>
                     <div class="feature-highlight">
-                        <span class="highlight-text">50+ Indicadores</span>
+                        <span class="highlight-text">Indicadores Profissionais</span>
                     </div>
                 </div>
             </div>
@@ -465,12 +463,12 @@ html.all-black .hero-stat-icon {
                     <div class="feature-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <h3 class="feature-title">Calendário Econômico</h3>
+                    <h3 class="feature-title">Monitore Eventos Econômicos</h3>
                     <p class="feature-description">
-                        Eventos econômicos globais com impacto e expectativas do mercado.
+                        Calendário Econômico Investing customizavel, Fed Watch Tool completo.
                     </p>
                     <div class="feature-highlight">
-                        <span class="highlight-text">Alertas de eventos</span>
+                        <span class="highlight-text">Esteja sempre antecipado</span>
                     </div>
                 </div>
             </div>
@@ -730,7 +728,7 @@ html.all-black .hero-stat-icon {
                 <div class="cta-content">
                     <h2 class="cta-title">Pronto para Começar?</h2>
                     <p class="cta-subtitle">
-                        Junte-se a outros traders que já confiam no Terminal Operebem para suas análises financeiras.
+                        Junte-se a outros traders que já confiam no Terminal Operebem para aprender e melhorarem seus resultados.
                     </p>
                     <div class="cta-buttons">
                         <button class="btn btn-light btn-lg me-3" data-bs-toggle="modal" data-bs-target="#registerModal">
