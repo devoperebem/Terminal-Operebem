@@ -295,21 +295,73 @@ document.addEventListener("DOMContentLoaded", function() {
         return 25;
     }
 
+    /**
+     * Mapa de tamanhos máximos reais por país (baseado em dados oficiais)
+     * Fonte: ITU-T E.164 e metadados da libphonenumber
+     */
+    const COUNTRY_MAX_DIGITS = {
+        // Américas
+        'US': 10, 'CA': 10, 'MX': 10, 'AR': 10, 'CL': 9, 'CO': 10,
+        'PE': 9, 'VE': 10, 'EC': 9, 'BO': 8, 'PY': 9, 'UY': 9,
+        // Europa
+        'PT': 9, 'ES': 9, 'FR': 9, 'DE': 11, 'IT': 10, 'GB': 10,
+        'CH': 9, 'AT': 10, 'BE': 9, 'NL': 9, 'SE': 9, 'NO': 8,
+        'DK': 8, 'FI': 9, 'PL': 9, 'CZ': 9, 'GR': 10, 'IE': 9,
+        // Ásia
+        'CN': 11, 'JP': 10, 'KR': 10, 'IN': 10, 'ID': 10, 'TH': 9,
+        'VN': 10, 'PH': 10, 'MY': 9, 'SG': 8, 'HK': 8, 'TW': 9,
+        // Oceania
+        'AU': 9, 'NZ': 9,
+        // África
+        'ZA': 9, 'EG': 10, 'NG': 10, 'KE': 9,
+        // Oriente Médio
+        'AE': 9, 'SA': 9, 'IL': 9, 'TR': 10
+    };
+
+    /**
+     * Obtém o tamanho máximo real de dígitos para um país
+     */
+    function getMaxDigitsForCountry(iso) {
+        if (!iso) {
+            return 15;
+        }
+
+        // Brasil tem regra específica: máximo 11 dígitos
+        if (iso === 'BR') {
+            return 11;
+        }
+
+        // Verificar no mapa de países conhecidos
+        if (COUNTRY_MAX_DIGITS[iso]) {
+            return COUNTRY_MAX_DIGITS[iso];
+        }
+
+        // Para países não mapeados, tentar obter do exemplo
+        if (window.libphonenumber && phoneExampleData) {
+            try {
+                const example = window.libphonenumber.getExampleNumber(iso, phoneExampleData);
+                if (example) {
+                    const exampleDigits = String(example.nationalNumber || '').replace(/\D/g, '');
+                    // Usar o tamanho do exemplo + 1 dígito de margem
+                    return Math.min(exampleDigits.length + 1, 15);
+                }
+            } catch (error) {
+                console.warn('Erro ao obter exemplo para', iso, error);
+            }
+        }
+
+        // Fallback: limite padrão internacional
+        return 15;
+    }
+
     function formatPhoneFieldValue(value) {
         const iso = getSelectedCountryIso();
         if (!window.libphonenumber || !iso) {
             return value.replace(/[^\d+]/g, '');
         }
         try {
-            // Obter o número máximo de DÍGITOS permitido para o país
-            let maxDigits = 15; // padrão internacional
-
-            // Para Brasil: limite estrito de 11 dígitos (DDD + número)
-            if (iso === 'BR') {
-                maxDigits = 11; // máximo para celular (DDD 2 dígitos + 9 dígitos)
-            }
-            // Para outros países: usar limite padrão de 15 dígitos
-            // A validação real do tamanho será feita pela biblioteca libphonenumber
+            // Obter o número máximo de DÍGITOS permitido para o país (baseado em metadados reais)
+            const maxDigits = getMaxDigitsForCountry(iso);
 
             // Extrair apenas os dígitos do valor atual
             const digitsOnly = value.replace(/\D/g, '');
@@ -544,17 +596,22 @@ document.addEventListener("DOMContentLoaded", function() {
         const nationalNumber = String(parsed.nationalNumber);
         const digitsOnly = nationalNumber.replace(/\D/g, '');
 
-        // Verificar tamanho mínimo e máximo (validação básica)
+        // Verificar tamanho mínimo (6 dígitos é o mínimo internacional)
         if (digitsOnly.length < 6) {
             return { valid: false, message: 'Número muito curto para este país' };
         }
 
-        if (digitsOnly.length > 15) {
-            return { valid: false, message: 'Número muito longo' };
+        // Verificar tamanho máximo baseado no país
+        const maxDigitsAllowed = getMaxDigitsForCountry(iso);
+        if (digitsOnly.length > maxDigitsAllowed) {
+            return {
+                valid: false,
+                message: `Número muito longo. Este país aceita no máximo ${maxDigitsAllowed} dígitos`
+            };
         }
 
-        // A validação específica do tamanho por país é feita pela biblioteca libphonenumber
-        // através do método isValid(), não precisamos validar manualmente
+        // A validação detalhada de formato é feita pela biblioteca libphonenumber
+        // através do método isValid()
 
         return { valid: true };
     }
