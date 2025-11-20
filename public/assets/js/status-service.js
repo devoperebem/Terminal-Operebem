@@ -158,8 +158,10 @@
       try{
         if (inst && inst._config) {
           inst._config.title = html;
-          el.setAttribute('title', html);
-          el.setAttribute('data-bs-original-title', html);
+          // NÃO definir atributo title - isso faz o Bootstrap mostrar HTML como texto
+          // Apenas garantir que data-bs-original-title não interfira
+          el.removeAttribute('title');
+          el.removeAttribute('data-bs-original-title');
         }
       }catch(_){ }
 
