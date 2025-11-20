@@ -314,8 +314,9 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (iso === 'BR') {
                             maxDigits = 11; // máximo para celular (DDD 2 dígitos + 9 dígitos)
                         } else {
-                            // Outros países: usar exatamente o tamanho do exemplo (sem margem extra)
-                            maxDigits = exampleDigits.length;
+                            // Outros países: permitir margem de +2 dígitos além do exemplo
+                            // Isso cobre variações entre números fixos e móveis
+                            maxDigits = exampleDigits.length + 2;
                         }
                     }
                 } catch (e) {
@@ -571,9 +572,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     const expectedLength = exampleDigits.length;
 
                     // Permitir variação mínima (alguns países têm números de tamanhos diferentes)
-                    // Mas não permitir números excessivamente longos
+                    // Margem de +2 dígitos além do exemplo para cobrir variações
                     const minLength = Math.max(6, expectedLength - 2);
-                    const maxLength = expectedLength; // Não permitir mais dígitos que o exemplo
+                    const maxLength = expectedLength + 2; // Permitir até 2 dígitos a mais que o exemplo
 
                     if (digitsOnly.length < minLength) {
                         return { valid: false, message: 'Número muito curto para este país' };
