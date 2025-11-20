@@ -233,6 +233,24 @@ $defaultFlagUrl = country_flag_url($defaultIso);
       width: 260px;
     }
   }
+  @media (max-width: 500px) {
+    #phoneForm .input-group {
+      flex-wrap: wrap;
+    }
+    #phoneForm .input-group-text {
+      flex: 0 0 auto;
+      margin-bottom: 0.5rem;
+    }
+    .country-select-container {
+      flex: 1 1 100%;
+      max-width: 100%;
+      margin-right: 0;
+      margin-bottom: 0.5rem;
+    }
+    #phoneForm #telefone {
+      flex: 1 1 100%;
+    }
+  }
   html.dark-blue .phone-confirm-card,
   html.all-black .phone-confirm-card {
     background: var(--bg-secondary);
