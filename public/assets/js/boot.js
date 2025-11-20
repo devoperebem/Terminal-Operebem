@@ -293,10 +293,10 @@ function cryptoSlugFrom(item) {
       $vlrTarget.text(newText);
       $vlrTd.attr('last', newText || '0');
 
-      // Atualizar tooltip de forma segura (evita desaparecer durante hover)
-      if (pc && $vlrTd[0]) {
-        updateTooltipSafely($vlrTd[0], pc);
-      }
+      // Tooltip removido: agora mostrado apenas pelo ícone de snapshot
+      // if (pc && $vlrTd[0]) {
+      //   updateTooltipSafely($vlrTd[0], pc);
+      // }
 
       // Piscada somente quando o VALOR numérico muda de fato
       const prev = toNumber(oldText);
@@ -489,7 +489,7 @@ function cryptoSlugFrom(item) {
             ${nameHtml}
           </div>
         </td>
-        <td class="text-right vlr_field vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}" data-tooltip="${escapeAttr(item.pc || '')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
+        <td class="text-right vlr_field vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
         <td class="text-right ${classPerc} perc_${itemKey} tooltip-target perc" data-tooltip="${escapeAttr(item.pc || '')}" data-tooltip-color="${colorPerc}" style="font-weight: 900 !important; color: ${colorPerc} !important;">${pDisp}</td>
         <td class="text-right text-muted hr_${itemKey} tooltip-target-left" data-tooltip="${escapeAttr(timeInfo.full)}">${item.last ? escapeAttr(timeInfo.time) : ''}</td>
       </tr>
@@ -529,7 +529,7 @@ function cryptoSlugFrom(item) {
             <span class="tooltip-target" data-tooltip="${escapeAttr(cleanNome)}">${escapeAttr(cleanApelido)}</span>
           </div>
         </td>
-        <td class="text-right vlr_field vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}" data-tooltip="${escapeAttr(item.pc || '')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
+        <td class="text-right vlr_field vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
         <td class="text-right ${classPerc} perc_${itemKey} tooltip-target perc" data-tooltip="${escapeAttr(item.pc || '')}" data-tooltip-color="${colorPerc}" style="font-weight: 900 !important; color: ${colorPerc} !important;">${pDisp}</td>
         <td class="text-right text-muted hr_${itemKey} tooltip-target-left" data-tooltip="${escapeAttr(timeInfo.full)}">${item.last ? escapeAttr(timeInfo.time) : ''}</td>
       </tr>
