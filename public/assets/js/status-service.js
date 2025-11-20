@@ -126,7 +126,8 @@
         el._statusState = {
           isHoveringEl: false,
           isHoveringTip: false,
-          isVisible: false
+          isVisible: false,
+          isPinned: false  // Quando clicado, fica "fixado" até clicar fora
         };
       }
       var state = el._statusState;
@@ -184,9 +185,12 @@
           }catch(_){}
         };
 
-        // Lógica SIMPLES: se não tiver hover em nenhum lugar, esconde
+        // Lógica SIMPLES: se não tiver hover em nenhum lugar E não estiver pinned, esconde
         var checkHide=function(){
           try{
+            // Se estiver pinned (clicado), NÃO esconde mesmo sem hover
+            if(state.isPinned) return;
+
             if(!state.isHoveringEl && !state.isHoveringTip){
               var cur=getInst();
               if(cur){
@@ -200,10 +204,14 @@
         var onEnter=function(){
           try{
             state.isHoveringEl=true;
+            // Se já está aberto e pinned, não fazer nada (deixar pinned)
+            if(state.isVisible && state.isPinned) return;
+
             // Fechar outras tooltips
             closeOthers();
-            // Mostrar esta tooltip imediatamente
+            // Mostrar esta tooltip imediatamente (sem pin no hover)
             state.isVisible = true;
+            state.isPinned = false;  // Hover não fixa
             inst.show();
             if(activeTooltips.indexOf(inst)===-1){activeTooltips.push(inst);}
           }catch(_){ }
@@ -220,16 +228,21 @@
         var onClick=function(e){
           try{
             e.preventDefault();
+            e.stopPropagation();  // Evita propagar para onDocClick
             var cur=getInst();
             if(!cur) return;
             var tip=(cur.getTipElement&&cur.getTipElement());
             var open=!!(tip && tip.classList.contains('show'));
             if(open){
+              // Se já está aberto, fechar e desafixar
               state.isVisible = false;
+              state.isPinned = false;
               cur.hide();
             } else {
+              // Se está fechado, abrir e FIXAR (pinned)
               closeOthers();
               state.isVisible = true;
+              state.isPinned = true;  // Click fixa o tooltip!
               cur.show();
               if(activeTooltips.indexOf(cur)===-1){activeTooltips.push(cur);}
             }
@@ -246,7 +259,7 @@
         el.addEventListener('keydown', onKey);
         el.addEventListener('blur', function(){ try{ state.isHoveringEl=false; setTimeout(checkHide, 100); }catch(_){ } });
 
-        // Clique fora fecha
+        // Clique fora fecha (inclusive se estiver pinned)
         var onDocClick=function(e){
           try{
             var cur=getInst();
@@ -258,13 +271,14 @@
               state.isHoveringEl=false;
               state.isHoveringTip=false;
               state.isVisible = false;
+              state.isPinned = false;  // Desafixar
               cur.hide();
             }
           }catch(_){ }
         };
         document.addEventListener('click', onDocClick, true);
 
-        // Esc fecha
+        // Esc fecha (inclusive se estiver pinned)
         var onEsc=function(e){
           try{
             var cur=getInst();
@@ -273,6 +287,7 @@
               state.isHoveringEl=false;
               state.isHoveringTip=false;
               state.isVisible = false;
+              state.isPinned = false;  // Desafixar
               cur.hide();
             }
           }catch(_){ }
@@ -319,6 +334,7 @@
             state.isHoveringEl=false;
             state.isHoveringTip=false;
             state.isVisible = false;
+            state.isPinned = false;  // Sempre desafixar ao esconder
           }catch(_){ }
         });
       }
