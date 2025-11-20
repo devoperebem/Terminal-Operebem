@@ -1,7 +1,7 @@
 <?php
 ?>
 <div class="container py-4">
-  <h1 class="mb-4">Integração Aluno</h1>
+  <h1 class="mb-4"><i class="fas fa-chart-line me-2"></i>Integração Aluno</h1>
   <?php if (!empty($error)): ?>
     <div class="alert alert-danger">Falha na conexão com o banco do Aluno: <?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
   <?php elseif (!empty($ok)): ?>

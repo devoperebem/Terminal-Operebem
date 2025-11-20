@@ -6,8 +6,8 @@ $meta = $meta ?? ['created'=>0,'updated'=>0,'course_id'=>0];
 ?>
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="h4 mb-0 d-flex align-items-center gap-2">Aluno · Bunny Tools</h1>
-    <a href="/secure/adm/aluno/courses" class="btn btn-outline-secondary btn-sm">Voltar</a>
+    <h1 class="h4 mb-0 d-flex align-items-center gap-2"><i class="fas fa-video"></i> Aluno · Bunny Tools</h1>
+    <a href="/secure/adm/aluno/courses" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
   </div>
   <?php if ($ok): ?>
     <div class="alert alert-success">

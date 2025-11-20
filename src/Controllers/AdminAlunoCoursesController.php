@@ -58,12 +58,12 @@ class AdminAlunoCoursesController extends BaseController
 
     public function store(): void
     {
-        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); }
+        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); return; }
         $title = trim((string)($_POST['title'] ?? ''));
         $desc = (string)($_POST['description'] ?? '');
         $isFree = isset($_POST['is_free']) && in_array($_POST['is_free'], ['1','on','true'], true);
         $price = (int)($_POST['price_cents'] ?? 0);
-        if ($title === '') { $this->redirect('/secure/adm/aluno/courses?err=title'); }
+        if ($title === '') { $this->redirect('/secure/adm/aluno/courses?err=title'); return; }
         try {
             Database::insert('courses', [
                 'title' => $title,
@@ -72,22 +72,24 @@ class AdminAlunoCoursesController extends BaseController
                 'price_cents' => $price,
                 'created_at' => date('Y-m-d H:i:s')
             ], 'aluno');
+            $_SESSION['flash_success'] = 'Curso criado com sucesso!';
         } catch (\Throwable $e) {
             try { Application::getInstance()->logger()->error('Aluno course store fail: '.$e->getMessage()); } catch (\Throwable $__) {}
+            $_SESSION['flash_error'] = 'Erro ao criar curso. Tente novamente.';
         }
         $this->redirect('/secure/adm/aluno/courses');
     }
 
     public function update(): void
     {
-        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); }
+        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); return; }
         $id = (int)($_POST['id'] ?? 0);
-        if ($id <= 0) { $this->redirect('/secure/adm/aluno/courses'); }
+        if ($id <= 0) { $this->redirect('/secure/adm/aluno/courses'); return; }
         $title = trim((string)($_POST['title'] ?? ''));
         $desc = (string)($_POST['description'] ?? '');
         $isFree = isset($_POST['is_free']) && in_array($_POST['is_free'], ['1','on','true'], true);
         $price = (int)($_POST['price_cents'] ?? 0);
-        if ($title === '') { $this->redirect('/secure/adm/aluno/courses?err=title'); }
+        if ($title === '') { $this->redirect('/secure/adm/aluno/courses?err=title'); return; }
         try {
             Database::update('courses', [
                 'title' => $title,
@@ -95,8 +97,10 @@ class AdminAlunoCoursesController extends BaseController
                 'is_free' => $isFree,
                 'price_cents' => $price
             ], [ 'id' => $id ], 'aluno');
+            $_SESSION['flash_success'] = 'Curso atualizado com sucesso!';
         } catch (\Throwable $e) {
             try { Application::getInstance()->logger()->error('Aluno course update fail: '.$e->getMessage()); } catch (\Throwable $__) {}
+            $_SESSION['flash_error'] = 'Erro ao atualizar curso. Tente novamente.';
         }
         $this->redirect('/secure/adm/aluno/courses');
     }
@@ -125,6 +129,24 @@ class AdminAlunoCoursesController extends BaseController
             } catch (\Throwable $__) {
                 try { Database::rollback('aluno'); } catch (\Throwable $___) {}
             }
+        }
+        $this->redirect('/secure/adm/aluno/courses');
+    }
+
+    public function delete(): void
+    {
+        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); return; }
+        $id = (int)($_POST['id'] ?? 0);
+        if ($id <= 0) { $this->redirect('/secure/adm/aluno/courses'); return; }
+        try {
+            // Delete lessons first (foreign key constraint)
+            Database::query('DELETE FROM lessons WHERE course_id = :id', ['id' => $id], 'aluno');
+            // Delete course
+            Database::query('DELETE FROM courses WHERE id = :id', ['id' => $id], 'aluno');
+            $_SESSION['flash_success'] = 'Curso excluído com sucesso!';
+        } catch (\Throwable $e) {
+            try { Application::getInstance()->logger()->error('Aluno course delete fail: '.$e->getMessage()); } catch (\Throwable $__) {}
+            $_SESSION['flash_error'] = 'Erro ao excluir curso. Tente novamente.';
         }
         $this->redirect('/secure/adm/aluno/courses');
     }

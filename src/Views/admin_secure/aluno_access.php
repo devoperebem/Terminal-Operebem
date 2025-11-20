@@ -3,8 +3,8 @@ ob_start();
 ?>
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="h4 mb-0 d-flex align-items-center gap-2">Acessos (Aluno)</h1>
-    <a href="/secure/adm/index" class="btn btn-outline-secondary btn-sm">Voltar</a>
+    <h1 class="h4 mb-0 d-flex align-items-center gap-2"><i class="fas fa-key"></i> Acessos (Aluno)</h1>
+    <a href="/secure/adm/index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
   </div>
 
   <div class="row g-3">

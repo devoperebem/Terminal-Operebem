@@ -6,13 +6,13 @@ $page = (int)($page ?? 1);
 ?>
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="h4 mb-0 d-flex align-items-center gap-2">Matrículas (Aluno)</h1>
-    <a href="/secure/adm/aluno/courses" class="btn btn-outline-secondary btn-sm">Voltar</a>
+    <h1 class="h4 mb-0 d-flex align-items-center gap-2"><i class="fas fa-users"></i> Matrículas (Aluno)</h1>
+    <a href="/secure/adm/aluno/courses" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
   </div>
   <form method="get" class="mb-3">
     <div class="input-group">
       <input type="text" name="q" class="form-control" placeholder="Buscar por email, nome, ID de usuário ou título do curso" value="<?= htmlspecialchars($q) ?>"/>
-      <button class="btn btn-outline-secondary" type="submit"></button>
+      <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
     </div>
   </form>
   <div class="card">
