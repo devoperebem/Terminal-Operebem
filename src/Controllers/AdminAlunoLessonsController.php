@@ -63,7 +63,7 @@ class AdminAlunoLessonsController extends BaseController
     public function store(): void
     {
         $this->ensureSchema();
-        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); }
+        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); return; }
         $courseId = (int)($_POST['course_id'] ?? 0);
         $title = trim((string)($_POST['title'] ?? ''));
         $desc = (string)($_POST['description'] ?? '');
@@ -75,24 +75,37 @@ class AdminAlunoLessonsController extends BaseController
         $isFree = in_array(($_POST['is_free_preview'] ?? ''), ['1','on','true'], true);
         $isEnabled = in_array(($_POST['is_enabled'] ?? ''), ['1','on','true'], true);
         $playerOpts = trim((string)($_POST['player_options'] ?? ''));
-        if ($courseId <= 0 || $title === '' || $bvid === '') { $this->redirect('/secure/adm/aluno/courses'); }
-        $pos = $position > 0 ? $position : 999999;
-        Database::query('INSERT INTO lessons (course_id, title, description, position, bunny_video_id, duration_seconds, thumbnail_url, preview_animation_url, is_free_preview, is_enabled, player_options, created_at, updated_at)
-                         VALUES (:c,:t,:d,:p,:vid,:dur,:th,:pa,:free,:en, :opts, NOW(), NOW())', [
-            'c'=>$courseId,'t'=>$title,'d'=>$desc,'p'=>$pos,'vid'=>$bvid,'dur'=>$dur ?: null,'th'=>$thumb ?: null,'pa'=>$previewAnim ?: null,'free'=>$isFree ? 'true':'false','en'=>$isEnabled ? 'true':'false','opts'=>$playerOpts !== '' ? $playerOpts : null
-        ], 'aluno');
-        // Normalize positions sequentially
-        Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn, updated_at = NOW() FROM ordered o WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+        if ($courseId <= 0 || $title === '' || $bvid === '') {
+            $_SESSION['flash_error'] = 'Dados inválidos. Verifique o formulário.';
+            $this->redirect('/secure/adm/aluno/courses');
+            return;
+        }
+        try {
+            $pos = $position > 0 ? $position : 999999;
+            Database::query('INSERT INTO lessons (course_id, title, description, position, bunny_video_id, duration_seconds, thumbnail_url, preview_animation_url, is_free_preview, is_enabled, player_options, created_at, updated_at)
+                             VALUES (:c,:t,:d,:p,:vid,:dur,:th,:pa,:free,:en, :opts, NOW(), NOW())', [
+                'c'=>$courseId,'t'=>$title,'d'=>$desc,'p'=>$pos,'vid'=>$bvid,'dur'=>$dur ?: null,'th'=>$thumb ?: null,'pa'=>$previewAnim ?: null,'free'=>$isFree ? 'true':'false','en'=>$isEnabled ? 'true':'false','opts'=>$playerOpts !== '' ? $playerOpts : null
+            ], 'aluno');
+            // Normalize positions sequentially
+            Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn, updated_at = NOW() FROM ordered o WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+            $_SESSION['flash_success'] = 'Aula criada com sucesso!';
+        } catch (\Throwable $e) {
+            $_SESSION['flash_error'] = 'Erro ao criar aula. Tente novamente.';
+        }
         $this->redirect('/secure/adm/aluno/lessons?course_id=' . $courseId);
     }
 
     public function update(): void
     {
         $this->ensureSchema();
-        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); }
+        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); return; }
         $id = (int)($_POST['id'] ?? 0);
         $courseId = (int)($_POST['course_id'] ?? 0);
-        if ($id <= 0 || $courseId <= 0) { $this->redirect('/secure/adm/aluno/courses'); }
+        if ($id <= 0 || $courseId <= 0) {
+            $_SESSION['flash_error'] = 'ID inválido.';
+            $this->redirect('/secure/adm/aluno/courses');
+            return;
+        }
         $title = trim((string)($_POST['title'] ?? ''));
         $desc = (string)($_POST['description'] ?? '');
         $position = (int)($_POST['position'] ?? 0);
@@ -103,26 +116,44 @@ class AdminAlunoLessonsController extends BaseController
         $isFree = in_array(($_POST['is_free_preview'] ?? ''), ['1','on','true'], true);
         $isEnabled = in_array(($_POST['is_enabled'] ?? ''), ['1','on','true'], true);
         $playerOpts = trim((string)($_POST['player_options'] ?? ''));
-        if ($title === '' || $bvid === '') { $this->redirect('/secure/adm/aluno/lessons?course_id=' . $courseId); }
-        $pos = $position > 0 ? $position : 999999;
-        Database::query('UPDATE lessons SET title=:t, description=:d, position=:p, bunny_video_id=:vid, duration_seconds=:dur, thumbnail_url=:th, preview_animation_url=:pa, is_free_preview=:free, is_enabled=:en, player_options=:opts, updated_at=NOW() WHERE id=:id AND course_id=:c', [
-            't'=>$title,'d'=>$desc,'p'=>$pos,'vid'=>$bvid,'dur'=>$dur ?: null,'th'=>$thumb ?: null,'pa'=>$previewAnim ?: null,'free'=>$isFree ? 'true':'false','en'=>$isEnabled ? 'true':'false','opts'=>$playerOpts !== '' ? $playerOpts : null,'id'=>$id,'c'=>$courseId
-        ], 'aluno');
-        // Keep only one preview? If is_free_preview true, ensure others false
-        if ($isFree) {
-            Database::query('UPDATE lessons SET is_free_preview = false WHERE course_id = :c AND id <> :id', ['c'=>$courseId,'id'=>$id], 'aluno');
+        if ($title === '' || $bvid === '') {
+            $_SESSION['flash_error'] = 'Título e Video ID são obrigatórios.';
+            $this->redirect('/secure/adm/aluno/lessons?course_id=' . $courseId);
+            return;
         }
-        Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+        try {
+            $pos = $position > 0 ? $position : 999999;
+            Database::query('UPDATE lessons SET title=:t, description=:d, position=:p, bunny_video_id=:vid, duration_seconds=:dur, thumbnail_url=:th, preview_animation_url=:pa, is_free_preview=:free, is_enabled=:en, player_options=:opts, updated_at=NOW() WHERE id=:id AND course_id=:c', [
+                't'=>$title,'d'=>$desc,'p'=>$pos,'vid'=>$bvid,'dur'=>$dur ?: null,'th'=>$thumb ?: null,'pa'=>$previewAnim ?: null,'free'=>$isFree ? 'true':'false','en'=>$isEnabled ? 'true':'false','opts'=>$playerOpts !== '' ? $playerOpts : null,'id'=>$id,'c'=>$courseId
+            ], 'aluno');
+            // Keep only one preview? If is_free_preview true, ensure others false
+            if ($isFree) {
+                Database::query('UPDATE lessons SET is_free_preview = false WHERE course_id = :c AND id <> :id', ['c'=>$courseId,'id'=>$id], 'aluno');
+            }
+            Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+            $_SESSION['flash_success'] = 'Aula atualizada com sucesso!';
+        } catch (\Throwable $e) {
+            $_SESSION['flash_error'] = 'Erro ao atualizar aula. Tente novamente.';
+        }
         $this->redirect('/secure/adm/aluno/lessons?course_id=' . $courseId);
     }
 
     public function delete(): void
     {
-        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); }
+        if (!$this->validateCsrf()) { $this->redirect('/secure/adm/aluno/courses'); return; }
         $id = (int)($_POST['id'] ?? 0);
         $courseId = (int)($_POST['course_id'] ?? 0);
-        if ($id > 0) { Database::query('DELETE FROM lessons WHERE id = :id', ['id'=>$id], 'aluno'); }
-        if ($courseId > 0) { Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn WHERE l.id = o.id', ['c'=>$courseId], 'aluno'); }
+        try {
+            if ($id > 0) {
+                Database::query('DELETE FROM lessons WHERE id = :id', ['id'=>$id], 'aluno');
+                $_SESSION['flash_success'] = 'Aula excluída com sucesso!';
+            }
+            if ($courseId > 0) {
+                Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+            }
+        } catch (\Throwable $e) {
+            $_SESSION['flash_error'] = 'Erro ao excluir aula. Tente novamente.';
+        }
         $this->redirect('/secure/adm/aluno/lessons?course_id=' . max(0,$courseId));
     }
 

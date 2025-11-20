@@ -209,6 +209,7 @@ $router->get('/secure/adm/aluno/courses/edit', [AdminAlunoCoursesController::cla
 $router->post('/secure/adm/aluno/courses/store', [AdminAlunoCoursesController::class, 'store'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/secure/adm/aluno/courses/update', [AdminAlunoCoursesController::class, 'update'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/secure/adm/aluno/courses/move', [AdminAlunoCoursesController::class, 'move'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/courses/delete', [AdminAlunoCoursesController::class, 'delete'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 // Secure Admin - Aluno: Acessos (grants por curso/aula)
 $router->get('/secure/adm/aluno/access', [AdminAlunoAccessController::class, 'index'], [SecureAdminMiddleware::class]);
 $router->post('/secure/adm/aluno/access/grant-course', [AdminAlunoAccessController::class, 'grantCourse'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
