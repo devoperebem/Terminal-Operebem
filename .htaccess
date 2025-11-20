@@ -1,0 +1,141 @@
+RewriteEngine On
+
+# Disable directory listing (security)
+Options -Indexes
+
+# Redirecionar para HTTPS (considerando proxies/CDN)
+# - Somente quando HTTPS não estiver ativo localmente E o header X-Forwarded-Proto não indicar https
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [OR]
+RewriteCond %{HTTP:X-Forwarded-Proto} ^$
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 1) Normalização: /index ou /index.php -> /
+RewriteRule ^index(?:\.php)?$ / [L,R=301]
+
+# 2) Evitar exposição do prefixo /public na URL
+#    Redireciona para remover /public APENAS quando o cliente solicitou explicitamente (THE_REQUEST)
+RewriteCond %{THE_REQUEST} \s/public/ [NC]
+RewriteRule ^public/?(.*)$ /$1 [L,R=301]
+
+# 2.1) Mapear SOMENTE assets e arquivos raiz comuns para a pasta public (sem expor /public)
+#      Usar caminhos relativos ao contexto do diretório para melhor compatibilidade
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+RewriteRule ^widgets/(.*)$ public/widgets/$1 [L]
+RewriteRule ^(favicon\.ico|robots\.txt|sitemap\.xml)$ public/$1 [L]
+
+# 3) Front controller: encaminhar tudo (que não for arquivo/pasta) para public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ public/index.php [L]
+
+# Segurança - Bloquear acesso a arquivos sensíveis
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ".env.local">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.lock">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<FilesMatch "\.md$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.sql$">
+    Require all denied
+</FilesMatch>
+
+# Block other sensitive file types
+<FilesMatch "\.(ini|log|sh|bak|old|swp|cfg|conf|yml|yaml|toml|lock)$">
+    Require all denied
+</FilesMatch>
+
+# Bloquear acesso a diretórios sensíveis pela raiz (document root)
+RedirectMatch 403 ^/vendor/.*$
+RedirectMatch 403 ^/storage/.*$
+RedirectMatch 403 ^/database/.*$
+RedirectMatch 403 ^/config/.*$
+
+# Headers de Segurança
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # HSTS (apenas quando sob HTTPS)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
+    # Additional hardening headers
+    Header always set X-Permitted-Cross-Domain-Policies "none"
+    Header always set X-Download-Options "noopen"
+</IfModule>
+
+# GZIP Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/xml application/rss+xml image/svg+xml
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+    Header append Vary User-Agent env=!dont-vary
+</IfModule>
+
+# Cache para assets estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 week"
+    
+    # CSS e JavaScript
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    
+    # Imagens
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # Fontes
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    
+    # Outros
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType application/json "access plus 0 seconds"
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Cache-Control headers
+<IfModule mod_headers.c>
+    # Versioned assets (com ?v= na URL) podem ter cache longo
+    <FilesMatch "\.(css|js|jpg|jpeg|png|gif|webp|svg|woff|woff2|ttf|otf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
+    # HTML sem cache
+    <FilesMatch "\.(html|htm|php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+    </FilesMatch>
+</IfModule>

@@ -1,0 +1,21 @@
+/* Light Theme Variables and Overrides */
+html.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --card-bg: #ffffff;
+  --hero-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Hero (light) */
+html.light .hero-section {
+  background: var(--hero-bg);
+}
+
+/* Media badge neutral color in light */
+html.light .media-percentage.neutral { color: #6c757d; border-color: rgba(108,117,125,0.3); }
+
+/* Public header hover colors on light */
+html.light .modern-header .nav-link:hover { background: rgba(30,64,175,0.08); }

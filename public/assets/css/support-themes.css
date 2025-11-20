@@ -1,0 +1,306 @@
+/**
+ * Support Page - Theme Responsiveness
+ * Terminal Operebem
+ */
+
+/* ==================== DARK BLUE THEME ==================== */
+.dark-blue .modern-header {
+    background: #1a1b1e;
+    border-bottom: 1px solid #2d2e30;
+}
+
+.dark-blue .navbar-brand .brand-text {
+    color: #e4e6eb;
+}
+
+.dark-blue .nav-link {
+    color: #b8b9ba !important;
+}
+
+.dark-blue .nav-link:hover {
+    color: #0d84ff !important;
+}
+
+.dark-blue .card {
+    background: #242526;
+    border-color: #3a3b3c;
+    color: #e4e6eb;
+}
+
+.dark-blue .card-title {
+    color: #e4e6eb;
+}
+
+.dark-blue .text-muted {
+    color: #b8b9ba !important;
+}
+
+.dark-blue .text-secondary {
+    color: #b8b9ba !important;
+}
+
+.dark-blue .form-control {
+    background: #3a3b3c;
+    border-color: #4e4f50;
+    color: #e4e6eb;
+}
+
+.dark-blue .form-control:focus {
+    background: #3a3b3c;
+    border-color: #0d84ff;
+    color: #e4e6eb;
+}
+
+.dark-blue .form-select {
+    background: #3a3b3c;
+    border-color: #4e4f50;
+    color: #e4e6eb;
+}
+
+.dark-blue .form-select:focus {
+    background: #3a3b3c;
+    border-color: #0d84ff;
+    color: #e4e6eb;
+}
+
+.dark-blue textarea.form-control {
+    background: #3a3b3c;
+    border-color: #4e4f50;
+    color: #e4e6eb;
+}
+
+.dark-blue .form-label {
+    color: #e4e6eb;
+}
+
+.dark-blue .accordion-item {
+    background: #2d2e30;
+    border-color: #3a3b3c;
+}
+
+.dark-blue .accordion-button {
+    background: #2d2e30;
+    color: #e4e6eb;
+}
+
+.dark-blue .accordion-button:not(.collapsed) {
+    background: #1a1b1e;
+    color: #0d84ff;
+}
+
+.dark-blue .accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 132, 255, 0.25);
+}
+
+.dark-blue .accordion-body {
+    background: #242526;
+    color: #b8b9ba;
+}
+
+.dark-blue .alert-success {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.3);
+    color: #81c784;
+}
+
+.dark-blue .alert-danger {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: rgba(244, 67, 54, 0.3);
+    color: #e57373;
+}
+
+.dark-blue .border {
+    border-color: #3a3b3c !important;
+}
+
+.dark-blue code {
+    background: #3a3b3c;
+    color: #0d84ff;
+}
+
+/* ==================== ALL BLACK THEME ==================== */
+.all-black .modern-header {
+    background: #000000;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.all-black .navbar-brand .brand-text {
+    color: #ffffff;
+}
+
+.all-black .nav-link {
+    color: #b8b8b8 !important;
+}
+
+.all-black .nav-link:hover {
+    color: #0d84ff !important;
+}
+
+.all-black .card {
+    background: #0a0a0a;
+    border-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.all-black .card-title {
+    color: #ffffff;
+}
+
+.all-black .text-muted {
+    color: #b8b8b8 !important;
+}
+
+.all-black .text-secondary {
+    color: #b8b8b8 !important;
+}
+
+.all-black .form-control {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+    color: #ffffff;
+}
+
+.all-black .form-control:focus {
+    background: #1a1a1a;
+    border-color: #0d84ff;
+    color: #ffffff;
+}
+
+.all-black .form-select {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+    color: #ffffff;
+}
+
+.all-black .form-select:focus {
+    background: #1a1a1a;
+    border-color: #0d84ff;
+    color: #ffffff;
+}
+
+.all-black textarea.form-control {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+    color: #ffffff;
+}
+
+.all-black .form-label {
+    color: #ffffff;
+}
+
+.all-black .accordion-item {
+    background: #0f0f0f;
+    border-color: #1a1a1a;
+}
+
+.all-black .accordion-button {
+    background: #0f0f0f;
+    color: #ffffff;
+}
+
+.all-black .accordion-button:not(.collapsed) {
+    background: #000000;
+    color: #0d84ff;
+}
+
+.all-black .accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 132, 255, 0.25);
+}
+
+.all-black .accordion-body {
+    background: #0a0a0a;
+    color: #b8b8b8;
+}
+
+.all-black .alert-success {
+    background: rgba(76, 175, 80, 0.15);
+    border-color: rgba(76, 175, 80, 0.4);
+    color: #81c784;
+}
+
+.all-black .alert-danger {
+    background: rgba(244, 67, 54, 0.15);
+    border-color: rgba(244, 67, 54, 0.4);
+    color: #e57373;
+}
+
+.all-black .border {
+    border-color: #1a1a1a !important;
+}
+
+.all-black code {
+    background: #1a1a1a;
+    color: #0d84ff;
+}
+
+/* ==================== COMMON DARK THEMES ==================== */
+.dark-blue h1,
+.dark-blue h2,
+.dark-blue h3,
+.dark-blue h4,
+.dark-blue h5,
+.dark-blue h6,
+.all-black h1,
+.all-black h2,
+.all-black h3,
+.all-black h4,
+.all-black h5,
+.all-black h6 {
+    color: #ffffff;
+}
+
+/* Btn outline responsivo */
+.dark-blue .btn-outline-primary,
+.all-black .btn-outline-primary {
+    color: #0d84ff;
+    border-color: #0d84ff;
+}
+
+.dark-blue .btn-outline-primary:hover,
+.all-black .btn-outline-primary:hover {
+    background: #0d84ff;
+    color: #ffffff;
+}
+
+/* Success button já tem cor própria, mas garantir contraste */
+.dark-blue .btn-success,
+.all-black .btn-success {
+    background: #25d366;
+    border-color: #25d366;
+    color: #000000;
+}
+
+.dark-blue .btn-success:hover,
+.all-black .btn-success:hover {
+    background: #20ba5a;
+    border-color: #20ba5a;
+}
+
+/* Badge status */
+.dark-blue .badge,
+.all-black .badge {
+    border: 1px solid currentColor;
+}
+
+/* Meus Tickets - responsividade */
+.dark-blue .fw-semibold,
+.all-black .fw-semibold {
+    color: #ffffff;
+}
+
+/* Admin tickets - responsividade */
+.dark-blue .small,
+.all-black .small {
+    color: #b8b8b8;
+}
+
+/* Forms validation feedback */
+.dark-blue .invalid-feedback,
+.all-black .invalid-feedback {
+    color: #e57373;
+}
+
+.dark-blue .valid-feedback,
+.all-black .valid-feedback {
+    color: #81c784;
+}

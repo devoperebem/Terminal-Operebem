@@ -1,0 +1,21 @@
+<?php
+
+// Copie este arquivo para config/admin.php no servidor (Hostinger) e edite os valores.
+// Opção recomendada: mantenha SOMENTE o password_hash (não a senha em texto puro).
+
+return [
+    'default' => [
+        // Usuário padrão
+        'username' => '*AdmUserSuper1324576890*ç~£¬',
+
+        // Opção A (recomendada): usar hash Argon2id da senha (NÃO deixar a senha em texto puro).
+        // Gere um hash em um script temporário:  
+        //   <?php echo password_hash('AdmPass1324Forte576890ç~£¬', PASSWORD_ARGON2ID);  
+        // Depois substitua abaixo e apague o script.
+        'password_hash' => '',
+
+        // Opção B: (alternativa) usar senha em texto puro.  
+        // OBS: se password_hash estiver preenchido, esta chave é ignorada.
+        // 'password' => 'AdmPass1324Forte576890ç~£¬',
+    ],
+];
