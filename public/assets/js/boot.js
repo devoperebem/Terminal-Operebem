@@ -213,6 +213,65 @@
     try { return String(val).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); } catch(_) { return ''; }
   }
 
+  /**
+   * Atualiza o tooltip de um elemento de forma segura:
+   * - Se o tooltip estiver visível, atualiza apenas o conteúdo interno (evita destruí-lo durante hover)
+   * - Se o tooltip não estiver visível, destrói e recria com o novo conteúdo
+   * - Segue o mesmo padrão da correção implementada em snapshot.js
+   */
+  function updateTooltipSafely(element, newTooltipText) {
+    if (!element || !newTooltipText) return;
+
+    try {
+      // Atualizar o atributo data-tooltip para referência
+      element.setAttribute('data-tooltip', newTooltipText);
+      element.setAttribute('title', newTooltipText);
+
+      // Tentar obter a instância existente do Bootstrap Tooltip
+      const inst = bootstrap.Tooltip.getInstance(element);
+
+      if (inst) {
+        // Verificar se o tooltip está visível no momento
+        let tipEl = null, isOpen = false;
+        try {
+          tipEl = (inst.getTipElement && inst.getTipElement());
+          isOpen = !!(tipEl && tipEl.classList.contains('show'));
+        } catch(_) {}
+
+        if (isOpen) {
+          // TOOLTIP VISÍVEL: Apenas atualizar o conteúdo interno sem destruir
+          try {
+            const inner = tipEl.querySelector('.tooltip-inner');
+            if (inner) inner.textContent = newTooltipText;
+          } catch(_) {}
+        } else {
+          // TOOLTIP NÃO VISÍVEL: Seguro destruir e recriar com novo conteúdo
+          try {
+            inst.dispose();
+          } catch(_) {}
+
+          // Recriar tooltip com novo conteúdo
+          if (window.bootstrap && bootstrap.Tooltip) {
+            new bootstrap.Tooltip(element, {
+              container: 'body',
+              boundary: 'viewport'
+            });
+          }
+        }
+      } else {
+        // Não há instância existente: criar nova
+        if (window.bootstrap && bootstrap.Tooltip) {
+          new bootstrap.Tooltip(element, {
+            container: 'body',
+            boundary: 'viewport'
+          });
+        }
+      }
+    } catch(e) {
+      console.error('Erro ao atualizar tooltip:', e);
+    }
+  }
+
   // Atualiza valores já renderizados
   function updateUIValues(id_api, last, pc, pcp, timestamp, status_mercado, status_hr) {
     if (!id_api) return;
@@ -233,7 +292,11 @@
       // Atualizar texto e atributos
       $vlrTarget.text(newText);
       $vlrTd.attr('last', newText || '0');
-      $vlrTd.attr('data-tooltip', pc || ''); // tooltip original com variação absoluta
+
+      // Atualizar tooltip de forma segura (evita desaparecer durante hover)
+      if (pc && $vlrTd[0]) {
+        updateTooltipSafely($vlrTd[0], pc);
+      }
 
       // Piscada somente quando o VALOR numérico muda de fato
       const prev = toNumber(oldText);
@@ -259,7 +322,12 @@
       const disp = (newNum !== null && Number.isFinite(newNum)) ? `${newNum.toFixed(2)}%` : rawP;
       const oldNum = toNumber(($perc.text() || '').toString());
       if (disp) $perc.text(disp);
-      // tooltip original do percentual permanece inalterada
+
+      // Atualizar tooltip de forma segura (evita desaparecer durante hover)
+      if (pc && $perc[0]) {
+        updateTooltipSafely($perc[0], pc);
+      }
+
       // Atualizar classes sempre que houver número válido; do contrário, mantém classes e cor atuais
       if (newNum !== null && Number.isFinite(newNum)) {
         $perc.removeClass('text-danger text-success text-neutral text-success-alt');
@@ -304,7 +372,11 @@
     if ($hr.length) {
       const { time, full } = formatTimeFromTimestamp(timestamp);
       $hr.text(last ? time : '');
-      if (full) $hr.attr('data-tooltip', full);
+
+      // Atualizar tooltip de forma segura (evita desaparecer durante hover)
+      if (full && $hr[0]) {
+        updateTooltipSafely($hr[0], full);
+      }
     }
 
     // Notificar listeners (ex.: snapshot) que a linha foi atualizada
