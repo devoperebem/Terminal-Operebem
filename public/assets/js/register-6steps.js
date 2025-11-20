@@ -303,26 +303,13 @@ document.addEventListener("DOMContentLoaded", function() {
         try {
             // Obter o número máximo de DÍGITOS permitido para o país
             let maxDigits = 15; // padrão internacional
-            if (phoneExampleData) {
-                try {
-                    const example = window.libphonenumber.getExampleNumber(iso, phoneExampleData);
-                    if (example) {
-                        const exampleNumber = String(example.nationalNumber || '');
-                        const exampleDigits = exampleNumber.replace(/\D/g, '');
 
-                        // Para Brasil: limite estrito de 11 dígitos (DDD + número)
-                        if (iso === 'BR') {
-                            maxDigits = 11; // máximo para celular (DDD 2 dígitos + 9 dígitos)
-                        } else {
-                            // Outros países: permitir margem de +2 dígitos além do exemplo
-                            // Isso cobre variações entre números fixos e móveis
-                            maxDigits = exampleDigits.length + 2;
-                        }
-                    }
-                } catch (e) {
-                    console.warn('Erro ao obter exemplo:', e);
-                }
+            // Para Brasil: limite estrito de 11 dígitos (DDD + número)
+            if (iso === 'BR') {
+                maxDigits = 11; // máximo para celular (DDD 2 dígitos + 9 dígitos)
             }
+            // Para outros países: usar limite padrão de 15 dígitos
+            // A validação real do tamanho será feita pela biblioteca libphonenumber
 
             // Extrair apenas os dígitos do valor atual
             const digitsOnly = value.replace(/\D/g, '');
@@ -557,42 +544,17 @@ document.addEventListener("DOMContentLoaded", function() {
         const nationalNumber = String(parsed.nationalNumber);
         const digitsOnly = nationalNumber.replace(/\D/g, '');
 
-        // Verificar tamanho mínimo
+        // Verificar tamanho mínimo e máximo (validação básica)
         if (digitsOnly.length < 6) {
             return { valid: false, message: 'Número muito curto para este país' };
         }
 
-        // Obter o tamanho esperado baseado no exemplo do país
-        if (window.libphonenumber && phoneExampleData && iso) {
-            try {
-                const example = window.libphonenumber.getExampleNumber(iso, phoneExampleData);
-                if (example) {
-                    const exampleNumber = String(example.nationalNumber || '');
-                    const exampleDigits = exampleNumber.replace(/\D/g, '');
-                    const expectedLength = exampleDigits.length;
-
-                    // Permitir variação mínima (alguns países têm números de tamanhos diferentes)
-                    // Margem de +2 dígitos além do exemplo para cobrir variações
-                    const minLength = Math.max(6, expectedLength - 2);
-                    const maxLength = expectedLength + 2; // Permitir até 2 dígitos a mais que o exemplo
-
-                    if (digitsOnly.length < minLength) {
-                        return { valid: false, message: 'Número muito curto para este país' };
-                    }
-
-                    if (digitsOnly.length > maxLength) {
-                        return { valid: false, message: `Número muito longo. Este país aceita no máximo ${maxLength} dígitos` };
-                    }
-                }
-            } catch (error) {
-                console.warn('Erro ao validar comprimento:', error);
-            }
-        } else {
-            // Fallback: validação genérica se não tiver biblioteca
-            if (digitsOnly.length > 15) {
-                return { valid: false, message: 'Número muito longo' };
-            }
+        if (digitsOnly.length > 15) {
+            return { valid: false, message: 'Número muito longo' };
         }
+
+        // A validação específica do tamanho por país é feita pela biblioteca libphonenumber
+        // através do método isValid(), não precisamos validar manualmente
 
         return { valid: true };
     }
