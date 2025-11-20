@@ -176,6 +176,14 @@ $defaultFlagUrl = country_flag_url($defaultIso);
   .country-select-search input {
     width: 100%;
   }
+  body[data-theme='dark'] .country-select-search input {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  body[data-theme='dark'] .country-select-search input::placeholder {
+    color: #9ca3af;
+  }
   .country-select-options {
     max-height: 260px;
     overflow-y: auto;
