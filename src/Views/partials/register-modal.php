@@ -102,8 +102,12 @@ $defaultFlagUrl = country_flag_url($defaultIso);
   .register-back-btn {
     filter: invert(0);
   }
-  body[data-theme='dark'] .register-close-btn,
-  body[data-theme='dark'] .register-back-btn {
+  html.dark .register-close-btn,
+  html.dark-blue .register-close-btn,
+  html.all-black .register-close-btn,
+  html.dark .register-back-btn,
+  html.dark-blue .register-back-btn,
+  html.all-black .register-back-btn {
     filter: invert(1);
   }
   .register-back-btn {
@@ -140,7 +144,9 @@ $defaultFlagUrl = country_flag_url($defaultIso);
     gap: 0.5rem;
     height: 100%;
   }
-  body[data-theme='dark'] .country-select-toggle {
+  html.dark .country-select-toggle,
+  html.dark-blue .country-select-toggle,
+  html.all-black .country-select-toggle {
     background: #1f2937;
     border-color: #374151;
     color: #f9fafb;
@@ -168,7 +174,9 @@ $defaultFlagUrl = country_flag_url($defaultIso);
     z-index: 30;
     padding: 1rem;
   }
-  body[data-theme='dark'] .country-select-dropdown {
+  html.dark .country-select-dropdown,
+  html.dark-blue .country-select-dropdown,
+  html.all-black .country-select-dropdown {
     background: #111827;
     color: #f3f4f6;
     box-shadow: 0 20px 35px rgba(0,0,0,0.6);
@@ -176,12 +184,16 @@ $defaultFlagUrl = country_flag_url($defaultIso);
   .country-select-search input {
     width: 100%;
   }
-  body[data-theme='dark'] .country-select-search input {
+  html.dark .country-select-search input,
+  html.dark-blue .country-select-search input,
+  html.all-black .country-select-search input {
     background: #1f2937;
     border-color: #374151;
     color: #f9fafb;
   }
-  body[data-theme='dark'] .country-select-search input::placeholder {
+  html.dark .country-select-search input::placeholder,
+  html.dark-blue .country-select-search input::placeholder,
+  html.all-black .country-select-search input::placeholder {
     color: #9ca3af;
   }
   .country-select-options {
@@ -227,9 +239,58 @@ $defaultFlagUrl = country_flag_url($defaultIso);
       width: 260px;
     }
   }
-  body[data-theme='dark'] .phone-confirm-card {
+  html.dark .phone-confirm-card,
+  html.dark-blue .phone-confirm-card,
+  html.all-black .phone-confirm-card {
     background: #1f2937;
     color: #f9fafb;
+  }
+  html.dark #registerModal .modal-content,
+  html.dark-blue #registerModal .modal-content,
+  html.all-black #registerModal .modal-content {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+  html.dark #registerModal .modal-header,
+  html.dark-blue #registerModal .modal-header,
+  html.all-black #registerModal .modal-header {
+    border-bottom-color: #374151;
+  }
+  html.dark #registerModal .input-group-text,
+  html.dark-blue #registerModal .input-group-text,
+  html.all-black #registerModal .input-group-text {
+    background: #374151;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  html.dark #registerModal .form-control,
+  html.dark-blue #registerModal .form-control,
+  html.all-black #registerModal .form-control {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  html.dark #registerModal .form-control::placeholder,
+  html.dark-blue #registerModal .form-control::placeholder,
+  html.all-black #registerModal .form-control::placeholder {
+    color: #9ca3af;
+  }
+  html.dark #registerModal .form-control:focus,
+  html.dark-blue #registerModal .form-control:focus,
+  html.all-black #registerModal .form-control:focus {
+    background: #1f2937;
+    border-color: #3b82f6;
+    color: #f9fafb;
+  }
+  html.dark #registerModal .text-muted,
+  html.dark-blue #registerModal .text-muted,
+  html.all-black #registerModal .text-muted {
+    color: #9ca3af !important;
+  }
+  html.dark #registerModal .form-text,
+  html.dark-blue #registerModal .form-text,
+  html.all-black #registerModal .form-text {
+    color: #9ca3af;
   }
 </style>
 <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
