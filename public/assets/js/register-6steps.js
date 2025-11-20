@@ -309,8 +309,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (example) {
                         const exampleNumber = String(example.nationalNumber || '');
                         const exampleDigits = exampleNumber.replace(/\D/g, '');
-                        // Permitir até 1 dígito a mais que o exemplo (para variações)
-                        maxDigits = exampleDigits.length + 1;
+
+                        // Para Brasil: limite estrito de 11 dígitos (DDD + número)
+                        if (iso === 'BR') {
+                            maxDigits = 11; // máximo para celular (DDD 2 dígitos + 9 dígitos)
+                        } else {
+                            // Outros países: permitir até 1 dígito a mais que o exemplo (para variações)
+                            maxDigits = exampleDigits.length + 1;
+                        }
                     }
                 } catch (e) {
                     console.warn('Erro ao obter exemplo:', e);
@@ -564,16 +570,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     const exampleDigits = exampleNumber.replace(/\D/g, '');
                     const expectedLength = exampleDigits.length;
 
-                    // Permitir até 2 dígitos de diferença (para variações válidas dentro do país)
-                    const minLength = Math.max(6, expectedLength - 1);
-                    const maxLength = expectedLength + 1;
+                    // Permitir variação mínima (alguns países têm números de tamanhos diferentes)
+                    // Mas não permitir números excessivamente longos
+                    const minLength = Math.max(6, expectedLength - 2);
+                    const maxLength = expectedLength; // Não permitir mais dígitos que o exemplo
 
                     if (digitsOnly.length < minLength) {
                         return { valid: false, message: 'Número muito curto para este país' };
                     }
 
                     if (digitsOnly.length > maxLength) {
-                        return { valid: false, message: 'Número muito longo para este país' };
+                        return { valid: false, message: `Número muito longo. Este país aceita no máximo ${maxLength} dígitos` };
                     }
                 }
             } catch (error) {
