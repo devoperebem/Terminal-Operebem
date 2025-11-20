@@ -120,11 +120,10 @@
 
       var html=tipHtml(code,ex);
       var inst = el._statusTip;
-      var wasOpen=false; // sem pinned
+      var wasOpen=false;
       try{ if(inst){ var tipNow=(inst.getTipElement&&inst.getTipElement()); wasOpen=!!(tipNow&&tipNow.classList.contains('show')); } }catch(_){ }
-      // Não persistimos mais 'pinned' globalmente para não abrir em grupo
-      // Descartar tooltip Bootstrap previamente inicializada por scripts globais (evita conflitos e auto-hide)
-      try { var prev = (window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.getInstance) ? bootstrap.Tooltip.getInstance(el) : null; if (prev && prev !== inst) { try{ prev.dispose(); }catch(_){} } } catch(_){ }
+
+      // Criar nova instância apenas se não existir
       if (!inst && window.bootstrap && bootstrap.Tooltip){
         inst = new bootstrap.Tooltip(el,{
           title:html,
@@ -142,29 +141,38 @@
         inst._exchangeCode = code;
         guardHide(inst, { get isHoveringEl(){return isHoveringEl;}, get isHoveringTip(){return isHoveringTip;} });
       }
-      // Atualizar conteúdo sem recriar
+
+      // Atualizar conteúdo de forma segura (evita desaparecer durante hover)
       try{
         if (inst){
+          // Método 1: usar setContent se disponível (Bootstrap 5.2+)
           if (typeof inst.setContent === 'function'){
             inst.setContent({'.tooltip-inner': html});
           } else {
-            // Se já está aberta, não recria: apenas atualiza o conteúdo atual
+            // Método 2: Verificar se tooltip está visível antes de atualizar
             var tipEl=null, isOpen=false;
-            try{ tipEl = (inst.getTipElement && inst.getTipElement()); isOpen = !!(tipEl && tipEl.classList.contains('show')); }catch(_){ }
+            try{
+              tipEl = (inst.getTipElement && inst.getTipElement());
+              isOpen = !!(tipEl && tipEl.classList.contains('show'));
+            }catch(_){ }
+
             if (isOpen) {
-              try{ var inner = tipEl.querySelector('.tooltip-inner'); if (inner) inner.innerHTML = html; }catch(_){ }
-              try{ el.setAttribute('title', html); }catch(_){ }
+              // TOOLTIP VISÍVEL: Apenas atualizar conteúdo interno sem destruir
+              try{
+                var inner = tipEl.querySelector('.tooltip-inner');
+                if (inner) inner.innerHTML = html;
+              }catch(_){ }
             } else {
-              try{ inst.dispose(); }catch(_){ }
-              inst = new bootstrap.Tooltip(el,{
-                title:html,html:true,container:'body',customClass:'snapshot-tip market-status-tip',placement:'auto',trigger:'manual',boundary:'viewport',fallbackPlacements:['top','bottom','right','left'],offset:[0,10],delay:{show:0,hide:150}
-              });
-              el._statusTip = inst;
-              inst._exchangeCode = code;
-              guardHide(inst, { get isHoveringEl(){return isHoveringEl;}, get isHoveringTip(){return isHoveringTip;} });
+              // TOOLTIP NÃO VISÍVEL: Apenas atualizar o título para próxima abertura
+              // NÃO recriar a instância - isso mantém os event handlers intactos
+              try{
+                inst._config = inst._config || {};
+                inst._config.title = html;
+                el.setAttribute('title', html);
+                el.setAttribute('data-bs-original-title', html);
+              }catch(_){ }
             }
           }
-          // Não reabrir automaticamente após atualização
         }
       }catch(_){ }
 
