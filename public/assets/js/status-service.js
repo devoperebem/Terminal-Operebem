@@ -120,8 +120,18 @@
 
       var html=tipHtml(code,ex);
       var inst = el._statusTip;
-      var wasOpen=false;
-      try{ if(inst){ var tipNow=(inst.getTipElement&&inst.getTipElement()); wasOpen=!!(tipNow&&tipNow.classList.contains('show')); } }catch(_){ }
+
+      // Declarar variáveis de estado ANTES de criar instância (evita problemas de escopo)
+      if (!el._statusState) {
+        el._statusState = {
+          isHoveringEl: false,
+          isHoveringTip: false,
+          lastShowTs: 0,
+          showTimer: null,
+          hideTimer: null
+        };
+      }
+      var state = el._statusState;
 
       // Criar nova instância apenas se não existir
       if (!inst && window.bootstrap && bootstrap.Tooltip){
@@ -139,7 +149,6 @@
         });
         el._statusTip = inst;
         inst._exchangeCode = code;
-        guardHide(inst, { get isHoveringEl(){return isHoveringEl;}, get isHoveringTip(){return isHoveringTip;} });
       }
 
       // Atualizar conteúdo de forma segura (evita desaparecer durante hover)
@@ -164,10 +173,8 @@
               }catch(_){ }
             } else {
               // TOOLTIP NÃO VISÍVEL: Apenas atualizar o título para próxima abertura
-              // NÃO recriar a instância - isso mantém os event handlers intactos
               try{
-                inst._config = inst._config || {};
-                inst._config.title = html;
+                if (inst._config) inst._config.title = html;
                 el.setAttribute('title', html);
                 el.setAttribute('data-bs-original-title', html);
               }catch(_){ }
@@ -178,12 +185,10 @@
 
       if(!el._statusEv && inst){
         el._statusEv=true;
-        var showT=null, hideT=null;
-        var isHoveringEl=false, isHoveringTip=false, lastShowTs=0;
-        
+
         function getInst(){ try{ return el._statusTip || ((window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.getInstance) ? bootstrap.Tooltip.getInstance(el) : null); }catch(_){ return el._statusTip; } }
-        
-        var closeOthers=function(){ try{ 
+
+        var closeOthers=function(){ try{
           // Fechar apenas tooltips de OUTROS elementos (evita remover a atual durante o show)
           document.querySelectorAll('.status-bubble').forEach(function(otherEl){
             if(otherEl===el) return;
@@ -194,21 +199,23 @@
           });
           activeTooltips.length = 0;
         }catch(_){} };
-        // Auto-hide quando não houver hover (com período de graça pós-show)
-        var checkHide=function(){ try{ 
-          if(!isHoveringEl && !isHoveringTip){ 
-            var sinceShow = Date.now() - lastShowTs;
-            if (sinceShow < 350) return; // período de graça para evitar flicker
-            if(hideT){clearTimeout(hideT);} 
-            hideT=setTimeout(function(){ try{ var cur=getInst(); if(cur){ cur.hide(); } }catch(_){} }, 300); 
-          } 
+
+        // Auto-hide quando não houver hover (DESABILITADO - tooltips agora persistem durante hover)
+        var checkHide=function(){ try{
+          if(!state.isHoveringEl && !state.isHoveringTip){
+            var sinceShow = Date.now() - state.lastShowTs;
+            // Aumentado período de graça para 2 segundos para evitar fechamento prematuro
+            if (sinceShow < 2000) return;
+            if(state.hideTimer){clearTimeout(state.hideTimer);}
+            state.hideTimer=setTimeout(function(){ try{ var cur=getInst(); if(cur){ cur.hide(); } }catch(_){} }, 500);
+          }
         }catch(_){} };
-        
-        var onEnter=function(){ 
-          try{ 
-            if(hideT){clearTimeout(hideT);hideT=null;} 
-            if(showT){clearTimeout(showT);} 
-            isHoveringEl=true;
+
+        var onEnter=function(){
+          try{
+            if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;}
+            if(state.showTimer){clearTimeout(state.showTimer);}
+            state.isHoveringEl=true;
             // Fechar qualquer tooltip do mesmo exchange antes de abrir a atual
             try{
               var same = document.querySelectorAll('.status-bubble[data-exchange="'+CSS.escape(code)+'"]');
@@ -220,27 +227,43 @@
                 }catch(_){ }
               });
             }catch(_){ }
-            showT=setTimeout(function(){ 
+            state.showTimer=setTimeout(function(){
               try{
                 closeOthers();
-                lastShowTs = Date.now();
+                state.lastShowTs = Date.now();
                 inst.show();
-                if(activeTooltips.indexOf(inst)===-1){activeTooltips.push(inst);} 
-              }catch(_){} 
-            },0); 
-          }catch(_){ } 
+                if(activeTooltips.indexOf(inst)===-1){activeTooltips.push(inst);}
+              }catch(_){}
+            },0);
+          }catch(_){ }
         };
-        
-        var onLeave=function(){ 
-          try{ 
-            if(showT){clearTimeout(showT);showT=null;} 
-            if(hideT){clearTimeout(hideT);hideT=null;}
-            isHoveringEl=false;
+
+        var onLeave=function(){
+          try{
+            if(state.showTimer){clearTimeout(state.showTimer);state.showTimer=null;}
+            if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;}
+            state.isHoveringEl=false;
             checkHide();
-          }catch(_){} 
+          }catch(_){}
         };
-        
-        var onClick=function(e){ try{ e.preventDefault(); var cur=getInst(); if(!cur) return; var tip=(cur.getTipElement&&cur.getTipElement()); var open=!!(tip && tip.classList.contains('show')); if(open){ cur.hide(); } else { closeOthers(); cur.show(); if(activeTooltips.indexOf(cur)===-1){activeTooltips.push(cur);} } }catch(_){ } };
+
+        var onClick=function(e){
+          try{
+            e.preventDefault();
+            var cur=getInst();
+            if(!cur) return;
+            var tip=(cur.getTipElement&&cur.getTipElement());
+            var open=!!(tip && tip.classList.contains('show'));
+            if(open){
+              cur.hide();
+            } else {
+              closeOthers();
+              state.lastShowTs = Date.now(); // CRÍTICO: Atualizar timestamp também no click!
+              cur.show();
+              if(activeTooltips.indexOf(cur)===-1){activeTooltips.push(cur);}
+            }
+          }catch(_){ }
+        };
         var onKey=function(e){ if(e && (e.key==='Enter' || e.key===' ')){ onClick(e); } };
         
         el.setAttribute('role','button');
@@ -250,50 +273,50 @@
         el.addEventListener('click', onClick);
         el.addEventListener('touchstart', onClick, {passive:true});
         el.addEventListener('keydown', onKey);
-        el.addEventListener('blur', function(){ try{ isHoveringEl=false; checkHide(); }catch(_){ } });
+        el.addEventListener('blur', function(){ try{ state.isHoveringEl=false; checkHide(); }catch(_){ } });
 
         // Clique fora fecha (força flags de hover para permitir hide)
-        var onDocClick=function(e){ try{ var cur=getInst(); if(!cur) return; var tip=(cur.getTipElement&&cur.getTipElement()); var insideEl = el.contains(e.target); var insideTip = tip && tip.contains(e.target); if(!insideEl && !insideTip){ isHoveringEl=false; isHoveringTip=false; cur.hide(); } }catch(_){ } };
+        var onDocClick=function(e){ try{ var cur=getInst(); if(!cur) return; var tip=(cur.getTipElement&&cur.getTipElement()); var insideEl = el.contains(e.target); var insideTip = tip && tip.contains(e.target); if(!insideEl && !insideTip){ state.isHoveringEl=false; state.isHoveringTip=false; cur.hide(); } }catch(_){ } };
         document.addEventListener('click', onDocClick, true);
         // Esc fecha (força flags)
-        var onEsc=function(e){ try{ var cur=getInst(); if(!cur) return; if(e.key==='Escape'){ isHoveringEl=false; isHoveringTip=false; cur.hide(); } }catch(_){ } };
+        var onEsc=function(e){ try{ var cur=getInst(); if(!cur) return; if(e.key==='Escape'){ state.isHoveringEl=false; state.isHoveringTip=false; cur.hide(); } }catch(_){ } };
         document.addEventListener('keydown', onEsc);
-        
+
         el.addEventListener('shown.bs.tooltip', function(){
           try{
             var cur=getInst();
             var tip = (cur && cur.getTipElement && cur.getTipElement()) || document.querySelector('.tooltip.show');
-            if (tip){ 
-              lastShowTs = Date.now();
+            if (tip){
+              state.lastShowTs = Date.now();
               tip.style.pointerEvents='auto';
               if(!tip._statusHoverBound){
                 tip._statusHoverBound = true;
-                tip.addEventListener('mouseenter', function(){ 
+                tip.addEventListener('mouseenter', function(){
                   try{
-                    if(hideT){clearTimeout(hideT);hideT=null;} 
-                    isHoveringTip=true;
+                    if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;}
+                    state.isHoveringTip=true;
                   }catch(_){ }
                 });
-                tip.addEventListener('mouseleave', function(){ 
+                tip.addEventListener('mouseleave', function(){
                   try{
-                    isHoveringTip=false;
+                    state.isHoveringTip=false;
                     checkHide();
                   }catch(_){ }
                 });
               }
               // Se o ponteiro já está sobre a tooltip no momento do show, considerar hover ativo
-              try { if (tip.matches && tip.matches(':hover')) { isHoveringTip = true; if(hideT){clearTimeout(hideT);hideT=null;} } } catch(_){ }
+              try { if (tip.matches && tip.matches(':hover')) { state.isHoveringTip = true; if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;} } } catch(_){ }
             }
           }catch(_){ }
         });
-        
+
         el.addEventListener('hidden.bs.tooltip', function(){
           try{
             var cur=getInst();
-            var idx=activeTooltips.indexOf(cur); if(idx>-1){activeTooltips.splice(idx,1);} 
-            var idx2=activeTooltips.indexOf(inst); if(idx2>-1){activeTooltips.splice(idx2,1);} 
-            isHoveringEl=false;
-            isHoveringTip=false;
+            var idx=activeTooltips.indexOf(cur); if(idx>-1){activeTooltips.splice(idx,1);}
+            var idx2=activeTooltips.indexOf(inst); if(idx2>-1){activeTooltips.splice(idx2,1);}
+            state.isHoveringEl=false;
+            state.isHoveringTip=false;
           }catch(_){ }
         });
       }
