@@ -121,8 +121,46 @@
       icon.setAttribute('title', html);
       try {
         const inst = (window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.getInstance) ? bootstrap.Tooltip.getInstance(icon) : null;
-        if (inst && typeof inst.dispose === 'function') inst.dispose();
-        if (window.bootstrap && bootstrap.Tooltip) new bootstrap.Tooltip(icon, { container:'body', boundary: 'viewport', html: true, customClass: 'snapshot-tip' });
+
+        if (inst) {
+          // Verificar se a tooltip está visível no momento
+          let tipEl = null, isOpen = false;
+          try {
+            tipEl = (inst.getTipElement && inst.getTipElement());
+            isOpen = !!(tipEl && tipEl.classList.contains('show'));
+          } catch(_) {}
+
+          if (isOpen) {
+            // Tooltip está visível: apenas atualizar o conteúdo sem destruir
+            try {
+              const inner = tipEl.querySelector('.tooltip-inner');
+              if (inner) inner.innerHTML = html;
+            } catch(_) {}
+          } else {
+            // Tooltip não está visível: pode destruir e recriar
+            try {
+              inst.dispose();
+            } catch(_) {}
+            if (window.bootstrap && bootstrap.Tooltip) {
+              new bootstrap.Tooltip(icon, {
+                container: 'body',
+                boundary: 'viewport',
+                html: true,
+                customClass: 'snapshot-tip'
+              });
+            }
+          }
+        } else {
+          // Não existe tooltip: criar uma nova
+          if (window.bootstrap && bootstrap.Tooltip) {
+            new bootstrap.Tooltip(icon, {
+              container: 'body',
+              boundary: 'viewport',
+              html: true,
+              customClass: 'snapshot-tip'
+            });
+          }
+        }
       } catch(_){}
     } else {
       // Limpar ícone avançado, se existir
@@ -153,8 +191,39 @@
       span.setAttribute('title', `Snapshot • ${when}`);
       try {
         const inst = (window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.getInstance) ? bootstrap.Tooltip.getInstance(span) : null;
-        if (inst && typeof inst.dispose === 'function') inst.dispose();
-        if (window.bootstrap && bootstrap.Tooltip) new bootstrap.Tooltip(span, { container:'body', boundary: 'viewport' });
+
+        if (inst) {
+          // Verificar se a tooltip está visível no momento
+          let tipEl = null, isOpen = false;
+          try {
+            tipEl = (inst.getTipElement && inst.getTipElement());
+            isOpen = !!(tipEl && tipEl.classList.contains('show'));
+          } catch(_) {}
+
+          if (isOpen) {
+            // Tooltip está visível: apenas atualizar o título sem destruir
+            // (Para tooltips simples de texto, não há necessidade de atualizar o HTML interno)
+          } else {
+            // Tooltip não está visível: pode destruir e recriar
+            try {
+              inst.dispose();
+            } catch(_) {}
+            if (window.bootstrap && bootstrap.Tooltip) {
+              new bootstrap.Tooltip(span, {
+                container: 'body',
+                boundary: 'viewport'
+              });
+            }
+          }
+        } else {
+          // Não existe tooltip: criar uma nova
+          if (window.bootstrap && bootstrap.Tooltip) {
+            new bootstrap.Tooltip(span, {
+              container: 'body',
+              boundary: 'viewport'
+            });
+          }
+        }
       } catch(_){}
     }
   }
