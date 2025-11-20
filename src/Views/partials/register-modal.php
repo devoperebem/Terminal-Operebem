@@ -127,8 +127,8 @@ $defaultFlagUrl = country_flag_url($defaultIso);
 
   .country-select-container {
     position: relative;
-    flex: 0 0 200px;
-    max-width: 210px;
+    flex: 0 0 140px;
+    max-width: 150px;
     margin-right: 0.5rem;
   }
   .country-select-toggle {
@@ -136,7 +136,7 @@ $defaultFlagUrl = country_flag_url($defaultIso);
     align-items: center;
     width: 100%;
     border: 1px solid #ced4da;
-    border-radius: 0.5rem;
+    border-radius: 0;
     padding: 0.4rem 0.75rem;
     background: #fff;
     gap: 0.5rem;
@@ -380,7 +380,8 @@ $defaultFlagUrl = country_flag_url($defaultIso);
                 </div>
                 <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="Ex: (11) 96123-4567" required pattern="^[0-9\s\+\-\(\)]{4,25}$" minlength="4" maxlength="25" inputmode="tel">
               </div>
-              <div class="invalid-feedback">Por favor, selecione o país e informe um telefone válido para o formato escolhido.</div>
+              <div class="invalid-feedback">Número de telefone inválido para o país selecionado. Verifique se o número está correto.</div>
+              <div class="valid-feedback">Número de telefone válido!</div>
               <div class="form-text"><i class="fas fa-info-circle me-1"></i>Selecione o país e digite o telefone completo (DDD + número). O formato será aplicado automaticamente.</div>
             </div>
             <div class="d-grid">
