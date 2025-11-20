@@ -389,6 +389,145 @@ document.addEventListener("DOMContentLoaded", function() {
         };
     }
 
+    /**
+     * Verifica se o número contém padrões repetitivos ou sequenciais inválidos
+     */
+    function hasInvalidPattern(digitsOnly) {
+        if (!digitsOnly || digitsOnly.length < 6) {
+            return false;
+        }
+
+        // Remover código do país para análise do número local
+        const localNumber = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
+
+        // Verificar se todos os dígitos são iguais (ex: 11111111)
+        if (/^(\d)\1+$/.test(localNumber)) {
+            return true;
+        }
+
+        // Verificar sequências muito longas do mesmo dígito (ex: 111111 ou 999999)
+        if (/(\d)\1{5,}/.test(localNumber)) {
+            return true;
+        }
+
+        // Verificar sequências crescentes ou decrescentes (ex: 123456 ou 654321)
+        for (let i = 0; i < localNumber.length - 4; i++) {
+            const slice = localNumber.slice(i, i + 5);
+            const digits = slice.split('').map(Number);
+            let isSequential = true;
+            let diff = digits[1] - digits[0];
+            if (Math.abs(diff) === 1) {
+                for (let j = 1; j < digits.length - 1; j++) {
+                    if (digits[j + 1] - digits[j] !== diff) {
+                        isSequential = false;
+                        break;
+                    }
+                }
+                if (isSequential) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Lista de DDDs válidos no Brasil (atualizada 2024)
+     */
+    const VALID_BR_AREA_CODES = [
+        '11', '12', '13', '14', '15', '16', '17', '18', '19', // SP
+        '21', '22', '24', // RJ
+        '27', '28', // ES
+        '31', '32', '33', '34', '35', '37', '38', // MG
+        '41', '42', '43', '44', '45', '46', // PR
+        '47', '48', '49', // SC
+        '51', '53', '54', '55', // RS
+        '61', // DF
+        '62', '64', // GO
+        '63', // TO
+        '65', '66', // MT
+        '67', // MS
+        '68', // AC
+        '69', // RO
+        '71', '73', '74', '75', '77', // BA
+        '79', // SE
+        '81', '87', // PE
+        '82', // AL
+        '83', // PB
+        '84', // RN
+        '85', '88', // CE
+        '86', '89', // PI
+        '91', '93', '94', // PA
+        '92', '97', // AM
+        '95', // RR
+        '96', // AP
+        '98', '99' // MA
+    ];
+
+    /**
+     * Valida número específico para Brasil
+     */
+    function validateBrazilianNumber(parsed) {
+        if (!parsed || !parsed.nationalNumber) {
+            return { valid: false, message: 'Número inválido' };
+        }
+
+        const nationalNumber = String(parsed.nationalNumber);
+        const digitsOnly = nationalNumber.replace(/\D/g, '');
+
+        // Número brasileiro deve ter 10 (fixo) ou 11 (móvel) dígitos
+        if (digitsOnly.length < 10 || digitsOnly.length > 11) {
+            return { valid: false, message: 'Número brasileiro deve ter 10 ou 11 dígitos' };
+        }
+
+        // Extrair DDD (2 primeiros dígitos)
+        const areaCode = digitsOnly.slice(0, 2);
+
+        // Verificar se DDD é válido
+        if (!VALID_BR_AREA_CODES.includes(areaCode)) {
+            return { valid: false, message: 'DDD inválido. Verifique o código de área.' };
+        }
+
+        // Para números móveis (11 dígitos), o terceiro dígito deve ser 9
+        if (digitsOnly.length === 11) {
+            const thirdDigit = digitsOnly.charAt(2);
+            if (thirdDigit !== '9') {
+                return { valid: false, message: 'Número de celular brasileiro deve começar com 9 após o DDD' };
+            }
+        }
+
+        // Para números fixos (10 dígitos), o terceiro dígito não pode ser 9
+        if (digitsOnly.length === 10) {
+            const thirdDigit = digitsOnly.charAt(2);
+            if (thirdDigit === '9') {
+                return { valid: false, message: 'Número fixo não pode começar com 9 após o DDD' };
+            }
+        }
+
+        return { valid: true };
+    }
+
+    /**
+     * Valida número para outros países com verificações básicas
+     */
+    function validateInternationalNumber(parsed, iso) {
+        if (!parsed || !parsed.nationalNumber) {
+            return { valid: false, message: 'Número inválido' };
+        }
+
+        // Verificações comuns para todos os países
+        const nationalNumber = String(parsed.nationalNumber);
+        const digitsOnly = nationalNumber.replace(/\D/g, '');
+
+        // Verificar tamanho mínimo e máximo
+        if (digitsOnly.length < 6 || digitsOnly.length > 15) {
+            return { valid: false, message: 'Número tem comprimento inválido' };
+        }
+
+        return { valid: true };
+    }
+
     async function validatePhoneInRealTime(inputElement) {
         if (!inputElement) {
             return;
@@ -413,6 +552,14 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        // Verificar padrões inválidos (sequências, repetições)
+        if (hasInvalidPattern(digitsOnly)) {
+            inputElement.setCustomValidity('Este número contém um padrão inválido. Por favor, verifique o número.');
+            inputElement.classList.remove('is-valid');
+            inputElement.classList.add('is-invalid');
+            return;
+        }
+
         // Se a biblioteca não estiver carregada ou ISO não selecionado, validação básica
         if (!window.libphonenumber || !iso) {
             // Validação básica por tamanho
@@ -430,16 +577,35 @@ document.addEventListener("DOMContentLoaded", function() {
 
         try {
             const parsed = window.libphonenumber.parsePhoneNumberFromString(inputElement.value, iso);
-            if (parsed && parsed.isValid()) {
-                inputElement.setCustomValidity('');
-                inputElement.classList.remove('is-invalid');
-                inputElement.classList.add('is-valid');
-            } else {
-                // Número inválido - sempre mostrar erro se tem 4+ dígitos
+
+            // Primeiro verificar se o formato é válido
+            if (!parsed || !parsed.isValid()) {
                 inputElement.setCustomValidity('Número de telefone inválido para o país selecionado');
                 inputElement.classList.remove('is-valid');
                 inputElement.classList.add('is-invalid');
+                return;
             }
+
+            // Validações específicas por país
+            let countryValidation;
+            if (iso === 'BR') {
+                countryValidation = validateBrazilianNumber(parsed);
+            } else {
+                countryValidation = validateInternationalNumber(parsed, iso);
+            }
+
+            if (!countryValidation.valid) {
+                inputElement.setCustomValidity(countryValidation.message || 'Número inválido para este país');
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+                return;
+            }
+
+            // Se passou em todas as validações
+            inputElement.setCustomValidity('');
+            inputElement.classList.remove('is-invalid');
+            inputElement.classList.add('is-valid');
+
         } catch (error) {
             console.warn('Erro na validação em tempo real:', error);
             inputElement.setCustomValidity('Erro ao validar o número de telefone');
