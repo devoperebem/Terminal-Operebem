@@ -126,12 +126,15 @@
         el._statusState = {
           isHoveringEl: false,
           isHoveringTip: false,
-          lastShowTs: 0,
-          showTimer: null,
-          hideTimer: null
+          isVisible: false
         };
       }
       var state = el._statusState;
+
+      // CRÍTICO: Se tooltip estiver visível, NÃO FAZER NADA - deixar completamente estático
+      if (state.isVisible) {
+        return; // Pula toda atualização enquanto tooltip estiver visível
+      }
 
       // Criar nova instância apenas se não existir
       if (!inst && window.bootstrap && bootstrap.Tooltip){
@@ -145,105 +148,70 @@
           boundary:'viewport',
           fallbackPlacements:['top','bottom','right','left'],
           offset:[0,10],
-          delay:{show:0,hide:150}
+          delay:{show:0,hide:0}
         });
         el._statusTip = inst;
         inst._exchangeCode = code;
       }
 
-      // Atualizar conteúdo de forma segura (evita desaparecer durante hover)
+      // Atualizar conteúdo apenas quando tooltip NÃO estiver visível
       try{
-        if (inst){
-          // Método 1: usar setContent se disponível (Bootstrap 5.2+)
-          if (typeof inst.setContent === 'function'){
-            inst.setContent({'.tooltip-inner': html});
-          } else {
-            // Método 2: Verificar se tooltip está visível antes de atualizar
-            var tipEl=null, isOpen=false;
-            try{
-              tipEl = (inst.getTipElement && inst.getTipElement());
-              isOpen = !!(tipEl && tipEl.classList.contains('show'));
-            }catch(_){ }
-
-            if (isOpen) {
-              // TOOLTIP VISÍVEL: Apenas atualizar conteúdo interno sem destruir
-              try{
-                var inner = tipEl.querySelector('.tooltip-inner');
-                if (inner) inner.innerHTML = html;
-              }catch(_){ }
-            } else {
-              // TOOLTIP NÃO VISÍVEL: Apenas atualizar o título para próxima abertura
-              try{
-                if (inst._config) inst._config.title = html;
-                el.setAttribute('title', html);
-                el.setAttribute('data-bs-original-title', html);
-              }catch(_){ }
-            }
-          }
+        if (inst && inst._config) {
+          inst._config.title = html;
+          el.setAttribute('title', html);
+          el.setAttribute('data-bs-original-title', html);
         }
       }catch(_){ }
 
       if(!el._statusEv && inst){
         el._statusEv=true;
 
-        function getInst(){ try{ return el._statusTip || ((window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.getInstance) ? bootstrap.Tooltip.getInstance(el) : null); }catch(_){ return el._statusTip; } }
+        function getInst(){ try{ return el._statusTip; }catch(_){ return null; } }
 
-        var closeOthers=function(){ try{
-          // Fechar apenas tooltips de OUTROS elementos (evita remover a atual durante o show)
-          document.querySelectorAll('.status-bubble').forEach(function(otherEl){
-            if(otherEl===el) return;
-            try{
-              var oi = otherEl._statusTip || ((window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.getInstance) ? bootstrap.Tooltip.getInstance(otherEl) : null);
-              if(oi && oi.hide){ oi.hide(); }
-            }catch(_){ }
-          });
-          activeTooltips.length = 0;
-        }catch(_){} };
+        var closeOthers=function(){
+          try{
+            document.querySelectorAll('.status-bubble').forEach(function(otherEl){
+              if(otherEl===el) return;
+              try{
+                if(otherEl._statusState) otherEl._statusState.isVisible = false;
+                var oi = otherEl._statusTip;
+                if(oi && oi.hide){ oi.hide(); }
+              }catch(_){ }
+            });
+            activeTooltips.length = 0;
+          }catch(_){}
+        };
 
-        // Auto-hide quando não houver hover (DESABILITADO - tooltips agora persistem durante hover)
-        var checkHide=function(){ try{
-          if(!state.isHoveringEl && !state.isHoveringTip){
-            var sinceShow = Date.now() - state.lastShowTs;
-            // Aumentado período de graça para 2 segundos para evitar fechamento prematuro
-            if (sinceShow < 2000) return;
-            if(state.hideTimer){clearTimeout(state.hideTimer);}
-            state.hideTimer=setTimeout(function(){ try{ var cur=getInst(); if(cur){ cur.hide(); } }catch(_){} }, 500);
-          }
-        }catch(_){} };
+        // Lógica SIMPLES: se não tiver hover em nenhum lugar, esconde
+        var checkHide=function(){
+          try{
+            if(!state.isHoveringEl && !state.isHoveringTip){
+              var cur=getInst();
+              if(cur){
+                state.isVisible = false;
+                cur.hide();
+              }
+            }
+          }catch(_){}
+        };
 
         var onEnter=function(){
           try{
-            if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;}
-            if(state.showTimer){clearTimeout(state.showTimer);}
             state.isHoveringEl=true;
-            // Fechar qualquer tooltip do mesmo exchange antes de abrir a atual
-            try{
-              var same = document.querySelectorAll('.status-bubble[data-exchange="'+CSS.escape(code)+'"]');
-              same.forEach(function(otherEl){
-                if(otherEl===el) return;
-                try{
-                  var otherInst = otherEl._statusTip || (window.bootstrap && bootstrap.Tooltip && bootstrap.Tooltip.getInstance ? bootstrap.Tooltip.getInstance(otherEl) : null);
-                  if(otherInst && otherInst.hide){ otherInst.hide(); }
-                }catch(_){ }
-              });
-            }catch(_){ }
-            state.showTimer=setTimeout(function(){
-              try{
-                closeOthers();
-                state.lastShowTs = Date.now();
-                inst.show();
-                if(activeTooltips.indexOf(inst)===-1){activeTooltips.push(inst);}
-              }catch(_){}
-            },0);
+            // Fechar outras tooltips
+            closeOthers();
+            // Mostrar esta tooltip imediatamente
+            state.isVisible = true;
+            inst.show();
+            if(activeTooltips.indexOf(inst)===-1){activeTooltips.push(inst);}
           }catch(_){ }
         };
 
         var onLeave=function(){
           try{
-            if(state.showTimer){clearTimeout(state.showTimer);state.showTimer=null;}
-            if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;}
             state.isHoveringEl=false;
-            checkHide();
+            // Aguardar um pouco para ver se o mouse entrou na tooltip
+            setTimeout(checkHide, 100);
           }catch(_){}
         };
 
@@ -255,10 +223,11 @@
             var tip=(cur.getTipElement&&cur.getTipElement());
             var open=!!(tip && tip.classList.contains('show'));
             if(open){
+              state.isVisible = false;
               cur.hide();
             } else {
               closeOthers();
-              state.lastShowTs = Date.now(); // CRÍTICO: Atualizar timestamp também no click!
+              state.isVisible = true;
               cur.show();
               if(activeTooltips.indexOf(cur)===-1){activeTooltips.push(cur);}
             }
@@ -273,39 +242,67 @@
         el.addEventListener('click', onClick);
         el.addEventListener('touchstart', onClick, {passive:true});
         el.addEventListener('keydown', onKey);
-        el.addEventListener('blur', function(){ try{ state.isHoveringEl=false; checkHide(); }catch(_){ } });
+        el.addEventListener('blur', function(){ try{ state.isHoveringEl=false; setTimeout(checkHide, 100); }catch(_){ } });
 
-        // Clique fora fecha (força flags de hover para permitir hide)
-        var onDocClick=function(e){ try{ var cur=getInst(); if(!cur) return; var tip=(cur.getTipElement&&cur.getTipElement()); var insideEl = el.contains(e.target); var insideTip = tip && tip.contains(e.target); if(!insideEl && !insideTip){ state.isHoveringEl=false; state.isHoveringTip=false; cur.hide(); } }catch(_){ } };
+        // Clique fora fecha
+        var onDocClick=function(e){
+          try{
+            var cur=getInst();
+            if(!cur) return;
+            var tip=(cur.getTipElement&&cur.getTipElement());
+            var insideEl = el.contains(e.target);
+            var insideTip = tip && tip.contains(e.target);
+            if(!insideEl && !insideTip){
+              state.isHoveringEl=false;
+              state.isHoveringTip=false;
+              state.isVisible = false;
+              cur.hide();
+            }
+          }catch(_){ }
+        };
         document.addEventListener('click', onDocClick, true);
-        // Esc fecha (força flags)
-        var onEsc=function(e){ try{ var cur=getInst(); if(!cur) return; if(e.key==='Escape'){ state.isHoveringEl=false; state.isHoveringTip=false; cur.hide(); } }catch(_){ } };
+
+        // Esc fecha
+        var onEsc=function(e){
+          try{
+            var cur=getInst();
+            if(!cur) return;
+            if(e.key==='Escape'){
+              state.isHoveringEl=false;
+              state.isHoveringTip=false;
+              state.isVisible = false;
+              cur.hide();
+            }
+          }catch(_){ }
+        };
         document.addEventListener('keydown', onEsc);
 
         el.addEventListener('shown.bs.tooltip', function(){
           try{
             var cur=getInst();
-            var tip = (cur && cur.getTipElement && cur.getTipElement()) || document.querySelector('.tooltip.show');
+            var tip = (cur && cur.getTipElement && cur.getTipElement());
             if (tip){
-              state.lastShowTs = Date.now();
               tip.style.pointerEvents='auto';
               if(!tip._statusHoverBound){
                 tip._statusHoverBound = true;
                 tip.addEventListener('mouseenter', function(){
                   try{
-                    if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;}
                     state.isHoveringTip=true;
                   }catch(_){ }
                 });
                 tip.addEventListener('mouseleave', function(){
                   try{
                     state.isHoveringTip=false;
-                    checkHide();
+                    setTimeout(checkHide, 100);
                   }catch(_){ }
                 });
               }
-              // Se o ponteiro já está sobre a tooltip no momento do show, considerar hover ativo
-              try { if (tip.matches && tip.matches(':hover')) { state.isHoveringTip = true; if(state.hideTimer){clearTimeout(state.hideTimer);state.hideTimer=null;} } } catch(_){ }
+              // Se o mouse já está sobre a tooltip, marcar como hover ativo
+              try {
+                if (tip.matches && tip.matches(':hover')) {
+                  state.isHoveringTip = true;
+                }
+              } catch(_){ }
             }
           }catch(_){ }
         });
@@ -313,10 +310,13 @@
         el.addEventListener('hidden.bs.tooltip', function(){
           try{
             var cur=getInst();
-            var idx=activeTooltips.indexOf(cur); if(idx>-1){activeTooltips.splice(idx,1);}
-            var idx2=activeTooltips.indexOf(inst); if(idx2>-1){activeTooltips.splice(idx2,1);}
+            var idx=activeTooltips.indexOf(cur);
+            if(idx>-1){activeTooltips.splice(idx,1);}
+            var idx2=activeTooltips.indexOf(inst);
+            if(idx2>-1){activeTooltips.splice(idx2,1);}
             state.isHoveringEl=false;
             state.isHoveringTip=false;
+            state.isVisible = false;
           }catch(_){ }
         });
       }
