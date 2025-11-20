@@ -281,7 +281,7 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h1 class="hero-title animate-fade-in-up animate-delay-200">
                         Terminal Operebem
-                        <span class="text-gradient">Alpha 1.1</span>
+                        <span class="text-gradient">Alpha 1.2</span>
                     </h1>
                     <p class="hero-subtitle animate-fade-in-up animate-delay-300">
                         A plataforma perfeita para traders e investidores. 
