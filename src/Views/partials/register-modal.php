@@ -102,10 +102,8 @@ $defaultFlagUrl = country_flag_url($defaultIso);
   .register-back-btn {
     filter: invert(0);
   }
-  html.dark .register-close-btn,
   html.dark-blue .register-close-btn,
   html.all-black .register-close-btn,
-  html.dark .register-back-btn,
   html.dark-blue .register-back-btn,
   html.all-black .register-back-btn {
     filter: invert(1);
@@ -144,12 +142,11 @@ $defaultFlagUrl = country_flag_url($defaultIso);
     gap: 0.5rem;
     height: 100%;
   }
-  html.dark .country-select-toggle,
   html.dark-blue .country-select-toggle,
   html.all-black .country-select-toggle {
-    background: #1f2937;
-    border-color: #374151;
-    color: #f9fafb;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
   }
   .country-select-toggle:focus {
     outline: none;
@@ -174,27 +171,24 @@ $defaultFlagUrl = country_flag_url($defaultIso);
     z-index: 30;
     padding: 1rem;
   }
-  html.dark .country-select-dropdown,
   html.dark-blue .country-select-dropdown,
   html.all-black .country-select-dropdown {
-    background: #111827;
-    color: #f3f4f6;
+    background: var(--card-bg);
+    color: var(--text-primary);
     box-shadow: 0 20px 35px rgba(0,0,0,0.6);
   }
   .country-select-search input {
     width: 100%;
   }
-  html.dark .country-select-search input,
   html.dark-blue .country-select-search input,
   html.all-black .country-select-search input {
-    background: #1f2937;
-    border-color: #374151;
-    color: #f9fafb;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
   }
-  html.dark .country-select-search input::placeholder,
   html.dark-blue .country-select-search input::placeholder,
   html.all-black .country-select-search input::placeholder {
-    color: #9ca3af;
+    color: var(--text-secondary);
   }
   .country-select-options {
     max-height: 260px;
@@ -239,58 +233,49 @@ $defaultFlagUrl = country_flag_url($defaultIso);
       width: 260px;
     }
   }
-  html.dark .phone-confirm-card,
   html.dark-blue .phone-confirm-card,
   html.all-black .phone-confirm-card {
-    background: #1f2937;
-    color: #f9fafb;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
   }
-  html.dark #registerModal .modal-content,
   html.dark-blue #registerModal .modal-content,
   html.all-black #registerModal .modal-content {
-    background: #1f2937;
-    color: #f9fafb;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
   }
-  html.dark #registerModal .modal-header,
   html.dark-blue #registerModal .modal-header,
   html.all-black #registerModal .modal-header {
-    border-bottom-color: #374151;
+    border-bottom-color: var(--border-color);
   }
-  html.dark #registerModal .input-group-text,
   html.dark-blue #registerModal .input-group-text,
   html.all-black #registerModal .input-group-text {
-    background: #374151;
-    border-color: #374151;
-    color: #f9fafb;
+    background: var(--border-color);
+    border-color: var(--border-color);
+    color: var(--text-primary);
   }
-  html.dark #registerModal .form-control,
   html.dark-blue #registerModal .form-control,
   html.all-black #registerModal .form-control {
-    background: #1f2937;
-    border-color: #374151;
-    color: #f9fafb;
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
   }
-  html.dark #registerModal .form-control::placeholder,
   html.dark-blue #registerModal .form-control::placeholder,
   html.all-black #registerModal .form-control::placeholder {
-    color: #9ca3af;
+    color: var(--text-secondary);
   }
-  html.dark #registerModal .form-control:focus,
   html.dark-blue #registerModal .form-control:focus,
   html.all-black #registerModal .form-control:focus {
-    background: #1f2937;
+    background: var(--bg-secondary);
     border-color: #3b82f6;
-    color: #f9fafb;
+    color: var(--text-primary);
   }
-  html.dark #registerModal .text-muted,
   html.dark-blue #registerModal .text-muted,
   html.all-black #registerModal .text-muted {
-    color: #9ca3af !important;
+    color: var(--text-secondary) !important;
   }
-  html.dark #registerModal .form-text,
   html.dark-blue #registerModal .form-text,
   html.all-black #registerModal .form-text {
-    color: #9ca3af;
+    color: var(--text-secondary);
   }
 </style>
 <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
