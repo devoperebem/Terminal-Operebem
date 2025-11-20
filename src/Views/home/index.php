@@ -277,14 +277,14 @@ html.all-black .hero-stat-icon {
                 <div class="hero-content">
                     <div class="hero-badge animate-fade-in-up animate-delay-100">
                         <i class="fas fa-star me-2"></i>
-                        ACESSO ANTECIPADO + BONUS
+                        ACESSO ANTECIPADO + BÔNUS
                     </div>
                     <h1 class="hero-title animate-fade-in-up animate-delay-200">
                         Terminal Operebem
                         <span class="text-gradient">Alpha 1.2</span>
                     </h1>
                     <p class="hero-subtitle animate-fade-in-up animate-delay-300">
-                        O melhor farol paras Traders. Pare de operar no escuro. Tenha acesso a mais contexto e seja movido por dados!
+                        O melhor farol para Traders. Pare de operar no escuro. Tenha acesso a mais contexto e seja movido por dados!
                     </p>
                     <div class="hero-features animate-fade-in-up animate-delay-400">
                         <div class="feature-item">
@@ -293,7 +293,7 @@ html.all-black .hero-stat-icon {
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle text-primary"></i>
-                            <span>Indicatores Técnicos, de Sentimento e Volatilidade</span>
+                            <span>Indicadores Técnicos, de Sentimento e Volatilidade</span>
                         </div>
                         <div class="feature-item">
                             <i class="fas fa-check-circle text-primary"></i>
@@ -391,7 +391,7 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h3 class="feature-title">Segurança Total</h3>
                     <p class="feature-description">
-                        Proteção avançada com criptografia padrão militar, headers de segurança e sistemas contra Robos e Ataques.
+                        Proteção avançada com criptografia padrão militar, headers de segurança e sistemas contra Robôs e Ataques.
                     </p>
                     <div class="feature-highlight">
                         <span class="highlight-text">99.8% Uptime</span>
@@ -465,7 +465,7 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h3 class="feature-title">Monitore Eventos Econômicos</h3>
                     <p class="feature-description">
-                        Calendário Econômico Investing customizavel, Fed Watch Tool completo.
+                        Calendário Econômico Investing customizável, Fed Watch Tool completo.
                     </p>
                     <div class="feature-highlight">
                         <span class="highlight-text">Esteja sempre antecipado</span>
@@ -516,7 +516,7 @@ html.all-black .hero-stat-icon {
                         <i class="fas fa-server"></i>
                     </div>
                     <div class="stat-number" data-target="<?= $statistics['uptime'] ?>" data-suffix="%" data-random-min="99.7" data-random-max="99.9" data-decimals="1">0</div>
-                    <div class="stat-label">uptime</div>
+                    <div class="stat-label">Uptime</div>
                 </div>
             </div>
             
@@ -527,7 +527,7 @@ html.all-black .hero-stat-icon {
                         <i class="fas fa-database"></i>
                     </div>
                     <div class="stat-number" data-counter-mode="gb-tb" data-target-tb="2">0</div>
-                    <div class="stat-label">processamento/mes</div>
+                    <div class="stat-label">Processamento/mes</div>
                 </div>
             </div>
         </div>
@@ -676,7 +676,7 @@ html.all-black .hero-stat-icon {
                 </h2>
                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                     <div class="accordion-body text-secondary">
-                    Nossa plataforma cobre mercados globais, incluindo indices futuros e spot mundiais, adr's brasileiras, criptoativos, commodities, juros, indice do dólar, dólar frente o mundo e emergentes, principais petroleiras e mineradoras.
+                    Nossa plataforma cobre mercados globais, incluindo índices futuros e spot mundiais, ADRs brasileiras, criptoativos, commodities, juros, indice do dólar, dólar frente ao mundo e emergentes, principais petroleiras e mineradoras.
                     </div>
                 </div>
             </div>
@@ -728,7 +728,7 @@ html.all-black .hero-stat-icon {
                 <div class="cta-content">
                     <h2 class="cta-title">Pronto para Começar?</h2>
                     <p class="cta-subtitle">
-                        Junte-se a outros traders que já confiam no Terminal Operebem para aprender e melhorarem seus resultados.
+                        Junte-se a outros traders que já confiam no Terminal Operebem para aprender e melhorar seus resultados.
                     </p>
                     <div class="cta-buttons">
                         <button class="btn btn-light btn-lg me-3" data-bs-toggle="modal" data-bs-target="#registerModal">
