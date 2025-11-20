@@ -450,9 +450,13 @@ class AuthController extends BaseController
             $this->json(['success' => false, 'message' => 'Telefone inválido para o país selecionado']);
         }
 
-        if (!$phoneUtil->isValidNumber($phoneProto)) {
-            try { $logger->warning('auth.register.phone.invalid_format', ['ip'=>$ip]); } catch (\Throwable $t) {}
-            $this->json(['success' => false, 'message' => 'Telefone inválido para o país selecionado']);
+        // Validação robusta usando PhoneValidationService
+        $phoneValidationService = new \App\Services\PhoneValidationService();
+        $validationResult = $phoneValidationService->validatePhoneNumber($phoneProto, $phoneUtil);
+
+        if (!$validationResult['valid']) {
+            try { $logger->warning('auth.register.phone.invalid_pattern', ['ip'=>$ip, 'reason'=>$validationResult['message'] ?? 'unknown']); } catch (\Throwable $t) {}
+            $this->json(['success' => false, 'message' => $validationResult['message'] ?? 'Telefone inválido para o país selecionado']);
         }
 
         $countryCodeParsed = '+' . $phoneProto->getCountryCode();
