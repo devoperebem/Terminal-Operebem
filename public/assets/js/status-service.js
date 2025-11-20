@@ -233,16 +233,20 @@
             if(!cur) return;
             var tip=(cur.getTipElement&&cur.getTipElement());
             var open=!!(tip && tip.classList.contains('show'));
-            if(open){
-              // Se já está aberto, fechar e desafixar
+
+            if(open && state.isPinned){
+              // Se está aberto E pinned, fechar
               state.isVisible = false;
               state.isPinned = false;
               cur.hide();
+            } else if(open && !state.isPinned){
+              // Se está aberto mas NÃO pinned (aberto por hover), apenas FIXAR sem fechar
+              state.isPinned = true;
             } else {
-              // Se está fechado, abrir e FIXAR (pinned)
+              // Se está fechado, abrir e FIXAR
               closeOthers();
               state.isVisible = true;
-              state.isPinned = true;  // Click fixa o tooltip!
+              state.isPinned = true;
               cur.show();
               if(activeTooltips.indexOf(cur)===-1){activeTooltips.push(cur);}
             }
@@ -300,20 +304,28 @@
             var tip = (cur && cur.getTipElement && cur.getTipElement());
             if (tip){
               tip.style.pointerEvents='auto';
-              if(!tip._statusHoverBound){
-                tip._statusHoverBound = true;
-                tip.addEventListener('mouseenter', function(){
-                  try{
-                    state.isHoveringTip=true;
-                  }catch(_){ }
-                });
-                tip.addEventListener('mouseleave', function(){
-                  try{
-                    state.isHoveringTip=false;
-                    setTimeout(checkHide, 100);
-                  }catch(_){ }
-                });
-              }
+
+              // SEMPRE adicionar listeners (tooltip pode ser recriado)
+              // Remover listeners antigos se existirem
+              if(tip._onTipEnter) tip.removeEventListener('mouseenter', tip._onTipEnter);
+              if(tip._onTipLeave) tip.removeEventListener('mouseleave', tip._onTipLeave);
+
+              // Criar novos listeners e guardar referência
+              tip._onTipEnter = function(){
+                try{
+                  state.isHoveringTip=true;
+                }catch(_){ }
+              };
+              tip._onTipLeave = function(){
+                try{
+                  state.isHoveringTip=false;
+                  setTimeout(checkHide, 100);
+                }catch(_){ }
+              };
+
+              tip.addEventListener('mouseenter', tip._onTipEnter);
+              tip.addEventListener('mouseleave', tip._onTipLeave);
+
               // Se o mouse já está sobre a tooltip, marcar como hover ativo
               try {
                 if (tip.matches && tip.matches(':hover')) {
