@@ -127,9 +127,9 @@ $defaultFlagUrl = country_flag_url($defaultIso);
 
   .country-select-container {
     position: relative;
-    flex: 0 0 140px;
-    max-width: 150px;
-    margin-right: 0.5rem;
+    flex: 0 0 150px;
+    max-width: 160px;
+    margin-right: 0;
   }
   .country-select-toggle {
     display: flex;
@@ -137,10 +137,15 @@ $defaultFlagUrl = country_flag_url($defaultIso);
     width: 100%;
     border: 1px solid #ced4da;
     border-radius: 0;
+    border-right: none;
     padding: 0.4rem 0.75rem;
     background: #fff;
     gap: 0.5rem;
     height: 100%;
+  }
+  .country-select-toggle .phone-icon {
+    color: #6c757d;
+    margin-right: 0.25rem;
   }
   html.dark-blue .country-select-toggle,
   html.all-black .country-select-toggle {
@@ -234,21 +239,10 @@ $defaultFlagUrl = country_flag_url($defaultIso);
     }
   }
   @media (max-width: 500px) {
-    #phoneForm .input-group {
-      flex-wrap: wrap;
-    }
-    #phoneForm .input-group-text {
-      flex: 0 0 auto;
-      margin-bottom: 0.5rem;
-    }
     .country-select-container {
-      flex: 1 1 100%;
-      max-width: 100%;
+      flex: 0 0 150px;
+      max-width: 160px;
       margin-right: 0;
-      margin-bottom: 0.5rem;
-    }
-    #phoneForm #telefone {
-      flex: 1 1 100%;
     }
   }
   html.dark-blue .phone-confirm-card,
@@ -330,9 +324,9 @@ $defaultFlagUrl = country_flag_url($defaultIso);
             <div class="mb-4">
               <label for="telefone" class="form-label">Telefone</label>
               <div class="input-group input-group-lg align-items-stretch">
-                <span class="input-group-text"><i class="fas fa-phone"></i></span>
                 <div class="country-select-container">
                   <button type="button" class="country-select-toggle" id="countrySelectToggle" aria-haspopup="listbox" aria-expanded="false">
+                    <i class="fas fa-phone phone-icon"></i>
                     <img src="<?= htmlspecialchars($defaultFlagUrl, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($defaultIso, ENT_QUOTES, 'UTF-8') ?>" class="country-select-flag" id="countrySelectFlag">
                     <span id="countrySelectLabel"><?= htmlspecialchars($defaultDisplay, ENT_QUOTES, 'UTF-8') ?></span>
                     <i class="fas fa-chevron-down ms-auto"></i>
