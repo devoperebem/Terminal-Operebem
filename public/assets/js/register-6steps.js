@@ -996,9 +996,40 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     if (phoneConfirmEditBtn) {
-        phoneConfirmEditBtn.addEventListener('click', function() {
+        phoneConfirmEditBtn.addEventListener('click', async function() {
+            const phoneInput = document.getElementById('telefone');
+
+            // Se temos dados pendentes, restaurar apenas o número nacional (sem código do país)
+            if (pendingPhoneData && phoneInput) {
+                try {
+                    // Parsear novamente o número para obter apenas o formato nacional
+                    const parsed = await parsePhoneNumberFromInput(pendingPhoneData.formatted);
+                    if (parsed && parsed.formatNational) {
+                        // Usar o formato nacional (sem código do país)
+                        phoneInput.value = parsed.formatNational();
+                    } else {
+                        // Fallback: limpar o input
+                        phoneInput.value = '';
+                    }
+
+                    // Remover classes de validação para permitir reedição
+                    phoneInput.classList.remove('is-valid');
+                    phoneInput.classList.remove('is-invalid');
+                    phoneInput.setCustomValidity('');
+                } catch (error) {
+                    console.warn('Erro ao restaurar número para edição:', error);
+                    // Em caso de erro, limpar o input
+                    phoneInput.value = '';
+                }
+            }
+
             pendingPhoneData = null;
             hidePhoneConfirmOverlay();
+
+            // Focar no input para facilitar a edição
+            if (phoneInput) {
+                phoneInput.focus();
+            }
         });
     }
 
