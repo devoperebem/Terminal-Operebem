@@ -323,10 +323,10 @@ function cryptoSlugFrom(item) {
       const oldNum = toNumber(($perc.text() || '').toString());
       if (disp) $perc.text(disp);
 
-      // Atualizar tooltip de forma segura (evita desaparecer durante hover)
-      if (pc && $perc[0]) {
-        updateTooltipSafely($perc[0], pc);
-      }
+      // Tooltip inicializado pelo app.js via classe tooltip-target
+      // if (pc && $perc[0]) {
+      //   updateTooltipSafely($perc[0], pc);
+      // }
 
       // Atualizar classes sempre que houver número válido; do contrário, mantém classes e cor atuais
       if (newNum !== null && Number.isFinite(newNum)) {
@@ -373,10 +373,10 @@ function cryptoSlugFrom(item) {
       const { time, full } = formatTimeFromTimestamp(timestamp);
       $hr.text(last ? time : '');
 
-      // Atualizar tooltip de forma segura (evita desaparecer durante hover)
-      if (full && $hr[0]) {
-        updateTooltipSafely($hr[0], full);
-      }
+      // Tooltip inicializado pelo app.js via classe tooltip-target-left
+      // if (full && $hr[0]) {
+      //   updateTooltipSafely($hr[0], full);
+      // }
     }
 
     // Notificar listeners (ex.: snapshot) que a linha foi atualizada
