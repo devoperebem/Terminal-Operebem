@@ -403,7 +403,28 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         const iso = getSelectedCountryIso();
+        const digitsOnly = inputElement.value.replace(/\D/g, '');
+
+        // Validação básica: se não tem dígitos suficientes, não mostrar erro ainda
+        if (digitsOnly.length < 4) {
+            inputElement.setCustomValidity('');
+            inputElement.classList.remove('is-invalid');
+            inputElement.classList.remove('is-valid');
+            return;
+        }
+
+        // Se a biblioteca não estiver carregada ou ISO não selecionado, validação básica
         if (!window.libphonenumber || !iso) {
+            // Validação básica por tamanho
+            if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+                inputElement.setCustomValidity('Número de telefone inválido. Verifique o número informado.');
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+            } else {
+                inputElement.setCustomValidity('');
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+            }
             return;
         }
 
@@ -414,17 +435,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 inputElement.classList.remove('is-invalid');
                 inputElement.classList.add('is-valid');
             } else {
-                const digitsOnly = inputElement.value.replace(/\D/g, '');
-                // Validar se tem dígitos suficientes para ser considerado um número completo
-                if (digitsOnly.length >= 4) {
-                    inputElement.setCustomValidity('Número de telefone inválido para o país selecionado');
-                    inputElement.classList.remove('is-valid');
-                    inputElement.classList.add('is-invalid');
-                } else {
-                    inputElement.setCustomValidity('');
-                    inputElement.classList.remove('is-invalid');
-                    inputElement.classList.remove('is-valid');
-                }
+                // Número inválido - sempre mostrar erro se tem 4+ dígitos
+                inputElement.setCustomValidity('Número de telefone inválido para o país selecionado');
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
             }
         } catch (error) {
             console.warn('Erro na validação em tempo real:', error);
@@ -859,6 +873,8 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!phoneForm.checkValidity()) {
                 e.stopPropagation();
                 phoneForm.classList.add("was-validated");
+                // Mostrar alerta claro quando a validação falhar
+                showAlert('registerAlertContainer', 'danger', 'Por favor, verifique o número de telefone informado.');
                 return;
             }
 
