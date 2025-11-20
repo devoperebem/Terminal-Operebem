@@ -198,13 +198,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 step.classList.add('d-none');
             }
         }
-        
+
         // Mostrar o passo atual
         const currentStep = document.getElementById(`step${stepNumber}`);
         if (currentStep) {
             currentStep.classList.remove('d-none');
         }
-        
+
+        // Mostrar/esconder botão de voltar (não mostrar no step 1)
+        if (registerBackBtn) {
+            if (stepNumber === 1) {
+                registerBackBtn.style.display = 'none';
+            } else {
+                registerBackBtn.style.display = '';
+            }
+        }
+
         // Atualizar indicadores de progresso
         updateStepIndicators(stepNumber);
     }
@@ -265,14 +274,32 @@ document.addEventListener("DOMContentLoaded", function() {
         return (selected && selected.dataset.iso) ? selected.dataset.iso.toUpperCase() : null;
     }
 
+    function getMaxPhoneLengthForCountry(iso) {
+        if (!window.libphonenumber || !phoneExampleData) {
+            return 25;
+        }
+        try {
+            const example = window.libphonenumber.getExampleNumber(iso, phoneExampleData);
+            if (example) {
+                const formatted = example.formatNational();
+                return formatted.length + 3;
+            }
+        } catch (error) {
+            console.warn('Erro ao obter tamanho máximo:', error);
+        }
+        return 25;
+    }
+
     function formatPhoneFieldValue(value) {
         const iso = getSelectedCountryIso();
         if (!window.libphonenumber || !iso) {
             return value.replace(/[^\d+]/g, '');
         }
         try {
+            const maxLength = getMaxPhoneLengthForCountry(iso);
+            const truncated = value.substring(0, maxLength);
             const formatter = new window.libphonenumber.AsYouType(iso);
-            return formatter.input(value);
+            return formatter.input(truncated);
         } catch (error) {
             console.warn('Erro ao formatar telefone:', error);
             return value.replace(/[^\d+]/g, '');
@@ -362,6 +389,40 @@ document.addEventListener("DOMContentLoaded", function() {
         };
     }
 
+    async function validatePhoneInRealTime(inputElement) {
+        if (!inputElement || !inputElement.value) {
+            inputElement.setCustomValidity('');
+            return;
+        }
+
+        const iso = getSelectedCountryIso();
+        if (!window.libphonenumber || !iso) {
+            return;
+        }
+
+        try {
+            const parsed = window.libphonenumber.parsePhoneNumberFromString(inputElement.value, iso);
+            if (parsed && parsed.isValid()) {
+                inputElement.setCustomValidity('');
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+            } else {
+                const digitsOnly = inputElement.value.replace(/\D/g, '');
+                if (digitsOnly.length >= 4) {
+                    inputElement.setCustomValidity('Número de telefone inválido para o país selecionado');
+                    inputElement.classList.remove('is-valid');
+                    inputElement.classList.add('is-invalid');
+                } else {
+                    inputElement.setCustomValidity('');
+                    inputElement.classList.remove('is-invalid');
+                    inputElement.classList.remove('is-valid');
+                }
+            }
+        } catch (error) {
+            console.warn('Erro na validação em tempo real:', error);
+        }
+    }
+
     // Máscaras de input
     function initMasks() {
         // Máscara para CPF
@@ -385,6 +446,10 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             phoneInput.addEventListener('input', function(e) {
                 e.target.value = formatPhoneFieldValue(e.target.value);
+                validatePhoneInRealTime(e.target);
+            });
+            phoneInput.addEventListener('blur', function(e) {
+                validatePhoneInRealTime(e.target);
             });
         }
         if (countryCodeSelect) {
@@ -392,6 +457,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const input = document.getElementById('telefone');
                 if (input) {
                     input.value = formatPhoneFieldValue(input.value);
+                    validatePhoneInRealTime(input);
                 }
                 ensurePhoneLib().then(() => updatePhonePlaceholder());
             });
