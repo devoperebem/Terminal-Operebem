@@ -281,8 +281,13 @@ document.addEventListener("DOMContentLoaded", function() {
         try {
             const example = window.libphonenumber.getExampleNumber(iso, phoneExampleData);
             if (example) {
+                // Usar o tamanho do número nacional (apenas dígitos) para determinar o máximo
+                const nationalNumber = String(example.nationalNumber || '');
+                const digitsOnly = nationalNumber.replace(/\D/g, '');
+                // Retornar o tamanho exato do exemplo (sem adições arbitrárias)
+                // Mas permitir o tamanho formatado para a máscara visual
                 const formatted = example.formatNational();
-                return formatted.length + 3;
+                return formatted.length;
             }
         } catch (error) {
             console.warn('Erro ao obter tamanho máximo:', error);
@@ -296,10 +301,31 @@ document.addEventListener("DOMContentLoaded", function() {
             return value.replace(/[^\d+]/g, '');
         }
         try {
-            const maxLength = getMaxPhoneLengthForCountry(iso);
-            const truncated = value.substring(0, maxLength);
+            // Obter o número máximo de DÍGITOS permitido para o país
+            let maxDigits = 15; // padrão internacional
+            if (phoneExampleData) {
+                try {
+                    const example = window.libphonenumber.getExampleNumber(iso, phoneExampleData);
+                    if (example) {
+                        const exampleNumber = String(example.nationalNumber || '');
+                        const exampleDigits = exampleNumber.replace(/\D/g, '');
+                        // Permitir até 1 dígito a mais que o exemplo (para variações)
+                        maxDigits = exampleDigits.length + 1;
+                    }
+                } catch (e) {
+                    console.warn('Erro ao obter exemplo:', e);
+                }
+            }
+
+            // Extrair apenas os dígitos do valor atual
+            const digitsOnly = value.replace(/\D/g, '');
+
+            // Limitar ao número máximo de dígitos
+            const truncatedDigits = digitsOnly.substring(0, maxDigits);
+
+            // Formatar o número truncado
             const formatter = new window.libphonenumber.AsYouType(iso);
-            return formatter.input(truncated);
+            return formatter.input(truncatedDigits);
         } catch (error) {
             console.warn('Erro ao formatar telefone:', error);
             return value.replace(/[^\d+]/g, '');
@@ -476,9 +502,13 @@ document.addEventListener("DOMContentLoaded", function() {
         const nationalNumber = String(parsed.nationalNumber);
         const digitsOnly = nationalNumber.replace(/\D/g, '');
 
-        // Número brasileiro deve ter 10 (fixo) ou 11 (móvel) dígitos
-        if (digitsOnly.length < 10 || digitsOnly.length > 11) {
-            return { valid: false, message: 'Número brasileiro deve ter 10 ou 11 dígitos' };
+        // VALIDAÇÃO RIGOROSA: Número brasileiro deve ter EXATAMENTE 10 (fixo) ou 11 (móvel) dígitos
+        if (digitsOnly.length < 10) {
+            return { valid: false, message: 'Número brasileiro deve ter pelo menos 10 dígitos' };
+        }
+
+        if (digitsOnly.length > 11) {
+            return { valid: false, message: 'Número brasileiro não pode ter mais de 11 dígitos' };
         }
 
         // Extrair DDD (2 primeiros dígitos)
@@ -520,9 +550,40 @@ document.addEventListener("DOMContentLoaded", function() {
         const nationalNumber = String(parsed.nationalNumber);
         const digitsOnly = nationalNumber.replace(/\D/g, '');
 
-        // Verificar tamanho mínimo e máximo
-        if (digitsOnly.length < 6 || digitsOnly.length > 15) {
-            return { valid: false, message: 'Número tem comprimento inválido' };
+        // Verificar tamanho mínimo
+        if (digitsOnly.length < 6) {
+            return { valid: false, message: 'Número muito curto para este país' };
+        }
+
+        // Obter o tamanho esperado baseado no exemplo do país
+        if (window.libphonenumber && phoneExampleData && iso) {
+            try {
+                const example = window.libphonenumber.getExampleNumber(iso, phoneExampleData);
+                if (example) {
+                    const exampleNumber = String(example.nationalNumber || '');
+                    const exampleDigits = exampleNumber.replace(/\D/g, '');
+                    const expectedLength = exampleDigits.length;
+
+                    // Permitir até 2 dígitos de diferença (para variações válidas dentro do país)
+                    const minLength = Math.max(6, expectedLength - 1);
+                    const maxLength = expectedLength + 1;
+
+                    if (digitsOnly.length < minLength) {
+                        return { valid: false, message: 'Número muito curto para este país' };
+                    }
+
+                    if (digitsOnly.length > maxLength) {
+                        return { valid: false, message: 'Número muito longo para este país' };
+                    }
+                }
+            } catch (error) {
+                console.warn('Erro ao validar comprimento:', error);
+            }
+        } else {
+            // Fallback: validação genérica se não tiver biblioteca
+            if (digitsOnly.length > 15) {
+                return { valid: false, message: 'Número muito longo' };
+            }
         }
 
         return { valid: true };
