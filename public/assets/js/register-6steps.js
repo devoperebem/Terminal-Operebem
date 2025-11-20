@@ -314,8 +314,8 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (iso === 'BR') {
                             maxDigits = 11; // máximo para celular (DDD 2 dígitos + 9 dígitos)
                         } else {
-                            // Outros países: permitir até 1 dígito a mais que o exemplo (para variações)
-                            maxDigits = exampleDigits.length + 1;
+                            // Outros países: usar exatamente o tamanho do exemplo (sem margem extra)
+                            maxDigits = exampleDigits.length;
                         }
                     }
                 } catch (e) {
