@@ -1,32 +1,32 @@
-  // Mapeia o item de cripto para o slug do PNG em /assets/images/crypto-dashboard-flags
-  function cryptoSlugFrom(item){
-    const t = ((item.code || item.apelido || item.nome || '') + '').toLowerCase();
-    if (!t) return null;
-    if (t.includes('btc') || t.includes('bitcoin')) return 'bitcoin';
-    if (t.includes('eth') || t.includes('ethereum')) return 'ethereum';
-    if (t.includes('xrp') || t.includes('ripple')) return 'xrp';
-    if (t.includes('ada') || t.includes('cardano')) return 'cardano';
-    if (t.includes('bnb')) return 'bnb';
-    if (t.includes('sol') || t.includes('solana')) return 'solana';
-    if (t.includes('trx') || t.includes('tron')) return 'tron';
-    if (t.includes('doge') || t.includes('dogecoin')) return 'dogecoin';
-    if (t.includes('trump')) return 'trump';
-    return null;
-  }
+// Mapeia o item de cripto para o slug do PNG em /assets/images/crypto-dashboard-flags
+function cryptoSlugFrom(item) {
+  const t = ((item.code || item.apelido || item.nome || '') + '').toLowerCase();
+  if (!t) return null;
+  if (t.includes('btc') || t.includes('bitcoin')) return 'bitcoin';
+  if (t.includes('eth') || t.includes('ethereum')) return 'ethereum';
+  if (t.includes('xrp') || t.includes('ripple')) return 'xrp';
+  if (t.includes('ada') || t.includes('cardano')) return 'cardano';
+  if (t.includes('bnb')) return 'bnb';
+  if (t.includes('sol') || t.includes('solana')) return 'solana';
+  if (t.includes('trx') || t.includes('tron')) return 'tron';
+  if (t.includes('doge') || t.includes('dogecoin')) return 'dogecoin';
+  if (t.includes('trump')) return 'trump';
+  return null;
+}
 /*
  * Dashboard boot script - Portado do projeto antigo para o novo MVC
  * Responsável por carregar as cotações via /actions/boot.php e preencher as tabelas
  */
 
-(function() {
+(function () {
   const ENDPOINT = '/actions/boot.php';
   const flashTimers = {};
-  const RATES_WHITELIST = new Set(['US1M','US02Y','US05Y','US10Y','BR02Y','BR05Y','BR10Y','EU10Y','GB10Y','JP10Y']);
+  const RATES_WHITELIST = new Set(['US1M', 'US02Y', 'US05Y', 'US10Y', 'BR02Y', 'BR05Y', 'BR10Y', 'EU10Y', 'GB10Y', 'JP10Y']);
   let WS = null; let WS_OK = false; let COMP_TIMER = null; let FALLBACK_TIMER = null;
 
-  function flashTextColor(el, flashColor, duration=1000, key=''){
+  function flashTextColor(el, flashColor, duration = 1000, key = '') {
     if (!el) return;
-    try{
+    try {
       const original = getComputedStyle(el).color;
       // Sem transições: aplica cor de flash imediatamente
       el.style.setProperty('transition', 'none');
@@ -34,13 +34,13 @@
       el.style.setProperty('color', flashColor, 'important');
 
       if (key && flashTimers[key]) clearTimeout(flashTimers[key]);
-      if (key) flashTimers[key] = setTimeout(()=>{
+      if (key) flashTimers[key] = setTimeout(() => {
         // Reverte imediatamente à cor original capturada, sem fade
         el.style.setProperty('transition', 'none');
         el.style.setProperty('color', original, 'important');
         el.style.removeProperty('will-change');
       }, duration);
-    }catch(e){}
+    } catch (e) { }
   }
 
   // Helpers
@@ -49,7 +49,7 @@
     try {
       // Obter timezone do usuário (padrão: America/Sao_Paulo)
       const userTimezone = window.USER_TIMEZONE || 'America/Sao_Paulo';
-      
+
       const utcDate = new Date(parseInt(ts, 10) * 1000);
       const time = utcDate.toLocaleString('pt-BR', {
         timeZone: userTimezone,
@@ -97,8 +97,8 @@
     return Number.isFinite(n) ? n : null;
   }
 
-  function exchangeFromBolsa(b){
-    const s = (b||'').toString().toLowerCase();
+  function exchangeFromBolsa(b) {
+    const s = (b || '').toString().toLowerCase();
     if (!s) return null;
     if (s.includes('b3') || s.includes('sao paulo') || s.includes('são paulo')) return 'XBSP';
     if (s.includes('nyse')) return 'XNYS';
@@ -121,7 +121,7 @@
     return null;
   }
 
-  function exchangeCodeForItem(item){
+  function exchangeCodeForItem(item) {
     const byBolsa = exchangeFromBolsa(item && item.bolsa);
     if (byBolsa) return byBolsa;
     const g = (item && item.grupo || '').toString();
@@ -209,8 +209,8 @@
     return selector.replace(/[!"#$%&'()*+,./:;<=>?@[\]^`{|}~]/g, "\\$&");
   }
 
-  function escapeAttr(val){
-    try { return String(val).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); } catch(_) { return ''; }
+  function escapeAttr(val) {
+    try { return String(val).replace(/[&<>"]/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[s])); } catch (_) { return ''; }
   }
 
   /**
@@ -236,19 +236,19 @@
         try {
           tipEl = (inst.getTipElement && inst.getTipElement());
           isOpen = !!(tipEl && tipEl.classList.contains('show'));
-        } catch(_) {}
+        } catch (_) { }
 
         if (isOpen) {
           // TOOLTIP VISÍVEL: Apenas atualizar o conteúdo interno sem destruir
           try {
             const inner = tipEl.querySelector('.tooltip-inner');
             if (inner) inner.textContent = newTooltipText;
-          } catch(_) {}
+          } catch (_) { }
         } else {
           // TOOLTIP NÃO VISÍVEL: Seguro destruir e recriar com novo conteúdo
           try {
             inst.dispose();
-          } catch(_) {}
+          } catch (_) { }
 
           // Recriar tooltip com novo conteúdo
           if (window.bootstrap && bootstrap.Tooltip) {
@@ -267,7 +267,7 @@
           });
         }
       }
-    } catch(e) {
+    } catch (e) {
       console.error('Erro ao atualizar tooltip:', e);
     }
   }
@@ -347,7 +347,7 @@
           if (card && card.length) {
             const percCells = card.find('td.perc');
             let sum = 0, cnt = 0;
-            percCells.each(function(){
+            percCells.each(function () {
               const t = ($(this).text() || '').toString();
               const n = toNumber(t.includes('%') ? t : (t + '%'));
               if (n !== null && Number.isFinite(n)) { sum += n; cnt++; }
@@ -363,7 +363,7 @@
               else el.addClass('neutral');
             }
           }
-        } catch(e){}
+        } catch (e) { }
       }
     }
 
@@ -380,7 +380,7 @@
     }
 
     // Notificar listeners (ex.: snapshot) que a linha foi atualizada
-    try { window.dispatchEvent(new CustomEvent('dashboardRowUpdated', { detail: { id: String(id_api) } })); } catch(_){ }
+    try { window.dispatchEvent(new CustomEvent('dashboardRowUpdated', { detail: { id: String(id_api) } })); } catch (_) { }
   }
 
   function calculateAveragePercentage(items) {
@@ -429,7 +429,7 @@
         const val = Number.isFinite(avg) ? parseFloat(avg.toFixed(2)) : 0;
         el.textContent = `${val.toFixed(2)}%`;
         // Classes de cor: positivo/negativo/neutro conforme valor
-        el.classList.remove('positive','negative','neutral');
+        el.classList.remove('positive', 'negative', 'neutral');
         if (val > 0) el.classList.add('positive');
         else if (val < 0) el.classList.add('negative');
         else el.classList.add('neutral');
@@ -489,7 +489,7 @@
             ${nameHtml}
           </div>
         </td>
-        <td class="text-right vlr_field tooltip-target vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}" data-tooltip="${escapeAttr(item.pc || '')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
+        <td class="text-right vlr_field vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}" data-tooltip="${escapeAttr(item.pc || '')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
         <td class="text-right ${classPerc} perc_${itemKey} tooltip-target perc" data-tooltip="${escapeAttr(item.pc || '')}" data-tooltip-color="${colorPerc}" style="font-weight: 900 !important; color: ${colorPerc} !important;">${pDisp}</td>
         <td class="text-right text-muted hr_${itemKey} tooltip-target-left" data-tooltip="${escapeAttr(timeInfo.full)}">${item.last ? escapeAttr(timeInfo.time) : ''}</td>
       </tr>
@@ -529,7 +529,7 @@
             <span class="tooltip-target" data-tooltip="${escapeAttr(cleanNome)}">${escapeAttr(cleanApelido)}</span>
           </div>
         </td>
-        <td class="text-right vlr_field tooltip-target vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}" data-tooltip="${escapeAttr(item.pc || '')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
+        <td class="text-right vlr_field vlr_${itemKey}" last="${escapeAttr(item.last ?? '0')}" data-tooltip="${escapeAttr(item.pc || '')}"><span class="vlr-text">${escapeAttr(item.last ?? '')}</span></td>
         <td class="text-right ${classPerc} perc_${itemKey} tooltip-target perc" data-tooltip="${escapeAttr(item.pc || '')}" data-tooltip-color="${colorPerc}" style="font-weight: 900 !important; color: ${colorPerc} !important;">${pDisp}</td>
         <td class="text-right text-muted hr_${itemKey} tooltip-target-left" data-tooltip="${escapeAttr(timeInfo.full)}">${item.last ? escapeAttr(timeInfo.time) : ''}</td>
       </tr>
@@ -695,13 +695,13 @@
             item.status_hr
           );
         });
-      } catch(e) {}
+      } catch (e) { }
     }, 20000);
   }
 
-  function stopComplementLoop(){ if (COMP_TIMER) { clearInterval(COMP_TIMER); COMP_TIMER = null; } }
-  function startFallbackLoop(){ if (!FALLBACK_TIMER) { FALLBACK_TIMER = setInterval(updateLoop, 5000); } }
-  function stopFallbackLoop(){ if (FALLBACK_TIMER) { clearInterval(FALLBACK_TIMER); FALLBACK_TIMER = null; } }
+  function stopComplementLoop() { if (COMP_TIMER) { clearInterval(COMP_TIMER); COMP_TIMER = null; } }
+  function startFallbackLoop() { if (!FALLBACK_TIMER) { FALLBACK_TIMER = setInterval(updateLoop, 5000); } }
+  function stopFallbackLoop() { if (FALLBACK_TIMER) { clearInterval(FALLBACK_TIMER); FALLBACK_TIMER = null; } }
 
   // Agendador alinhado a cada 5 minutos para garantir refresh exato de status de mercado
   function scheduleFiveMinuteAligned() {
@@ -714,7 +714,7 @@
         updateLoop();
         setInterval(updateLoop, 5 * 60 * 1000);
       }, delay);
-    } catch(e) { /* noop */ }
+    } catch (e) { /* noop */ }
   }
 
   function parseProxyMessage(raw) {
@@ -762,7 +762,7 @@
         return null;
       }
       return null;
-    } catch(e) { return null; }
+    } catch (e) { return null; }
   }
 
   function startWebsocketIfConfigured() {
@@ -785,16 +785,16 @@
             const sel = `.vlr_${(window.CSS && CSS.escape) ? CSS.escape(key) : escapeSelector(key)}`;
             const exists = !!document.querySelector(sel);
             // console.log('[WS][dom]', key, exists);
-          } catch(e){}
+          } catch (e) { }
           updateUIValues(key, q.last, q.pc, q.pcp, q.timestamp, q.status_mercado, q.status_hr);
         }
       };
       WS.onclose = () => { WS_OK = false; startFallbackLoop(); setTimeout(startWebsocketIfConfigured, 3000); };
-      WS.onerror = () => {};
-    } catch(e) {}
+      WS.onerror = () => { };
+    } catch (e) { }
   }
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     init();
     startWebsocketIfConfigured();
     // Complement Loader ativo a cada 20s para campos complementares (CNBC/Yahoo)
@@ -804,5 +804,5 @@
   });
 
   // Expor helper global para testes manuais no console
-  try { window.updateDashboardValue = function(id, last, pc, pcp, ts, sm, shr){ updateUIValues(String(id), last, pc, pcp, ts, sm, shr); }; } catch(e){}
+  try { window.updateDashboardValue = function (id, last, pc, pcp, ts, sm, shr) { updateUIValues(String(id), last, pc, pcp, ts, sm, shr); }; } catch (e) { }
 })();
