@@ -390,8 +390,15 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     async function validatePhoneInRealTime(inputElement) {
-        if (!inputElement || !inputElement.value) {
+        if (!inputElement) {
+            return;
+        }
+
+        // Se o campo está vazio, limpar validação
+        if (!inputElement.value || inputElement.value.trim() === '') {
             inputElement.setCustomValidity('');
+            inputElement.classList.remove('is-invalid');
+            inputElement.classList.remove('is-valid');
             return;
         }
 
@@ -408,6 +415,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 inputElement.classList.add('is-valid');
             } else {
                 const digitsOnly = inputElement.value.replace(/\D/g, '');
+                // Validar se tem dígitos suficientes para ser considerado um número completo
                 if (digitsOnly.length >= 4) {
                     inputElement.setCustomValidity('Número de telefone inválido para o país selecionado');
                     inputElement.classList.remove('is-valid');
@@ -420,6 +428,9 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         } catch (error) {
             console.warn('Erro na validação em tempo real:', error);
+            inputElement.setCustomValidity('Erro ao validar o número de telefone');
+            inputElement.classList.remove('is-valid');
+            inputElement.classList.add('is-invalid');
         }
     }
 
@@ -838,26 +849,36 @@ document.addEventListener("DOMContentLoaded", function() {
         phoneForm.addEventListener("submit", async function(e) {
             e.preventDefault();
 
+            const phoneInput = document.getElementById('telefone');
+
+            // Validar o número antes de verificar o checkValidity
+            if (phoneInput) {
+                await validatePhoneInRealTime(phoneInput);
+            }
+
             if (!phoneForm.checkValidity()) {
                 e.stopPropagation();
                 phoneForm.classList.add("was-validated");
                 return;
             }
 
-            const phoneInput = document.getElementById('telefone');
-
             try {
                 const parsedPhone = phoneInput ? await parsePhoneNumberFromInput(phoneInput.value) : null;
                 if (!parsedPhone) {
                     if (phoneInput) {
-                        phoneInput.setCustomValidity('Informe um telefone v?lido para o pa?s selecionado.');
+                        phoneInput.setCustomValidity('Informe um telefone válido para o país selecionado.');
+                        phoneInput.classList.remove('is-valid');
+                        phoneInput.classList.add('is-invalid');
                     }
                     phoneForm.classList.add("was-validated");
+                    showAlert('registerAlertContainer', 'danger', 'Por favor, informe um número de telefone válido.');
                     return;
                 }
                 const phoneData = buildPhoneSubmissionData(parsedPhone);
                 if (phoneInput) {
                     phoneInput.setCustomValidity('');
+                    phoneInput.classList.remove('is-invalid');
+                    phoneInput.classList.add('is-valid');
                     phoneInput.value = phoneData.formatted;
                 }
 
