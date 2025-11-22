@@ -568,12 +568,22 @@ html.all-black .hero-stat-icon {
     .reviews-title .highlight{color:#3b82f6}
     .reviews-subtitle{color:#6b7280}
     .reviews-carousel-wrapper{position:relative;overflow:visible;padding:20px 0}
+    .reviews-carousel-wrapper .carousel-control-prev,
+    .reviews-carousel-wrapper .carousel-control-next{width:48px;height:48px;opacity:1;background:rgba(0,0,0,.6);border-radius:50%;top:50%;transform:translateY(-50%)}
+    .reviews-carousel-wrapper .carousel-control-prev:hover,
+    .reviews-carousel-wrapper .carousel-control-next:hover{background:rgba(0,0,0,.8)}
+    .reviews-carousel-wrapper .carousel-control-prev{left:-70px}
+    .reviews-carousel-wrapper .carousel-control-next{right:-70px}
+    .reviews-carousel-wrapper .carousel-control-prev-icon,
+    .reviews-carousel-wrapper .carousel-control-next-icon{filter:invert(1)}
     .reviews-peek-container{display:flex;justify-content:center;align-items:center;gap:30px;min-height:400px;position:relative}
     .review-card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:28px;border:1px solid rgba(0,0,0,.08);min-width:320px;max-width:420px;flex-shrink:0;transition:all .6s cubic-bezier(0.4, 0, 0.2, 1);position:absolute;left:50%;transform:translateX(-50%) scale(0.85);filter:blur(3px);opacity:0.5;z-index:1;pointer-events:none}
     .review-card.active{transform:translateX(-50%) scale(1);filter:blur(0);opacity:1;z-index:3;pointer-events:auto}
-    .review-card.prev{transform:translateX(calc(-50% - 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2}
-    .review-card.next{transform:translateX(calc(-50% + 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2}
-    .review-card.hidden{opacity:0;pointer-events:none;z-index:0}
+    .review-card.prev{transform:translateX(calc(-50% - 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2;pointer-events:auto;cursor:pointer}
+    .review-card.next{transform:translateX(calc(-50% + 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2;pointer-events:auto;cursor:pointer}
+    .review-card.prev:hover,.review-card.next:hover{opacity:0.7;transform:translateX(calc(-50% - 380px)) scale(0.9)}
+    .review-card.next:hover{transform:translateX(calc(-50% + 380px)) scale(0.9)}
+    .review-card.hidden{opacity:0;pointer-events:none;z-index:0;transform:translateX(-50%) scale(0.7)}
     .review-text{font-size:1rem;line-height:1.7;color:#4b5563;margin-bottom:20px;font-style:italic}
     .review-author{display:flex;align-items:center;gap:14px}
     .review-avatar{width:56px;height:56px;border-radius:50%;overflow:hidden;border:3px solid #e5e7eb}
@@ -585,8 +595,8 @@ html.all-black .hero-stat-icon {
     .skeleton-text{height:16px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:12px}
     .skeleton-text.short{width:60%}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    @media(max-width:992px){.reviews-peek-container{gap:15px}.review-card{min-width:280px;max-width:350px}.review-card.prev,.review-card.next{opacity:0;transform:translateX(-50%) scale(0.7)}}
-    @media(max-width:768px){.reviews-section{padding:60px 0}.review-card{min-width:90%;max-width:90%}}
+    @media(max-width:992px){.reviews-peek-container{gap:0;overflow:hidden}.review-card{min-width:85%;max-width:85%}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.7);opacity:0;pointer-events:none}.reviews-carousel-wrapper .carousel-control-prev{left:10px}.reviews-carousel-wrapper .carousel-control-next{right:10px}}
+    @media(max-width:768px){.reviews-section{padding:60px 0}.reviews-peek-container{min-height:350px}.review-card{min-width:90%;max-width:90%;padding:24px}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.6)}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{width:40px;height:40px}}
     html.dark-blue .reviews-section{background:#001233}
     html.dark-blue .reviews-title{color:#fff}
     html.dark-blue .reviews-subtitle{color:#9ca3af}
@@ -601,6 +611,19 @@ html.all-black .hero-stat-icon {
     html.light .faq-section{background:#f8fafc}
     html.dark-blue .faq-section{background:#001233}
     html.all-black .faq-section{background:#0a0a0a}
+    /* FAQ text visibility */
+    .faq-section .title_login{color:#1a1a1a}
+    .faq-section .accordion-button{color:#1a1a1a;background-color:#fff}
+    .faq-section .accordion-button:not(.collapsed){color:#0d6efd;background-color:#e7f1ff}
+    .faq-section .accordion-body{color:#4b5563}
+    html.dark-blue .faq-section .title_login{color:#fff}
+    html.dark-blue .faq-section .accordion-button{color:#fff;background-color:#002855}
+    html.dark-blue .faq-section .accordion-button:not(.collapsed){color:#0d84ff;background-color:#003d7a}
+    html.dark-blue .faq-section .accordion-body{color:#d1d5db}
+    html.all-black .faq-section .title_login{color:#fff}
+    html.all-black .faq-section .accordion-button{color:#fff;background-color:#1a1a1a}
+    html.all-black .faq-section .accordion-button:not(.collapsed){color:#0d84ff;background-color:#2a2a2a}
+    html.all-black .faq-section .accordion-body{color:#d1d5db}
     /* Captcha: hide scrollbars */
     #captcha-login-container,#captcha-forgot-container{overflow:hidden}
     #captcha-login-container::-webkit-scrollbar,#captcha-forgot-container::-webkit-scrollbar{width:0;height:0}
@@ -638,12 +661,16 @@ html.all-black .hero-stat-icon {
 
         cards.forEach(function(card, idx){
           card.classList.remove('active','prev','next','hidden');
+          card.onclick = null; // Remove handler anterior
+
           if(idx === currentIndex){
             card.classList.add('active');
           } else if(idx === (currentIndex - 1 + total) % total){
             card.classList.add('prev');
+            card.onclick = function(){ prev(); };
           } else if(idx === (currentIndex + 1) % total){
             card.classList.add('next');
+            card.onclick = function(){ next(); };
           } else {
             card.classList.add('hidden');
           }
