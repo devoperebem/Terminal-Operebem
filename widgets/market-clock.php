@@ -203,6 +203,26 @@ html.all-black {
     color: #4b5563;
 }
 
+.market-tooltip-message {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 8px 0;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.market-tooltip-message.open {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 3px solid #10b981;
+    color: #059669;
+}
+
+.market-tooltip-message.closed {
+    background: rgba(107, 114, 128, 0.1);
+    border-left: 3px solid #6b7280;
+    color: #4b5563;
+}
+
 .market-progress-container {
     margin-top: 10px;
     margin-bottom: 8px;
@@ -308,6 +328,20 @@ html.all-black .market-tooltip-status.closed {
     color: #9ca3af;
     border: 1px solid rgba(107, 114, 128, 0.3);
 }
+
+html.dark-blue .market-tooltip-message.open,
+html.all-black .market-tooltip-message.open {
+    background: rgba(16, 185, 129, 0.15);
+    border-left: 3px solid #10b981;
+    color: #10b981;
+}
+
+html.dark-blue .market-tooltip-message.closed,
+html.all-black .market-tooltip-message.closed {
+    background: rgba(107, 114, 128, 0.15);
+    border-left: 3px solid #6b7280;
+    color: #9ca3af;
+}
 </style>
 
 <div class="market-clock-widget">
@@ -365,78 +399,131 @@ html.all-black .market-tooltip-status.closed {
     
     function showTooltip(market, isOpen, event) {
         const hours = market.brt.map(([s, e]) => `${s} - ${e}`).join(' | ');
-        const status = isOpen ? 'Aberto' : 'Fechado';
         const statusClass = isOpen ? 'open' : 'closed';
-        
-        // Calcular progresso do dia de mercado
+
+        const now = new Date();
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+        const pad = n => String(n).padStart(2, '0');
+        const currentTimeLabel = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+        // Calcular informações de tempo
+        let statusMessage = '';
         let progressPercent = 0;
-        let currentTimeLabel = '--:--';
-        let progressHtml = '';
-        
+        let progressStart = '--:--';
+        let progressEnd = '--:--';
+
         if (isOpen && market.brt.length > 0) {
-            const now = new Date();
-            const nowMin = now.getHours() * 60 + now.getMinutes();
-            
-            // Encontrar o segmento ativo
+            // Mercado ABERTO - encontrar segmento ativo e calcular tempo até fechar
             for (const [start, end] of market.brt) {
                 const startMin = timeToMin(start);
                 const endMin = timeToMin(end);
-                
+
                 if (nowMin >= startMin && nowMin < endMin) {
                     const totalMin = endMin - startMin;
                     const elapsedMin = nowMin - startMin;
+                    const remainingMin = endMin - nowMin;
                     progressPercent = (elapsedMin / totalMin) * 100;
-                    
-                    const pad = n => String(n).padStart(2, '0');
-                    currentTimeLabel = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-                    
-                    progressHtml = `
-                        <div class="market-progress-container">
-                            <div class="market-progress-label">
-                                <span>${start}</span>
-                                <span style="font-weight: 600; color: #60a5fa;">${currentTimeLabel}</span>
-                                <span>${end}</span>
-                            </div>
-                            <div class="market-progress-bar-bg">
-                                <div class="market-progress-bar-fill" style="width: ${progressPercent.toFixed(1)}%"></div>
-                            </div>
-                        </div>
-                    `;
+
+                    progressStart = start;
+                    progressEnd = end;
+
+                    // Calcular horas e minutos restantes
+                    const hoursLeft = Math.floor(remainingMin / 60);
+                    const minutesLeft = remainingMin % 60;
+
+                    if (hoursLeft > 0) {
+                        statusMessage = `Fecha em ${hoursLeft} hora${hoursLeft > 1 ? 's' : ''} e ${minutesLeft} minuto${minutesLeft !== 1 ? 's' : ''}`;
+                    } else {
+                        statusMessage = `Fecha em ${minutesLeft} minuto${minutesLeft !== 1 ? 's' : ''}`;
+                    }
                     break;
                 }
             }
-        } else if (!isOpen) {
-            // Mercado fechado - barra cinza em 0%
-            progressHtml = `
-                <div class="market-progress-container">
-                    <div class="market-progress-label">
-                        <span>Fechado</span>
-                        <span style="font-weight: 600; color: #9ca3af;">--:--</span>
-                        <span>--:--</span>
-                    </div>
-                    <div class="market-progress-bar-bg">
-                        <div class="market-progress-bar-fill closed" style="width: 0%"></div>
-                    </div>
-                </div>
-            `;
+        } else if (!isOpen && market.brt.length > 0) {
+            // Mercado FECHADO - encontrar próximo horário de abertura
+            let nextOpenMin = null;
+            let nextOpenStr = null;
+            let nextCloseStr = null;
+
+            // Procurar próximo segmento hoje
+            for (const [start, end] of market.brt) {
+                const startMin = timeToMin(start);
+                const endMin = timeToMin(end);
+
+                if (nowMin < startMin) {
+                    nextOpenMin = startMin;
+                    nextOpenStr = start;
+                    nextCloseStr = end;
+                    break;
+                }
+            }
+
+            // Se não encontrou hoje, usar primeiro segmento de amanhã
+            if (nextOpenMin === null && market.brt.length > 0) {
+                const [start, end] = market.brt[0];
+                nextOpenMin = timeToMin(start) + 1440; // adicionar 24h
+                nextOpenStr = start;
+                nextCloseStr = end;
+            }
+
+            if (nextOpenMin !== null) {
+                let minutesUntilOpen = nextOpenMin - nowMin;
+                if (minutesUntilOpen < 0) minutesUntilOpen += 1440; // se for negativo, é amanhã
+
+                const hoursUntil = Math.floor(minutesUntilOpen / 60);
+                const minutesUntil = minutesUntilOpen % 60;
+
+                if (hoursUntil > 0) {
+                    statusMessage = `Abre em ${hoursUntil} hora${hoursUntil > 1 ? 's' : ''} e ${minutesUntil} minuto${minutesUntil !== 1 ? 's' : ''}`;
+                } else {
+                    statusMessage = `Abre em ${minutesUntil} minuto${minutesUntil !== 1 ? 's' : ''}`;
+                }
+
+                progressStart = nextOpenStr;
+                progressEnd = nextCloseStr;
+            } else {
+                statusMessage = 'Horário de abertura não disponível';
+            }
         }
-        
+
+        // HTML do progresso (sempre mostrar, mesmo fechado)
+        const progressHtml = `
+            <div class="market-progress-container">
+                <div class="market-progress-label">
+                    <span>${progressStart}</span>
+                    <span style="font-weight: 600; color: ${isOpen ? '#60a5fa' : '#9ca3af'};">${currentTimeLabel}</span>
+                    <span>${progressEnd}</span>
+                </div>
+                <div class="market-progress-bar-bg">
+                    <div class="market-progress-bar-fill ${isOpen ? '' : 'closed'}" style="width: ${progressPercent.toFixed(1)}%"></div>
+                </div>
+            </div>
+        `;
+
+        // Status principal
+        const statusBadge = isOpen
+            ? `<div class="market-tooltip-status ${statusClass}">✓ Mercado Aberto</div>`
+            : `<div class="market-tooltip-status ${statusClass}">— Mercado Fechado</div>`;
+
         tooltip.innerHTML = `
             <div class="market-tooltip-header">
                 <div class="market-tooltip-title">${market.fullName}</div>
                 <div class="market-status-indicator ${statusClass}"></div>
             </div>
             <div class="market-tooltip-location">📍 ${market.location}</div>
-            <div class="market-tooltip-hours">⏰ ${hours} (BRT)</div>
+            <div class="market-tooltip-message ${statusClass}">
+                ${statusMessage}
+            </div>
             ${progressHtml}
-            <div class="market-tooltip-status ${statusClass}">${status}</div>
+            <div class="market-tooltip-hours">⏰ Horário de negociação: ${hours} (BRT)</div>
+            ${statusBadge}
         `;
-        
+
         // Calcular posição relativa ao widget
         const widgetRect = document.querySelector('.market-clock-widget').getBoundingClientRect();
         const x = event.clientX - widgetRect.left + 15;
         const y = event.clientY - widgetRect.top;
-        
+
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
         tooltip.classList.add('show');
