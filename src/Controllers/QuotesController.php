@@ -64,9 +64,10 @@ class QuotesController
         try {
             $app = Application::getInstance();
             // Preferências ampliadas incluindo id_api específicos informados e GC futures
+            // IMPORTANTE: 8830 = GOLD principal (XAUUSD spot), prioridade absoluta
             $preferred = [
-                // Ouro principal
-                '8830','GOLD','XAUUSD','XAU/USD','GOLDUSD','GC1!','TVC:GOLD',
+                // Ouro principal (8830 em primeiro para garantir prioridade)
+                '8830','GOLD','XAUUSD','XAU/USD','GOLDUSD',
                 // DXY
                 '1224074','DXY','TVC:DXY','DX-Y.NYB','ICEUS:DXY',
                 // US10Y
@@ -75,8 +76,9 @@ class QuotesController
                 '44336','SPVIX','VIX','^VIX',
                 // GVZ
                 'GVZ','^GVZ','GVOL','GOLD VOLATILITY',
-                // GC futures grid
-                '1178340','1178341','1178342','1193189','1193190','1213656','1213657','GC2!','GC3!','GC4!','GC5!','GC6!','GC7!'
+                // GC futures grid (separados do gold principal)
+                '1178340','1178341','1178342','1193189','1193190','1213656','1213657',
+                'GC1!','GC2!','GC3!','GC4!','GC5!','GC6!','GC7!'
             ];
             $subset = $this->quotesService->getByIdsOrCodes($preferred);
             $subset = is_array($subset) ? $subset : [];
@@ -108,8 +110,9 @@ class QuotesController
                 return null;
             };
 
+            // IMPORTANTE: id_api 8830 = GOLD principal (XAUUSD spot), NÃO usar GC1! como principal
             $targets = [
-                'gold'  => ['codes' => ['8830','XAUUSD','XAU/USD','GOLD','GC1!','TVC:GOLD'], 'names' => ['OURO','GOLD'], 'keywords' => ['OURO','GOLD']],
+                'gold'  => ['codes' => ['8830','GOLD','XAUUSD','XAU/USD'], 'names' => ['OURO','GOLD'], 'keywords' => ['OURO']],
                 'dxy'   => ['codes' => ['1224074','DXY','TVC:DXY','DX-Y.NYB','ICEUS:DXY'], 'names' => ['DXY','DOLLAR INDEX'], 'keywords' => ['DOLLAR','DÓLAR','INDEX']],
                 'us10y' => ['codes' => ['US10Y','^TNX','UST10Y'], 'names' => ['10Y','TREASURY'], 'keywords' => ['10Y','TREASURY']],
                 'vix'   => ['codes' => ['44336','SPVIX','VIX','^VIX'], 'names' => ['VIX'], 'keywords' => ['VOLATILITY','VIX']],
