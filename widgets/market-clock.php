@@ -338,8 +338,8 @@ html.all-black .market-tooltip-status.closed {
     const R_HOUR_TEXT = 225;
     const R_MARKET_BASE = 195;
     const R_MARKET_STEP = 24;
-    const R_LABEL_OFFSET_TOP = 12;
-    const R_LABEL_OFFSET_BOTTOM = -12;
+    const R_LABEL_OFFSET_TOP = -8;
+    const R_LABEL_OFFSET_BOTTOM = 8;
     const MIN_GAP_MIN = 15;
     
     // Será preenchido via API (tabela clock). Mantemos fallback estático.
