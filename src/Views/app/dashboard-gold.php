@@ -108,7 +108,7 @@ html.all-black .correlation-info:hover {
           <div class="text-uppercase small text-muted mb-1">
             Ouro
             <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                  title="Ativo principal: Preço do ouro à vista (XAU/USD). É o benchmark global para o mercado de ouro.">?</span>
+                  title="Ouro à vista (XAU/USD): Principal referência mundial para o preço do ouro, negociado 24h no mercado spot.">?</span>
           </div>
           <div class="fs-5 fw-semibold mb-1" id="q_gold_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
@@ -124,9 +124,27 @@ html.all-black .correlation-info:hover {
       <div class="card h-100">
         <div class="card-body p-3">
           <div class="text-uppercase small text-muted mb-1">
+            Ouro 2!
+            <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Fonte alternativa de cotação do ouro à vista, útil para comparação e validação de preços.">?</span>
+          </div>
+          <div class="fs-5 fw-semibold mb-1" id="q_gold2_price">--</div>
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="small" id="q_gold2_change">--</div>
+            <div class="fs-6 fw-semibold" id="q_gold2_pc">--</div>
+          </div>
+          <div class="small text-muted mt-1" id="q_gold2_time">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-xl">
+      <div class="card h-100">
+        <div class="card-body p-3">
+          <div class="text-uppercase small text-muted mb-1">
             DXY
             <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                  title="Correlação inversa: Quando o dólar fortalece (DXY sobe), o ouro tende a cair, pois fica mais caro para compradores estrangeiros.">?</span>
+                  title="Índice do Dólar (DXY): Correlação inversa forte com o ouro. Dólar forte = ouro mais caro internacionalmente = menor demanda.">?</span>
           </div>
           <div class="fs-5 fw-semibold mb-1" id="q_dxy_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
@@ -144,7 +162,7 @@ html.all-black .correlation-info:hover {
           <div class="text-uppercase small text-muted mb-1">
             US10Y
             <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                  title="Correlação inversa: Juros altos (US10Y sobe) tornam títulos mais atrativos que ouro, que não paga juros.">?</span>
+                  title="Títulos de 10 anos (US10Y): Correlação inversa. Juros altos reduzem atratividade do ouro, que não paga rendimentos.">?</span>
           </div>
           <div class="fs-5 fw-semibold mb-1" id="q_us10y_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
@@ -162,7 +180,7 @@ html.all-black .correlation-info:hover {
           <div class="text-uppercase small text-muted mb-1">
             VIX
             <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                  title="Correlação positiva: VIX mede volatilidade/medo no mercado. Quando sobe, investidores buscam segurança no ouro.">?</span>
+                  title="Índice de Volatilidade (VIX): Correlação positiva. Medo e incerteza impulsionam investidores a buscar o ouro como porto seguro.">?</span>
           </div>
           <div class="fs-5 fw-semibold mb-1" id="q_vix_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
@@ -180,7 +198,7 @@ html.all-black .correlation-info:hover {
           <div class="text-uppercase small text-muted mb-1">
             Gold Vol
             <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                  title="Volatilidade do ouro: GVZ mede a volatilidade esperada do preço do ouro, similar ao VIX para ações.">?</span>
+                  title="Volatilidade do Ouro (GVZ): Mede expectativa de flutuação de preço do ouro. Valores altos indicam maior incerteza no mercado.">?</span>
           </div>
           <div class="fs-5 fw-semibold mb-1" id="q_gvz_price">--</div>
           <div class="d-flex align-items-center justify-content-between">

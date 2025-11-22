@@ -64,10 +64,12 @@ class QuotesController
         try {
             $app = Application::getInstance();
             // Preferências ampliadas incluindo id_api específicos informados e GC futures
-            // IMPORTANTE: 8830 = GOLD principal (XAUUSD spot), prioridade absoluta
+            // IMPORTANTE: 68 = GOLD principal (XAUUSD), 8830 = GOLD 2!
             $preferred = [
-                // Ouro principal (8830 em primeiro para garantir prioridade)
-                '8830','GOLD','XAUUSD','XAU/USD','GOLDUSD',
+                // Ouro principal (68 = XAUUSD à vista, prioridade absoluta)
+                '68','XAUUSD','XAU/USD',
+                // Ouro 2! (8830 = alternativo)
+                '8830','GOLD',
                 // DXY
                 '1224074','DXY','TVC:DXY','DX-Y.NYB','ICEUS:DXY',
                 // US10Y
@@ -110,13 +112,14 @@ class QuotesController
                 return null;
             };
 
-            // IMPORTANTE: id_api 8830 = GOLD principal (XAUUSD spot), NÃO usar GC1! como principal
+            // IMPORTANTE: id_api 68 = GOLD principal (XAUUSD), 8830 = GOLD 2!
             $targets = [
-                'gold'  => ['codes' => ['8830','GOLD','XAUUSD','XAU/USD'], 'names' => ['OURO','GOLD'], 'keywords' => ['OURO']],
-                'dxy'   => ['codes' => ['1224074','DXY','TVC:DXY','DX-Y.NYB','ICEUS:DXY'], 'names' => ['DXY','DOLLAR INDEX'], 'keywords' => ['DOLLAR','DÓLAR','INDEX']],
-                'us10y' => ['codes' => ['US10Y','^TNX','UST10Y'], 'names' => ['10Y','TREASURY'], 'keywords' => ['10Y','TREASURY']],
-                'vix'   => ['codes' => ['44336','SPVIX','VIX','^VIX'], 'names' => ['VIX'], 'keywords' => ['VOLATILITY','VIX']],
-                'gvz'   => ['codes' => ['GVZ','^GVZ','GVOL'], 'names' => ['GVZ','GOLD VOLATILITY'], 'keywords' => ['GOLD','VOLATILITY','GVZ']],
+                'gold'   => ['codes' => ['68','XAUUSD','XAU/USD'], 'names' => ['OURO','GOLD'], 'keywords' => []],
+                'gold2'  => ['codes' => ['8830','GOLD'], 'names' => ['OURO 2!','GOLD 2!'], 'keywords' => []],
+                'dxy'    => ['codes' => ['1224074','DXY','TVC:DXY','DX-Y.NYB','ICEUS:DXY'], 'names' => ['DXY','DOLLAR INDEX'], 'keywords' => ['DOLLAR','DÓLAR','INDEX']],
+                'us10y'  => ['codes' => ['US10Y','^TNX','UST10Y'], 'names' => ['10Y','TREASURY'], 'keywords' => ['10Y','TREASURY']],
+                'vix'    => ['codes' => ['44336','SPVIX','VIX','^VIX'], 'names' => ['VIX'], 'keywords' => ['VOLATILITY','VIX']],
+                'gvz'    => ['codes' => ['GVZ','^GVZ','GVOL'], 'names' => ['GVZ','GOLD VOLATILITY'], 'keywords' => ['GOLD','VOLATILITY','GVZ']],
             ];
 
             $pick = [];
