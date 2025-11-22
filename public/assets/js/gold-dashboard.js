@@ -76,27 +76,12 @@
   }
 
   // ============================================================================
-  // LOADER OVERLAY CONTROL
+  // LOADER OVERLAY CONTROL (DESABILITADO)
   // ============================================================================
-  var __pendingWidgets = 0;
-  var __hideLoaderTimer = null;
-  function showLoader(){
-    try{
-      var el = document.getElementById('gold_loader');
-      if (el) { el.classList.add('show'); }
-    }catch(_){}
-  }
-  function hideLoaderSoon(delay){
-    clearTimeout(__hideLoaderTimer);
-    __hideLoaderTimer = setTimeout(function(){
-      try{
-        var el = document.getElementById('gold_loader');
-        if (el) { el.classList.remove('show'); }
-      }catch(_){ }
-    }, typeof delay === 'number' ? delay : 300);
-  }
-  function incPending(){ __pendingWidgets++; showLoader(); }
-  function decPending(){ __pendingWidgets = Math.max(0, __pendingWidgets-1); if (__pendingWidgets === 0) hideLoaderSoon(400); }
+  function showLoader(){ /* desabilitado */ }
+  function hideLoaderSoon(delay){ /* desabilitado */ }
+  function incPending(){ /* desabilitado */ }
+  function decPending(){ /* desabilitado */ }
 
   // ============================================================================
   // TICKER TAPE (igual ao dashboard principal)
@@ -210,18 +195,21 @@
 
     // Cálculo da variação nominal
     var nominalChange = '--';
+    var changeNum = 0;
     var lastNum = toNumber(item.last ?? item.last_numeric);
     var closeNum = toNumber(item.last_close);
     if (lastNum !== null && closeNum !== null) {
-      var change = lastNum - closeNum;
-      nominalChange = (change >= 0 ? '+' : '') + change.toFixed(2);
+      changeNum = lastNum - closeNum;
+      nominalChange = (changeNum >= 0 ? '+' : '') + changeNum.toFixed(2);
     }
 
     setText(elPrice, price);
     setText(elChange, nominalChange);
-    setClassByPct(elChange, pctText);
+    // Usar o valor numérico para aplicar a classe, não a string formatada
+    setClassByPct(elChange, changeNum);
     setText(elPc, pctText);
-    setClassByPct(elPc, pctText);
+    // Usar o valor raw para aplicar a classe, não a string formatada
+    setClassByPct(elPc, pctTextRaw);
     setText(elTime, formatTime(item));
   }
 
@@ -552,43 +540,26 @@
   }
 
   // ============================================================================
-  // CORRELAÇÕES (Advanced Chart embed com compareSymbols)
-  // ============================================================================
-  function renderCorrelation(containerId, baseSymbol, otherSymbol) {
-    // Reutiliza o mesmo mecanismo de comparação (embed advanced chart)
-    return renderComparison(containerId, baseSymbol, otherSymbol);
-  }
-
-  // ============================================================================
   // RENDERIZAÇÃO COMPLETA
   // ============================================================================
-  
+
   function renderAll() {
-    showLoader();
     renderTickerTape();
     renderGoldChart();
 
-    // Comparações
+    // Seção de Comparações
     renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'CAPITALCOM:DXY');
     renderComparison('tv_compare_gold_btc', 'OANDA:XAUUSD', 'BITSTAMP:BTCUSD');
 
-    // Razões
+    // Seção de Razões
     renderRatio('tv_ratio_gold_miners', 'OANDA:XAUUSD/AMEX:GDX');
     renderRatio('tv_ratio_gold_btc', 'OANDA:XAUUSD/COINBASE:BTCUSD');
 
-    // Técnicos
+    // Seção de Indicadores Técnicos
     renderTechnical('tv_tech_gold', 'OANDA:XAUUSD');
     renderTechnical('tv_tech_dxy', 'CAPITALCOM:DXY');
     renderTechnical('tv_tech_us10y', 'TVC:US10Y');
     renderTechnical('tv_tech_vix', 'CBOE:VIX');
-
-    // Correlações
-    if (typeof TradingView !== 'undefined' && TradingView.widget) {
-      renderCorrelation('tv_corr_gold_dxy', 'OANDA:XAUUSD', 'CAPITALCOM:DXY');
-      renderCorrelation('tv_corr_gold_us10y', 'OANDA:XAUUSD', 'TVC:US10Y');
-      renderCorrelation('tv_corr_gold_btc', 'OANDA:XAUUSD', 'BITSTAMP:BTCUSD');
-      renderCorrelation('tv_corr_gold_vix', 'OANDA:XAUUSD', 'TVC:VIX');
-    }
   }
 
   // ============================================================================
