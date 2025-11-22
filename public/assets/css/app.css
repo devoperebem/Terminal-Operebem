@@ -1587,10 +1587,14 @@ html.all-black .faq-section .accordion-button::after {
     .hero-features {
         gap: 0.875rem;
         margin-bottom: 2rem;
+        text-align: left;
+        align-items: flex-start;
     }
 
     .feature-item {
         font-size: 0.95rem;
+        text-align: left;
+        justify-content: flex-start;
     }
 
     .hero-visual {
@@ -1626,11 +1630,15 @@ html.all-black .faq-section .accordion-button::after {
         gap: 0.75rem;
         margin-bottom: 1.75rem;
         padding: 0 8px;
+        text-align: left;
+        align-items: flex-start;
     }
 
     .feature-item {
         font-size: 0.9rem;
         gap: 0.75rem;
+        text-align: left;
+        justify-content: flex-start;
     }
 
     .feature-item i {
@@ -2716,7 +2724,8 @@ html.all-black .final-cta-section {
   .hero-section { padding-top: 8px; }
   .hero-title { font-size: 2rem; margin-bottom: 1.25rem; line-height: 1.3; }
   .hero-subtitle { font-size: 1rem; margin-bottom: 1.75rem; padding: 0 12px; line-height: 1.6; }
-  .hero-features { padding: 0 12px; gap: 0.75rem; margin-bottom: 1.75rem; }
+  .hero-features { padding: 0 12px; gap: 0.75rem; margin-bottom: 1.75rem; text-align: left; align-items: flex-start; }
+  .feature-item { text-align: left; justify-content: flex-start; }
   .hero-buttons { flex-direction: column; gap: 0.6rem; align-items: center; }
   .hero-buttons .btn, .hero-buttons .btn.btn-lg {
     padding: .5rem .9rem; font-size: .95rem; line-height: 1.1; white-space: nowrap;
