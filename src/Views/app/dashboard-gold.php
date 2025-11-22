@@ -41,47 +41,64 @@ body.all-black #gold_ticker_tape {
   background-color: #000 !important;
 }
 
-/* Loader overlay */
-#gold_loader {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 1055;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
-}
-#gold_loader.show { display: flex; }
-#gold_loader .spinner {
-  width: 56px; height: 56px;
-  border: 4px solid rgba(255,255,255,.25);
-  border-top-color: #0d6efd;
-  border-radius: 50%;
-  animation: goldspin .9s linear infinite;
-}
-@keyframes goldspin { to { transform: rotate(360deg); } }
-
 /* Widgets ocupando 100% dos cards e sem scroll */
 .card .card-body { overflow: hidden; }
 .card .tradingview-widget-container { height: 100% !important; width: 100% !important; }
 .card .tradingview-widget-container__widget { height: 100% !important; width: 100% !important; }
 .card .tradingview-widget-container iframe { height: 100% !important; width: 100% !important; border: 0 !important; }
+
+/* Estilos para tooltips de correlação */
+.correlation-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: help;
+  margin-left: 6px;
+  transition: all 0.2s ease;
+}
+
+.correlation-info:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+html.dark-blue .correlation-info,
+html.all-black .correlation-info {
+  background-color: rgba(13, 110, 253, 0.2);
+  color: #5ea3ff;
+}
+
+html.dark-blue .correlation-info:hover,
+html.all-black .correlation-info:hover {
+  background-color: #0d6efd;
+  color: white;
+}
 </style>
 
 <!-- Ticker Tape TradingView -->
-<div id="gold_loader"><div class="spinner"></div></div>
 <div class="container-fluid p-0">
   <div id="gold_ticker_tape" class="tradingview-widget-container w-100 mb-4"></div>
 </div>
 
 <div class="container-fluid mt-3">
 
+  <!-- Seção: Ativos Principais -->
   <div class="row g-3 px-2 px-md-3 mb-3">
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100">
         <div class="card-body p-3">
-          <div class="text-uppercase small text-muted mb-1">Ouro</div>
+          <div class="text-uppercase small text-muted mb-1">
+            Ouro
+            <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Ativo principal: Preço do ouro à vista (XAU/USD). É o benchmark global para o mercado de ouro.">?</span>
+          </div>
           <div class="fs-5 fw-semibold mb-1" id="q_gold_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
             <div class="small" id="q_gold_change">--</div>
@@ -95,7 +112,11 @@ body.all-black #gold_ticker_tape {
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100">
         <div class="card-body p-3">
-          <div class="text-uppercase small text-muted mb-1">DXY</div>
+          <div class="text-uppercase small text-muted mb-1">
+            DXY
+            <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Correlação inversa: Quando o dólar fortalece (DXY sobe), o ouro tende a cair, pois fica mais caro para compradores estrangeiros.">?</span>
+          </div>
           <div class="fs-5 fw-semibold mb-1" id="q_dxy_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
             <div class="small" id="q_dxy_change">--</div>
@@ -109,7 +130,11 @@ body.all-black #gold_ticker_tape {
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100">
         <div class="card-body p-3">
-          <div class="text-uppercase small text-muted mb-1">US10Y</div>
+          <div class="text-uppercase small text-muted mb-1">
+            US10Y
+            <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Correlação inversa: Juros altos (US10Y sobe) tornam títulos mais atrativos que ouro, que não paga juros.">?</span>
+          </div>
           <div class="fs-5 fw-semibold mb-1" id="q_us10y_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
             <div class="small" id="q_us10y_change">--</div>
@@ -123,7 +148,11 @@ body.all-black #gold_ticker_tape {
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100">
         <div class="card-body p-3">
-          <div class="text-uppercase small text-muted mb-1">VIX</div>
+          <div class="text-uppercase small text-muted mb-1">
+            VIX
+            <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Correlação positiva: VIX mede volatilidade/medo no mercado. Quando sobe, investidores buscam segurança no ouro.">?</span>
+          </div>
           <div class="fs-5 fw-semibold mb-1" id="q_vix_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
             <div class="small" id="q_vix_change">--</div>
@@ -137,7 +166,11 @@ body.all-black #gold_ticker_tape {
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100">
         <div class="card-body p-3">
-          <div class="text-uppercase small text-muted mb-1">Gold Vol</div>
+          <div class="text-uppercase small text-muted mb-1">
+            Gold Vol
+            <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                  title="Volatilidade do ouro: GVZ mede a volatilidade esperada do preço do ouro, similar ao VIX para ações.">?</span>
+          </div>
           <div class="fs-5 fw-semibold mb-1" id="q_gvz_price">--</div>
           <div class="d-flex align-items-center justify-content-between">
             <div class="small" id="q_gvz_change">--</div>
@@ -149,8 +182,10 @@ body.all-black #gold_ticker_tape {
     </div>
   </div>
 
+  <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) -->
   <div class="row g-3 px-2 px-md-3 mt-1" id="gold_futures_grid"></div>
 
+  <!-- Seção: Gráfico Principal do Ouro -->
   <div class="row g-3 px-2 px-md-3">
     <div class="col-12">
       <div class="card">
@@ -161,6 +196,7 @@ body.all-black #gold_ticker_tape {
     </div>
   </div>
 
+  <!-- Seção: Comparações e Razões -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-lg-6">
       <div class="card h-100">
@@ -192,6 +228,7 @@ body.all-black #gold_ticker_tape {
     </div>
   </div>
 
+  <!-- Seção: Indicadores Técnicos -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-xl-3">
       <div class="card h-100">
@@ -223,36 +260,6 @@ body.all-black #gold_ticker_tape {
     </div>
   </div>
 
-  <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
-          <div id="tv_corr_gold_dxy" style="height: 100%; width: 100%;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
-          <div id="tv_corr_gold_us10y" style="height: 100%; width: 100%;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
-          <div id="tv_corr_gold_btc" style="height: 100%; width: 100%;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
-          <div id="tv_corr_gold_vix" style="height: 100%; width: 100%;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <?php
@@ -260,6 +267,15 @@ $content = ob_get_clean();
 $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
   . '<script src="/assets/js/gold-dashboard.js?v=' . time() . '"></script>'
-  . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>';
+  . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
+  . '<script>'
+  . '  // Inicializar tooltips do Bootstrap'
+  . '  document.addEventListener("DOMContentLoaded", function() {'
+  . '    var tooltipTriggerList = [].slice.call(document.querySelectorAll(\'[data-bs-toggle="tooltip"]\'));'
+  . '    tooltipTriggerList.map(function(tooltipTriggerEl) {'
+  . '      return new bootstrap.Tooltip(tooltipTriggerEl);'
+  . '    });'
+  . '  });'
+  . '</script>';
 include __DIR__ . '/../layouts/app.php';
 ?>
