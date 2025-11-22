@@ -1025,9 +1025,6 @@ html.all-black .snap-grid .val.neu {
 
             <!-- Market Clock Widget -->
             <div class="card w-100 card_indices mb-3 sw_market_clock">
-                <div class="card-header title-card">
-                    🌍 Mercados Globais 24h
-                </div>
                 <div class="card-body">
                     <?php
                     $clockPath = __DIR__ . '/../../../widgets/market-clock.php';
