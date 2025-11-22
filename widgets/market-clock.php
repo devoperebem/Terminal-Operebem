@@ -327,9 +327,8 @@ html.all-black .market-tooltip-status.closed {
 
 <script>
 (function(){
-    // Obter timezone do usuário (do window.USER_TIMEZONE ou fallback para BRT)
-    const USER_TZ = window.USER_TIMEZONE || 'America/Sao_Paulo';
-    const BASE_TZ = -3; // BRT (UTC-3) - usado como base de cálculo
+    // BASE_TZ é usado como referência de cálculo (BRT = UTC-3)
+    const BASE_TZ = -3;
     const CX = 300, CY = 300;
     const R_OUT = 280;
     const R_TICK_OUT = 270;
@@ -648,6 +647,8 @@ html.all-black .market-tooltip-status.closed {
     // Calcular offset UTC do timezone do usuário
     function getUserTimezoneOffset() {
         try {
+            // Ler timezone dinamicamente (permite atualização em tempo real)
+            const userTz = window.USER_TIMEZONE || 'America/Sao_Paulo';
             const now = new Date();
 
             // Obter hora em UTC (formato ISO sem timezone)
@@ -656,7 +657,7 @@ html.all-black .market-tooltip-status.closed {
 
             // Obter hora no timezone do usuário
             const formatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: USER_TZ,
+                timeZone: userTz,
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false
