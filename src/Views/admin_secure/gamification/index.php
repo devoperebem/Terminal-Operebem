@@ -16,7 +16,7 @@ ob_start();
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    
+                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
                     <h3><?= number_format($stats['total_users'] ?? 0) ?></h3>
                     <small class="text-muted">Total de Usuários</small>
                 </div>
@@ -25,7 +25,7 @@ ob_start();
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    
+                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
                     <h3><?= number_format($stats['total_xp'] ?? 0) ?></h3>
                     <small class="text-muted">XP Total Distribuído</small>
                 </div>
@@ -34,7 +34,7 @@ ob_start();
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    
+                    <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
                     <h3><?= number_format($stats['avg_xp'] ?? 0, 0) ?></h3>
                     <small class="text-muted">XP Médio por Usuário</small>
                 </div>
@@ -43,7 +43,7 @@ ob_start();
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    
+                    <i class="fas fa-fire fa-2x text-danger mb-2"></i>
                     <h3><?= number_format($stats['max_streak'] ?? 0) ?></h3>
                     <small class="text-muted">Maior Streak</small>
                 </div>
@@ -56,17 +56,17 @@ ob_start();
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Ações Rápidas</h5>
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Ações Rápidas</h5>
                 </div>
                 <div class="card-body">
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addXPModal">
-                        Adicionar XP Manualmente
+                        <i class="fas fa-plus me-2"></i>Adicionar XP Manualmente
                     </button>
                     <button class="btn btn-warning" onclick="recalculateLevels()">
-                        Recalcular Todos os Níveis
+                        <i class="fas fa-sync me-2"></i>Recalcular Todos os Níveis
                     </button>
                     <a href="/secure/adm/gamification/settings" class="btn btn-secondary">
-                        Configurações
+                        <i class="fas fa-cog me-2"></i>Configurações
                     </a>
                 </div>
             </div>
@@ -105,8 +105,8 @@ ob_start();
                                     <td><span class="badge bg-primary">Nv <?= $user['level'] ?? 1 ?></span></td>
                                     <td><span class="badge bg-danger"><?= $user['streak'] ?? 0 ?> 🔥</span></td>
                                     <td>
-                                        <a href="/secure/adm/gamification/user/<?= $user['id'] ?>" class="btn btn-sm btn-info">
-                                            
+                                        <a href="/secure/adm/gamification/user/<?= $user['id'] ?>" class="btn btn-sm btn-info" title="Ver detalhes">
+                                            <i class="fas fa-eye"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -138,7 +138,7 @@ ob_start();
                                 <?php if (empty($xpBySource)): ?>
                                 <tr>
                                     <td colspan="3" class="text-center text-muted py-4">
-                                        
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
                                         Nenhuma transação de XP nos últimos 30 dias
                                     </td>
                                 </tr>
@@ -202,7 +202,7 @@ ob_start();
                                 <?php if (empty($recentXP)): ?>
                                 <tr>
                                     <td colspan="5" class="text-center text-muted py-4">
-                                        
+                                        <i class="fas fa-history fa-2x mb-2 d-block"></i>
                                         Nenhum histórico de XP encontrado
                                     </td>
                                 </tr>

@@ -20,6 +20,14 @@ class IndicatorsController extends BaseController
 
     public function marketClock(): void
     {
+        // Obter dados do usuário autenticado
+        $user = $this->authService->getCurrentUser();
+
+        if (!$user) {
+            $this->redirect('/login');
+            return;
+        }
+
         // Renderizar página standalone sem layout
         $viewPath = __DIR__ . '/../Views/app/market-clock-fullscreen.php';
         if (file_exists($viewPath)) {

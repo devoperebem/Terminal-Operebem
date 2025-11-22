@@ -4,6 +4,7 @@ $csrf_token = $_SESSION['csrf_token'] ?? '';
 ob_start();
 ?>
 
+<link href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.css" rel="stylesheet">
 <style>
   .review-card { transition: all 0.2s ease; border-left: 3px solid transparent; }
   .review-card.inactive { opacity: 0.6; }
@@ -11,6 +12,10 @@ ob_start();
   .rating-stars { color: #f59e0b; }
   .drag-handle { cursor: move; color: #9ca3af; }
   .review-actions .btn { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+  #imageCropperContainer { max-height: 400px; overflow: hidden; }
+  .avatar-preview { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #dee2e6; }
+  .avatar-upload-area { border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
+  .avatar-upload-area:hover { border-color: #0d6efd; background-color: rgba(13, 110, 253, 0.05); }
 </style>
 
 <div class="container my-4">
@@ -147,10 +152,29 @@ ob_start();
               <label class="form-label">País</label>
               <input type="text" class="form-control" id="authorCountry" name="author_country" maxlength="100" placeholder="Brasil">
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Avatar URL</label>
-              <input type="url" class="form-control" id="authorAvatar" name="author_avatar" maxlength="500" placeholder="https://...">
-              <small class="text-muted">URL da imagem do avatar (ex: Pravatar, Gravatar)</small>
+            <div class="col-12">
+              <label class="form-label">Avatar do Autor</label>
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <div class="avatar-upload-area" onclick="document.getElementById('avatarInput').click()">
+                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                    <p class="mb-0">Clique para fazer upload da foto do avatar</p>
+                    <small class="text-muted">ou cole uma URL abaixo</small>
+                  </div>
+                  <input type="file" id="avatarInput" accept="image/*" style="display: none">
+                  <div class="mt-2">
+                    <input type="text" class="form-control form-control-sm" id="authorAvatar" name="author_avatar" maxlength="500" placeholder="https://... ou caminho da imagem (opcional)">
+                    <small class="text-muted">URL da imagem do avatar ou deixe vazio para fazer upload</small>
+                  </div>
+                </div>
+                <div class="col-md-4 text-center">
+                  <p class="small text-muted mb-2">Preview:</p>
+                  <img id="avatarPreview" class="avatar-preview" src="" alt="Avatar Preview" style="display: none">
+                  <div id="avatarPlaceholder" class="avatar-preview d-flex align-items-center justify-content-center bg-light">
+                    <i class="fas fa-user fa-3x text-muted"></i>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label">Rating *</label>
@@ -190,9 +214,33 @@ ob_start();
   </div>
 </div>
 
+<!-- Modal: Crop de Imagem -->
+<div class="modal fade" id="modalCropImage" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajustar Avatar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="imageCropperContainer">
+          <img id="imageToCrop" src="" alt="Image to crop" style="max-width: 100%;">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnCropImage">Aplicar Corte</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.js"></script>
 <script>
 const API_URL = '/api/admin/reviews';
 const CSRF_TOKEN = '<?= $csrf_token ?>';
+let cropper = null;
+let croppedImageData = null;
 
 let reviews = [];
 let reorderMode = false;
@@ -302,6 +350,104 @@ function updateStats() {
 }
 
 // ============================================================================
+// CROP DE IMAGEM
+// ============================================================================
+
+document.getElementById('avatarInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    showAlert('Por favor, selecione uma imagem válida', 'danger');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    document.getElementById('imageToCrop').src = event.target.result;
+
+    // Destruir cropper anterior se existir
+    if (cropper) {
+      cropper.destroy();
+    }
+
+    // Abrir modal de crop
+    const modalCrop = new bootstrap.Modal(document.getElementById('modalCropImage'));
+    modalCrop.show();
+
+    // Inicializar cropper após o modal abrir
+    document.getElementById('modalCropImage').addEventListener('shown.bs.modal', function() {
+      cropper = new Cropper(document.getElementById('imageToCrop'), {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 1,
+        responsive: true,
+        background: false,
+        zoomable: true,
+        scalable: true,
+        movable: true
+      });
+    }, { once: true });
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('btnCropImage').addEventListener('click', function() {
+  if (!cropper) return;
+
+  // Obter imagem cropada como blob
+  cropper.getCroppedCanvas({
+    width: 300,
+    height: 300,
+    imageSmoothingQuality: 'high'
+  }).toBlob(async function(blob) {
+    // Fazer upload da imagem
+    const formData = new FormData();
+    formData.append('avatar', blob, 'avatar.jpg');
+    formData.append('csrf_token', CSRF_TOKEN);
+
+    try {
+      const response = await fetch('/secure/adm/reviews/upload-avatar', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.url) {
+        // Atualizar preview e campo de URL
+        document.getElementById('authorAvatar').value = result.url;
+        document.getElementById('avatarPreview').src = result.url;
+        document.getElementById('avatarPreview').style.display = 'block';
+        document.getElementById('avatarPlaceholder').style.display = 'none';
+
+        // Fechar modal
+        bootstrap.Modal.getInstance(document.getElementById('modalCropImage')).hide();
+        showAlert('Avatar enviado com sucesso!', 'success');
+      } else {
+        showAlert('Erro ao fazer upload: ' + (result.error || 'Desconhecido'), 'danger');
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      showAlert('Erro ao fazer upload da imagem', 'danger');
+    }
+  }, 'image/jpeg', 0.9);
+});
+
+// Atualizar preview quando URL for digitada manualmente
+document.getElementById('authorAvatar').addEventListener('input', function(e) {
+  const url = e.target.value.trim();
+  if (url) {
+    document.getElementById('avatarPreview').src = url;
+    document.getElementById('avatarPreview').style.display = 'block';
+    document.getElementById('avatarPlaceholder').style.display = 'none';
+  } else {
+    document.getElementById('avatarPreview').style.display = 'none';
+    document.getElementById('avatarPlaceholder').style.display = 'flex';
+  }
+});
+
+// ============================================================================
 // MODAL: NOVO/EDITAR
 // ============================================================================
 
@@ -310,13 +456,16 @@ document.getElementById('btnNewReview').addEventListener('click', () => {
   document.getElementById('formReview').reset();
   document.getElementById('reviewId').value = '';
   document.getElementById('isActive').checked = true;
+  document.getElementById('avatarPreview').style.display = 'none';
+  document.getElementById('avatarPlaceholder').style.display = 'flex';
+  croppedImageData = null;
   new bootstrap.Modal(document.getElementById('modalReview')).show();
 });
 
 async function editReview(id) {
   const review = reviews.find(r => r.id === id);
   if (!review) return;
-  
+
   document.getElementById('modalReviewTitle').textContent = 'Editar Review';
   document.getElementById('reviewId').value = review.id;
   document.getElementById('authorName').value = review.author_name;
@@ -326,7 +475,17 @@ async function editReview(id) {
   document.getElementById('reviewText').value = review.review_text;
   document.getElementById('displayOrder').value = review.display_order;
   document.getElementById('isActive').checked = review.is_active;
-  
+
+  // Mostrar preview do avatar se existir
+  if (review.author_avatar) {
+    document.getElementById('avatarPreview').src = review.author_avatar;
+    document.getElementById('avatarPreview').style.display = 'block';
+    document.getElementById('avatarPlaceholder').style.display = 'none';
+  } else {
+    document.getElementById('avatarPreview').style.display = 'none';
+    document.getElementById('avatarPlaceholder').style.display = 'flex';
+  }
+
   new bootstrap.Modal(document.getElementById('modalReview')).show();
 }
 

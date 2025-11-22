@@ -361,7 +361,8 @@ html.all-black .market-tooltip-message.closed {
 
 <script>
 (function(){
-    const BASE_TZ = -3; // BRT (UTC-3)
+    // BASE_TZ é usado como referência de cálculo (BRT = UTC-3)
+    const BASE_TZ = -3;
     const CX = 300, CY = 300;
     const R_OUT = 280;
     const R_TICK_OUT = 270;
@@ -370,8 +371,8 @@ html.all-black .market-tooltip-message.closed {
     const R_HOUR_TEXT = 225;
     const R_MARKET_BASE = 195;
     const R_MARKET_STEP = 24;
-    const R_LABEL_OFFSET_TOP = 0;
-    const R_LABEL_OFFSET_BOTTOM = 0;
+    const R_LABEL_OFFSET_TOP = -4;
+    const R_LABEL_OFFSET_BOTTOM = 4;
     const MIN_GAP_MIN = 15;
     
     // Será preenchido via API (tabela clock). Mantemos fallback estático.
@@ -514,6 +515,7 @@ html.all-black .market-tooltip-message.closed {
             <div class="market-tooltip-message ${statusClass}">
                 ${statusMessage}
             </div>
+            <div class="market-tooltip-hours">⏰ ${hours}</div>
             ${progressHtml}
             <div class="market-tooltip-hours">⏰ Horário de negociação: ${hours} (BRT)</div>
             ${statusBadge}
@@ -706,14 +708,26 @@ html.all-black .market-tooltip-message.closed {
     
     function renderHands(date) {
         hands.innerHTML = '';
-        const h = date.getHours();
-        const m = date.getMinutes();
-        const s = date.getSeconds();
-        
+
+        // Obter hora no timezone do usuário
+        const userTz = window.USER_TIMEZONE || 'America/Sao_Paulo';
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: userTz,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+
+        const parts = formatter.formatToParts(date);
+        const h = parseInt(parts.find(p => p.type === 'hour').value);
+        const m = parseInt(parts.find(p => p.type === 'minute').value);
+        const s = parseInt(parts.find(p => p.type === 'second').value);
+
         const hAng = ((h % 24) / 24) * 360 + (m / 60) * 15;
         const mAng = (m / 60) * 360 + (s / 60) * 6;
         const sAng = (s / 60) * 360;
-        
+
         const drawHand = (ang, len, cls) => {
             const [x, y] = polar(len, ang);
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -724,19 +738,60 @@ html.all-black .market-tooltip-message.closed {
             line.setAttribute('y2', y);
             hands.appendChild(line);
         };
-        
+
         drawHand(hAng, 120, 'hand-hour');
         drawHand(mAng, 160, 'hand-minute');
         drawHand(sAng, 180, 'hand-second');
     }
     
+    // Calcular offset UTC do timezone do usuário
+    function getUserTimezoneOffset() {
+        try {
+            // Ler timezone dinamicamente (permite atualização em tempo real)
+            const userTz = window.USER_TIMEZONE || 'America/Sao_Paulo';
+            const now = new Date();
+
+            // Obter hora em UTC (formato ISO sem timezone)
+            const utcHours = now.getUTCHours();
+            const utcMinutes = now.getUTCMinutes();
+
+            // Obter hora no timezone do usuário
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: userTz,
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            const parts = formatter.formatToParts(now);
+            const tzHours = parseInt(parts.find(p => p.type === 'hour').value);
+            const tzMinutes = parseInt(parts.find(p => p.type === 'minute').value);
+
+            // Calcular diferença em horas (com fração para minutos)
+            const utcTotalMinutes = utcHours * 60 + utcMinutes;
+            const tzTotalMinutes = tzHours * 60 + tzMinutes;
+            let diffMinutes = tzTotalMinutes - utcTotalMinutes;
+
+            // Ajustar para mudança de dia (crossing midnight)
+            if (diffMinutes > 720) diffMinutes -= 1440;  // Se diferença > 12h, subtrair 24h
+            if (diffMinutes < -720) diffMinutes += 1440; // Se diferença < -12h, adicionar 24h
+
+            const offsetHours = diffMinutes / 60;
+
+            return offsetHours;
+        } catch (e) {
+            console.warn('[MarketClock] Erro ao calcular timezone do usuário, usando timezone do navegador:', e);
+            return -(new Date().getTimezoneOffset() / 60);
+        }
+    }
+
     function renderAll() {
         const now = new Date();
-        const offset = -(now.getTimezoneOffset() / 60);
+        const offset = getUserTimezoneOffset();
         drawDial();
         renderMarkets(now, offset);
         renderHands(now);
-        
+
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('class', 'center-dot');
         dot.setAttribute('cx', CX);

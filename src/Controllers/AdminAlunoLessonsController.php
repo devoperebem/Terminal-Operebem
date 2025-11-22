@@ -86,8 +86,12 @@ class AdminAlunoLessonsController extends BaseController
                              VALUES (:c,:t,:d,:p,:vid,:dur,:th,:pa,:free,:en, :opts, NOW(), NOW())', [
                 'c'=>$courseId,'t'=>$title,'d'=>$desc,'p'=>$pos,'vid'=>$bvid,'dur'=>$dur ?: null,'th'=>$thumb ?: null,'pa'=>$previewAnim ?: null,'free'=>$isFree ? 'true':'false','en'=>$isEnabled ? 'true':'false','opts'=>$playerOpts !== '' ? $playerOpts : null
             ], 'aluno');
-            // Normalize positions sequentially
-            Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn, updated_at = NOW() FROM ordered o WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+            // Try to normalize positions (PostgreSQL syntax, may fail on MySQL - that's OK)
+            try {
+                Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn, updated_at = NOW() FROM ordered o WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+            } catch (\Throwable $__) {
+                // Ignore normalization errors - not critical for operation
+            }
             $_SESSION['flash_success'] = 'Aula criada com sucesso!';
         } catch (\Throwable $e) {
             $_SESSION['flash_error'] = 'Erro ao criar aula. Tente novamente.';
@@ -130,7 +134,12 @@ class AdminAlunoLessonsController extends BaseController
             if ($isFree) {
                 Database::query('UPDATE lessons SET is_free_preview = false WHERE course_id = :c AND id <> :id', ['c'=>$courseId,'id'=>$id], 'aluno');
             }
-            Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+            // Try to normalize positions (PostgreSQL syntax, may fail on MySQL - that's OK)
+            try {
+                Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn FROM ordered o WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+            } catch (\Throwable $__) {
+                // Ignore normalization errors - not critical for operation
+            }
             $_SESSION['flash_success'] = 'Aula atualizada com sucesso!';
         } catch (\Throwable $e) {
             $_SESSION['flash_error'] = 'Erro ao atualizar aula. Tente novamente.';
@@ -149,7 +158,12 @@ class AdminAlunoLessonsController extends BaseController
                 $_SESSION['flash_success'] = 'Aula excluída com sucesso!';
             }
             if ($courseId > 0) {
-                Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+                // Try to normalize positions (PostgreSQL syntax, may fail on MySQL - that's OK)
+                try {
+                    Database::query('WITH ordered AS (SELECT id, ROW_NUMBER() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = :c) UPDATE lessons l SET position = o.rn FROM ordered o WHERE l.id = o.id', ['c'=>$courseId], 'aluno');
+                } catch (\Throwable $__) {
+                    // Ignore normalization errors - not critical for operation
+                }
             }
         } catch (\Throwable $e) {
             $_SESSION['flash_error'] = 'Erro ao excluir aula. Tente novamente.';

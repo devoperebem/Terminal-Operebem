@@ -82,7 +82,7 @@ $defaultFlagUrl = country_flag_url($defaultIso);
   .phone-confirm-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.65);
+    background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(6px);
     display: flex;
     align-items: center;

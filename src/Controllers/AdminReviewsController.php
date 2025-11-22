@@ -394,6 +394,64 @@ class AdminReviewsController extends BaseController
     }
 
     /**
+     * POST /secure/adm/reviews/upload-avatar
+     * Upload de avatar para reviews
+     */
+    public function uploadAvatar(): void
+    {
+        header('Content-Type: application/json');
+
+        if (!$this->requireAdmin()) return;
+
+        try {
+            if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
+                $this->json(['success' => false, 'error' => 'Nenhum arquivo foi enviado'], 400);
+                return;
+            }
+
+            $file = $_FILES['avatar'];
+            $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+            if (!in_array($file['type'], $allowedTypes)) {
+                $this->json(['success' => false, 'error' => 'Tipo de arquivo não permitido'], 400);
+                return;
+            }
+
+            // Gerar nome único
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION) ?: 'jpg';
+            $filename = 'review_avatar_' . uniqid() . '_' . time() . '.' . $extension;
+
+            // Diretório de upload
+            $uploadDir = dirname(__DIR__, 2) . '/uploads/reviews/avatars';
+            if (!is_dir($uploadDir)) {
+                @mkdir($uploadDir, 0755, true);
+            }
+
+            $destination = $uploadDir . '/' . $filename;
+
+            if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                $this->json(['success' => false, 'error' => 'Erro ao salvar arquivo'], 500);
+                return;
+            }
+
+            // URL pública
+            $url = '/uploads/reviews/avatars/' . $filename;
+
+            $this->json([
+                'success' => true,
+                'url' => $url,
+                'filename' => $filename
+            ]);
+
+        } catch (\Throwable $e) {
+            $this->json([
+                'success' => false,
+                'error' => 'Erro ao fazer upload: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * PATCH /api/admin/reviews/reorder
      * Reordena múltiplos reviews de uma vez
      */
