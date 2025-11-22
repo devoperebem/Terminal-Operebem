@@ -131,7 +131,7 @@ html.all-black {
 
 /* Tooltip - Tema Light (padrão) */
 .market-tooltip {
-    position: absolute;
+    position: fixed;
     background: rgba(255, 255, 255, 0.98);
     color: #1f2937;
     padding: 14px 18px;
@@ -141,6 +141,7 @@ html.all-black {
     z-index: 10000;
     display: none;
     min-width: 240px;
+    max-width: 320px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
     border: 1px solid rgba(0,0,0,0.08);
 }
@@ -397,6 +398,28 @@ html.all-black .market-tooltip-message.closed {
     const center = document.getElementById('clock-center');
     const tooltip = document.getElementById('market-tooltip');
     
+    // Função auxiliar para calcular próximo dia útil
+    function getNextTradingDay(tradingDays, currentDay) {
+        if (!tradingDays || tradingDays.length === 0) return 1; // Se não tem dados, assume próximo dia
+
+        const days = tradingDays.split('').map(Number); // Ex: "23456" => [2,3,4,5,6]
+        let daysToAdd = 1;
+        let nextDay = currentDay + 1;
+        if (nextDay > 7) nextDay = 1;
+
+        // Buscar próximo dia útil (máximo 7 dias à frente)
+        for (let i = 0; i < 7; i++) {
+            if (days.includes(nextDay)) {
+                return daysToAdd;
+            }
+            daysToAdd++;
+            nextDay++;
+            if (nextDay > 7) nextDay = 1;
+        }
+
+        return daysToAdd; // Fallback
+    }
+
     function showTooltip(market, isOpen, event) {
         const hours = market.brt.map(([s, e]) => `${s} - ${e}`).join(' | ');
         const statusClass = isOpen ? 'open' : 'closed';
@@ -405,9 +428,18 @@ html.all-black .market-tooltip-message.closed {
         const nowMin = now.getHours() * 60 + now.getMinutes();
         const pad = n => String(n).padStart(2, '0');
         const currentTimeLabel = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const currentDay = now.getDay() === 0 ? 7 : now.getDay(); // 1=dom, 7=sáb
+
+        // Buscar dados do banco
+        const code = NAME_TO_CODE[market.name] || null;
+        const dbData = code ? (DB_DATA_BY_CODE[code] || null) : null;
+        const tradingDays = dbData ? dbData.trading_days : null;
+        const lastOpenTime = dbData ? dbData.last_open_time : null;
+        const lastCloseTime = dbData ? dbData.last_close_time : null;
 
         // Calcular informações de tempo
         let statusMessage = '';
+        let lastStateInfo = '';
         let progressPercent = 0;
         let progressStart = '--:--';
         let progressEnd = '--:--';
@@ -436,6 +468,13 @@ html.all-black .market-tooltip-message.closed {
                     } else {
                         statusMessage = `Fecha em ${minutesLeft} minuto${minutesLeft !== 1 ? 's' : ''}`;
                     }
+
+                    // Informação de quando abriu
+                    if (lastOpenTime) {
+                        lastStateInfo = `Abriu às ${hhmmFrom(lastOpenTime) || start}`;
+                    } else {
+                        lastStateInfo = `Abriu às ${start}`;
+                    }
                     break;
                 }
             }
@@ -444,6 +483,7 @@ html.all-black .market-tooltip-message.closed {
             let nextOpenMin = null;
             let nextOpenStr = null;
             let nextCloseStr = null;
+            let daysToAdd = 0;
 
             // Procurar próximo segmento hoje
             for (const [start, end] of market.brt) {
@@ -451,36 +491,77 @@ html.all-black .market-tooltip-message.closed {
                 const endMin = timeToMin(end);
 
                 if (nowMin < startMin) {
-                    nextOpenMin = startMin;
-                    nextOpenStr = start;
-                    nextCloseStr = end;
-                    break;
+                    // Verificar se hoje é dia útil
+                    if (tradingDays) {
+                        const days = tradingDays.split('').map(Number);
+                        if (days.includes(currentDay)) {
+                            nextOpenMin = startMin;
+                            nextOpenStr = start;
+                            nextCloseStr = end;
+                            break;
+                        }
+                    } else {
+                        // Sem dados de trading_days, assume que hoje é válido
+                        nextOpenMin = startMin;
+                        nextOpenStr = start;
+                        nextCloseStr = end;
+                        break;
+                    }
                 }
             }
 
-            // Se não encontrou hoje, usar primeiro segmento de amanhã
+            // Se não encontrou hoje, buscar próximo dia útil
             if (nextOpenMin === null && market.brt.length > 0) {
+                if (tradingDays) {
+                    daysToAdd = getNextTradingDay(tradingDays, currentDay);
+                } else {
+                    daysToAdd = 1; // Assume próximo dia se não tem dados
+                }
+
                 const [start, end] = market.brt[0];
-                nextOpenMin = timeToMin(start) + 1440; // adicionar 24h
+                nextOpenMin = timeToMin(start) + (daysToAdd * 1440);
                 nextOpenStr = start;
                 nextCloseStr = end;
             }
 
             if (nextOpenMin !== null) {
                 let minutesUntilOpen = nextOpenMin - nowMin;
-                if (minutesUntilOpen < 0) minutesUntilOpen += 1440; // se for negativo, é amanhã
+                if (minutesUntilOpen < 0) minutesUntilOpen += 1440;
 
-                const hoursUntil = Math.floor(minutesUntilOpen / 60);
+                const totalHours = Math.floor(minutesUntilOpen / 60);
                 const minutesUntil = minutesUntilOpen % 60;
+                const daysUntil = Math.floor(totalHours / 24);
+                const hoursUntil = totalHours % 24;
 
-                if (hoursUntil > 0) {
-                    statusMessage = `Abre em ${hoursUntil} hora${hoursUntil > 1 ? 's' : ''} e ${minutesUntil} minuto${minutesUntil !== 1 ? 's' : ''}`;
+                // Mensagem mais inteligente
+                if (daysUntil > 0) {
+                    if (daysUntil === 1) {
+                        statusMessage = `Abre amanhã às ${nextOpenStr}`;
+                        if (hoursUntil > 0 || minutesUntil > 0) {
+                            statusMessage += ` (${hoursUntil}h${minutesUntil > 0 ? minutesUntil + 'min' : ''})`;
+                        }
+                    } else {
+                        statusMessage = `Abre em ${daysUntil} dia${daysUntil > 1 ? 's' : ''}`;
+                        if (hoursUntil > 0) {
+                            statusMessage += ` e ${hoursUntil}h`;
+                        }
+                    }
+                } else if (hoursUntil > 0) {
+                    statusMessage = `Abre em ${hoursUntil} hora${hoursUntil > 1 ? 's' : ''}`;
+                    if (minutesUntil > 0) {
+                        statusMessage += ` e ${minutesUntil} minuto${minutesUntil !== 1 ? 's' : ''}`;
+                    }
                 } else {
                     statusMessage = `Abre em ${minutesUntil} minuto${minutesUntil !== 1 ? 's' : ''}`;
                 }
 
                 progressStart = nextOpenStr;
                 progressEnd = nextCloseStr;
+
+                // Informação de quando fechou
+                if (lastCloseTime) {
+                    lastStateInfo = `Fechou às ${hhmmFrom(lastCloseTime)}`;
+                }
             } else {
                 statusMessage = 'Horário de abertura não disponível';
             }
@@ -500,6 +581,9 @@ html.all-black .market-tooltip-message.closed {
             </div>
         `;
 
+        // Informação de último estado
+        const lastStateHtml = lastStateInfo ? `<div class="market-tooltip-last-state" style="font-size: 11px; color: #6b7280; margin-bottom: 6px;">${lastStateInfo}</div>` : '';
+
         // Status principal
         const statusBadge = isOpen
             ? `<div class="market-tooltip-status ${statusClass}">✓ Mercado Aberto</div>`
@@ -514,18 +598,42 @@ html.all-black .market-tooltip-message.closed {
             <div class="market-tooltip-message ${statusClass}">
                 ${statusMessage}
             </div>
+            ${lastStateHtml}
             ${progressHtml}
             <div class="market-tooltip-hours">⏰ Horário de negociação: ${hours} (BRT)</div>
             ${statusBadge}
         `;
 
-        // Calcular posição relativa ao widget
-        const widgetRect = document.querySelector('.market-clock-widget').getBoundingClientRect();
-        const x = event.clientX - widgetRect.left + 15;
-        const y = event.clientY - widgetRect.top;
+        // Calcular posição em relação à viewport (fixed)
+        const x = event.clientX + 15;
+        const y = event.clientY - 10;
 
+        // Ajustar se sair da tela
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
+        tooltip.style.display = 'block'; // Mostrar temporariamente para calcular tamanho
+
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
+        let finalX = x;
+        let finalY = y;
+
+        // Ajustar horizontal
+        if (tooltipRect.right > windowWidth - 10) {
+            finalX = event.clientX - tooltipRect.width - 15;
+        }
+        if (finalX < 10) finalX = 10;
+
+        // Ajustar vertical
+        if (tooltipRect.bottom > windowHeight - 10) {
+            finalY = event.clientY - tooltipRect.height - 10;
+        }
+        if (finalY < 10) finalY = 10;
+
+        tooltip.style.left = finalX + 'px';
+        tooltip.style.top = finalY + 'px';
         tooltip.classList.add('show');
     }
     
@@ -666,11 +774,32 @@ html.all-black .market-tooltip-message.closed {
                 // Eventos de mouse para tooltip
                 path.addEventListener('mouseenter', (e) => showTooltip(market, isOpenFinal, e));
                 path.addEventListener('mousemove', (e) => {
-                    const widgetRect = document.querySelector('.market-clock-widget').getBoundingClientRect();
-                    const x = e.clientX - widgetRect.left + 15;
-                    const y = e.clientY - widgetRect.top;
-                    tooltip.style.left = x + 'px';
-                    tooltip.style.top = y + 'px';
+                    if (!tooltip.classList.contains('show')) return;
+
+                    const x = e.clientX + 15;
+                    const y = e.clientY - 10;
+
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const windowWidth = window.innerWidth;
+                    const windowHeight = window.innerHeight;
+
+                    let finalX = x;
+                    let finalY = y;
+
+                    // Ajustar horizontal
+                    if (x + tooltipRect.width > windowWidth - 10) {
+                        finalX = e.clientX - tooltipRect.width - 15;
+                    }
+                    if (finalX < 10) finalX = 10;
+
+                    // Ajustar vertical
+                    if (y + tooltipRect.height > windowHeight - 10) {
+                        finalY = e.clientY - tooltipRect.height - 10;
+                    }
+                    if (finalY < 10) finalY = 10;
+
+                    tooltip.style.left = finalX + 'px';
+                    tooltip.style.top = finalY + 'px';
                 });
                 path.addEventListener('mouseleave', hideTooltip);
                 
@@ -764,6 +893,7 @@ html.all-black .market-tooltip-message.closed {
         'NZX': 'XNZX'
     };
     let DB_STATUS_BY_CODE = {};
+    let DB_DATA_BY_CODE = {}; // Armazenar dados completos da API
     
     function pad2(n){ return String(n).padStart(2,'0'); }
     function hhmmFrom(hms){ if(!hms) return null; const [h,m] = hms.split(':'); return `${pad2(+h)}:${pad2(+m)}`; }
@@ -785,13 +915,18 @@ html.all-black .market-tooltip-message.closed {
             if(!res.ok) throw new Error('HTTP '+res.status);
             const j = await res.json();
             if(j && j.success && Array.isArray(j.data)){
-                const map = {};
+                const statusMap = {};
+                const dataMap = {};
                 j.data.forEach(ex => {
                     const code = String(ex.exchange_code || '').trim();
                     const st = (ex.calculated_status || ex.current_status || '').toString().toLowerCase();
-                    if (code) map[code] = st;
+                    if (code) {
+                        statusMap[code] = st;
+                        dataMap[code] = ex; // Armazenar objeto completo
+                    }
                 });
-                DB_STATUS_BY_CODE = map;
+                DB_STATUS_BY_CODE = statusMap;
+                DB_DATA_BY_CODE = dataMap;
                 renderAll();
             }
         } catch(e){
