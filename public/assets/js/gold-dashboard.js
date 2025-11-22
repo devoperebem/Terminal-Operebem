@@ -348,10 +348,10 @@
 
       html += '</tbody></table></div>'
         + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_chart" style="max-height: 280px;"></canvas>'
+        + '<canvas id="gc_futures_chart" style="height: 380px;"></canvas>'
         + '</div>'
         + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_curve" style="max-height: 280px;"></canvas>'
+        + '<canvas id="gc_futures_curve" style="height: 380px;"></canvas>'
         + '</div>'
         + '</div>'
         + '</div>'
@@ -380,20 +380,45 @@
     try {
       document.querySelectorAll('.futures-table .has-tooltip').forEach(function(el) {
         var tooltipText = el.getAttribute('data-tooltip-text');
-        if (!tooltipText) return;
+        if (!tooltipText || tooltipText === '--' || tooltipText.trim() === '') return;
 
         el.addEventListener('mouseenter', function(e) {
+          // Remover qualquer tooltip existente
+          var existingTooltip = document.querySelector('.custom-tooltip');
+          if (existingTooltip) existingTooltip.remove();
+
           var tooltip = document.createElement('div');
           tooltip.className = 'custom-tooltip';
           tooltip.textContent = tooltipText;
-          tooltip.style.cssText = 'position: fixed; background: rgba(0,0,0,0.9); color: white; padding: 6px 10px; border-radius: 4px; font-size: 12px; z-index: 10000; pointer-events: none; white-space: nowrap;';
-
-          var rect = el.getBoundingClientRect();
-          tooltip.style.top = (rect.top - 30) + 'px';
-          tooltip.style.left = (rect.left + rect.width/2) + 'px';
-          tooltip.style.transform = 'translateX(-50%)';
+          tooltip.style.cssText = 'position: fixed; background: rgba(0,0,0,0.9); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 10000; pointer-events: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
 
           document.body.appendChild(tooltip);
+
+          // Calcular posição após inserir no DOM (para ter dimensões corretas)
+          var rect = el.getBoundingClientRect();
+          var tooltipRect = tooltip.getBoundingClientRect();
+
+          // Centralizar horizontalmente em relação ao elemento
+          var left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+          // Garantir que não saia da tela
+          var windowWidth = window.innerWidth;
+          if (left < 10) left = 10;
+          if (left + tooltipRect.width > windowWidth - 10) {
+            left = windowWidth - tooltipRect.width - 10;
+          }
+
+          // Posicionar acima do elemento
+          var top = rect.top - tooltipRect.height - 10;
+
+          // Se não couber em cima, mostrar embaixo
+          if (top < 10) {
+            top = rect.bottom + 10;
+          }
+
+          tooltip.style.left = left + 'px';
+          tooltip.style.top = top + 'px';
+
           el._customTooltip = tooltip;
         });
 
