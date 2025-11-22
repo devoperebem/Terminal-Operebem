@@ -620,14 +620,26 @@ html.all-black .market-tooltip-status.closed {
     
     function renderHands(date) {
         hands.innerHTML = '';
-        const h = date.getHours();
-        const m = date.getMinutes();
-        const s = date.getSeconds();
-        
+
+        // Obter hora no timezone do usuário
+        const userTz = window.USER_TIMEZONE || 'America/Sao_Paulo';
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: userTz,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+
+        const parts = formatter.formatToParts(date);
+        const h = parseInt(parts.find(p => p.type === 'hour').value);
+        const m = parseInt(parts.find(p => p.type === 'minute').value);
+        const s = parseInt(parts.find(p => p.type === 'second').value);
+
         const hAng = ((h % 24) / 24) * 360 + (m / 60) * 15;
         const mAng = (m / 60) * 360 + (s / 60) * 6;
         const sAng = (s / 60) * 360;
-        
+
         const drawHand = (ang, len, cls) => {
             const [x, y] = polar(len, ang);
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -638,7 +650,7 @@ html.all-black .market-tooltip-status.closed {
             line.setAttribute('y2', y);
             hands.appendChild(line);
         };
-        
+
         drawHand(hAng, 120, 'hand-hour');
         drawHand(mAng, 160, 'hand-minute');
         drawHand(sAng, 180, 'hand-second');
