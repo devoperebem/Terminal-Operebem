@@ -432,8 +432,14 @@
                         </button>
                     </li>
                     <?php endif; ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/app/dashboard">Dashboard</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="/app/dashboard" id="navDashboard" role="button" data-bs-toggle="dropdown">
+                            Dashboard
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navDashboard">
+                            <li><a class="dropdown-item" href="/app/dashboard">Principal</a></li>
+                            <li><a class="dropdown-item" href="/app/dashboard/gold">Ouro</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="/app/indicators/feeling" id="navIndicators" role="button" data-bs-toggle="dropdown">
@@ -524,6 +530,10 @@
                 <a class="nav-link px-3 py-2 rounded d-flex align-items-center" href="/app/dashboard">
                     <i class="fas fa-chart-line me-3" style="width: 20px;"></i>
                     <span>Dashboard</span>
+                </a>
+                <a class="nav-link px-3 py-2 rounded d-flex align-items-center" href="/app/dashboard/gold">
+                    <i class="fas fa-coins me-3" style="width: 20px;"></i>
+                    <span>Dashboard Ouro</span>
                 </a>
                 
                 <a class="nav-link px-3 py-2 rounded d-flex align-items-center" href="/app/news">

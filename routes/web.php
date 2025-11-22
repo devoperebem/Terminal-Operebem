@@ -63,6 +63,10 @@ $router->get('/aluno/courses', function(){
 });
 // CSP report collection endpoint
 $router->post('/csp-report', [SecurityController::class, 'cspReport']);
+// Client logs from browser (Same-Origin only)
+$router->post('/api/client-log', [SecurityController::class, 'clientLog'], [SameOriginAjaxMiddleware::class]);
+// Gold dashboard data endpoint
+$router->post('/api/quotes/gold-boot', [QuotesController::class, 'goldBoot'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
 
 // Rotas de autenticação (POST)
 $router->post('/login', [AuthController::class, 'login'], [GuestMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
@@ -82,6 +86,8 @@ $router->post('/register/reenviar-codigo', [AuthController::class, 'reenviarCodi
 
 // Dashboard routes (protected)
 $router->get('/app/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
+// Dashboard Gold (protected)
+$router->get('/app/dashboard/gold', [DashboardController::class, 'gold'], [AuthMiddleware::class]);
 // SSO start (public): se não autenticado, envia para modal de login; se autenticado, emite token e redireciona para o Portal do Aluno
 $router->get('/sso/start', [SsoController::class, 'start']);
 // Compat: redirecionar antigo /dashboard -> /app/dashboard (301)
@@ -130,6 +136,9 @@ $router->post('/actions/boot.php', [QuotesController::class, 'boot'], [AuthMiddl
 // Endpoint público somente para listar (home) com proteção same-origin + rate-limit
 $router->post('/actions/quotes-public', [QuotesController::class, 'listarPublic'], [SameOriginAjaxMiddleware::class]);
 $router->get('/actions/quotes-public', [QuotesController::class, 'listarPublic'], [SameOriginAjaxMiddleware::class]);
+
+// Endpoint protegido específico do Dashboard Ouro (somente ativos necessários)
+$router->post('/actions/gold-boot.php', [QuotesController::class, 'goldBoot'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
 
 $router->post('/app/profile/preferences', [ProfileController::class, 'updatePreferences'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/app/profile/change-password', [ProfileController::class, 'changePassword'], [AuthMiddleware::class, CsrfMiddleware::class]);

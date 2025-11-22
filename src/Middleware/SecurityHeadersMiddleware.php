@@ -102,7 +102,8 @@ class SecurityHeadersMiddleware
             // 'self' = mesmo domínio
             // 'nonce-xxx' = scripts inline com nonce específico
             // cdn.jsdelivr.net = Bootstrap, FontAwesome
-            "script-src 'self' 'nonce-{$nonce}' cdn.jsdelivr.net https://cdn.jsdelivr.net",
+            // s3.tradingview.com = TradingView widgets
+            "script-src 'self' 'nonce-{$nonce}' cdn.jsdelivr.net https://cdn.jsdelivr.net s3.tradingview.com https://s3.tradingview.com",
             
             // style-src: fontes permitidas para CSS
             // 'unsafe-inline' = necessário para Bootstrap e estilos inline
@@ -114,10 +115,15 @@ class SecurityHeadersMiddleware
             // img-src: fontes permitidas para imagens
             // data: = imagens base64
             // https: = qualquer imagem HTTPS (avatars, etc)
-            "img-src 'self' data: https: http://localhost:* i.pravatar.cc",
+            // *.tradingview.com e *.tradingview-widget.com = logos/imagens dos widgets
+            "img-src 'self' data: https: http://localhost:* i.pravatar.cc *.tradingview.com *.tradingview-widget.com",
             
             // connect-src: fontes permitidas para AJAX, WebSocket, EventSource
-            "connect-src 'self'",
+            // *.tradingview.com e *.tradingview-widget.com = data feeds e assets dos widgets
+            "connect-src 'self' https://*.tradingview.com wss://*.tradingview.com https://*.tradingview-widget.com wss://*.tradingview-widget.com",
+
+            // frame-src: iframes permitidos (TradingView widgets)
+            "frame-src 'self' https://*.tradingview.com https://*.tradingview-widget.com",
             
             // frame-ancestors: quem pode embedar esta página em iframe
             // 'none' = ninguém (equivalente a X-Frame-Options: DENY)

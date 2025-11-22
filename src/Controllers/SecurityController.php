@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Core\Application;
+
 class SecurityController extends BaseController
 {
     // Retorna o token CSRF atual; se inexistente, gera um novo
@@ -45,6 +47,48 @@ class SecurityController extends BaseController
             $file = $dir . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log';
             @file_put_contents($file, json_encode($entry, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
         } catch (\Throwable $t) { /* ignore */ }
+        http_response_code(204);
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => true]);
+        exit;
+    }
+
+    // Recebe logs do cliente (JS) e envia ao Monolog
+    public function clientLog(): void
+    {
+        // Apenas JSON
+        $raw = file_get_contents('php://input') ?: '';
+        $payload = [];
+        try { $payload = json_decode($raw, true, 512, JSON_THROW_ON_ERROR); } catch (\Throwable $t) { $payload = []; }
+        $level = strtolower((string)($payload['level'] ?? 'error'));
+        $message = (string)($payload['message'] ?? '');
+        $meta = is_array($payload['meta'] ?? null) ? $payload['meta'] : [];
+
+        $levels = [
+            'debug' => \Monolog\Logger::DEBUG,
+            'info' => \Monolog\Logger::INFO,
+            'notice' => \Monolog\Logger::NOTICE,
+            'warning' => \Monolog\Logger::WARNING,
+            'error' => \Monolog\Logger::ERROR,
+            'critical' => \Monolog\Logger::CRITICAL,
+            'alert' => \Monolog\Logger::ALERT,
+            'emergency' => \Monolog\Logger::EMERGENCY,
+        ];
+        $levelConst = $levels[$level] ?? \Monolog\Logger::ERROR;
+
+        $ctx = [
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? '',
+            'ua' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+            'path' => $_SERVER['REQUEST_URI'] ?? '',
+            'meta' => $meta,
+        ];
+        try {
+            $app = Application::getInstance();
+            $app->logger()->log($levelConst, '[client] ' . $message, $ctx);
+        } catch (\Throwable $t) {
+            // ignore
+        }
+
         http_response_code(204);
         header('Content-Type: application/json');
         echo json_encode(['ok' => true]);

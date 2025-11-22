@@ -26,6 +26,20 @@ class DashboardController extends BaseController
         ]);
     }
 
+    public function gold(): void
+    {
+        $user = $this->authService->getCurrentUser();
+        $wsConfig = [
+            'url' => $_ENV['WS_PROXY_URL'] ?? 'ws://vps1.operebem.com:8765',
+            'key' => $_ENV['WS_PROXY_KEY'] ?? ''
+        ];
+
+        $this->view('app/dashboard-gold', [
+            'user' => $user,
+            'ws_config' => $wsConfig
+        ]);
+    }
+
     private function getQuotesData(): array
     {
         try {
