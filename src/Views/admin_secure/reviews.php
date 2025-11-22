@@ -163,8 +163,8 @@ ob_start();
                   </div>
                   <input type="file" id="avatarInput" accept="image/*" style="display: none">
                   <div class="mt-2">
-                    <input type="url" class="form-control form-control-sm" id="authorAvatar" name="author_avatar" maxlength="500" placeholder="https://... (opcional)">
-                    <small class="text-muted">URL da imagem do avatar (alternativa ao upload)</small>
+                    <input type="text" class="form-control form-control-sm" id="authorAvatar" name="author_avatar" maxlength="500" placeholder="https://... ou caminho da imagem (opcional)">
+                    <small class="text-muted">URL da imagem do avatar ou deixe vazio para fazer upload</small>
                   </div>
                 </div>
                 <div class="col-md-4 text-center">
