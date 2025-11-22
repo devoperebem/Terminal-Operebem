@@ -429,7 +429,8 @@ html.all-black .market-tooltip-message.closed {
         const nowMin = now.getHours() * 60 + now.getMinutes();
         const pad = n => String(n).padStart(2, '0');
         const currentTimeLabel = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        const currentDay = now.getDay() === 0 ? 7 : now.getDay(); // 1=dom, 7=sáb
+        // JS getDay: 0=dom, 1=seg, ..., 6=sáb → DB trading_days: 1=dom, 2=seg, ..., 7=sáb
+        const currentDay = now.getDay() + 1; // Converter JS 0-6 para DB 1-7
 
         // Buscar dados do banco
         const code = NAME_TO_CODE[market.name] || null;
