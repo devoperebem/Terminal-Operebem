@@ -534,7 +534,7 @@ html.all-black .hero-stat-icon {
     </div>
 </section>
 
-<!-- Reviews Section (refeito com Carousel Bootstrap + peek effect) -->
+<!-- Reviews Section (custom carousel with peek effect) -->
 <section class="reviews-section" id="reviews">
     <div class="container">
         <div class="row">
@@ -544,37 +544,22 @@ html.all-black .hero-stat-icon {
             </div>
         </div>
         <div class="reviews-carousel-wrapper">
-            <div id="reviewsCarousel" class="carousel slide" data-bs-ride="false">
-                <div class="carousel-inner" id="reviewsCarouselInner">
-                    <div class="carousel-item active">
-                        <div class="reviews-peek-container">
-                            <div class="review-card review-card-side review-card-prev">
-                                <div class="skeleton-avatar"></div>
-                                <div class="skeleton-text"></div>
-                                <div class="skeleton-text short"></div>
-                            </div>
-                            <div class="review-card review-card-center">
-                                <div class="skeleton-avatar"></div>
-                                <div class="skeleton-text"></div>
-                                <div class="skeleton-text short"></div>
-                            </div>
-                            <div class="review-card review-card-side review-card-next">
-                                <div class="skeleton-avatar"></div>
-                                <div class="skeleton-text"></div>
-                                <div class="skeleton-text short"></div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="reviews-peek-container" id="reviewsContainer">
+                <!-- Skeleton loading -->
+                <div class="review-card">
+                    <div class="skeleton-avatar"></div>
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-text short"></div>
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Anterior</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Próximo</span>
-                </button>
             </div>
+            <button class="carousel-control-prev" type="button" id="reviewsPrev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" id="reviewsNext">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Próximo</span>
+            </button>
         </div>
     </div>
     <style>
@@ -582,13 +567,13 @@ html.all-black .hero-stat-icon {
     .reviews-title{font-size:2.2rem;font-weight:700;color:#1a1a1a;margin-bottom:10px}
     .reviews-title .highlight{color:#3b82f6}
     .reviews-subtitle{color:#6b7280}
-    .reviews-carousel-wrapper{position:relative;overflow:hidden;padding:20px 0}
-    .reviews-peek-container{display:flex;justify-content:center;align-items:center;gap:30px;min-height:400px}
-    .review-card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:28px;border:1px solid rgba(0,0,0,.08);min-width:320px;max-width:420px;flex-shrink:0;transition:all .5s cubic-bezier(0.4, 0, 0.2, 1)}
-    .review-card-center{transform:scale(1);filter:blur(0);opacity:1;z-index:3}
-    .review-card-side{transform:scale(0.85);filter:blur(3px);opacity:0.5;z-index:1}
-    .review-card-prev{margin-right:-50px}
-    .review-card-next{margin-left:-50px}
+    .reviews-carousel-wrapper{position:relative;overflow:visible;padding:20px 0}
+    .reviews-peek-container{display:flex;justify-content:center;align-items:center;gap:30px;min-height:400px;position:relative}
+    .review-card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:28px;border:1px solid rgba(0,0,0,.08);min-width:320px;max-width:420px;flex-shrink:0;transition:all .6s cubic-bezier(0.4, 0, 0.2, 1);position:absolute;left:50%;transform:translateX(-50%) scale(0.85);filter:blur(3px);opacity:0.5;z-index:1;pointer-events:none}
+    .review-card.active{transform:translateX(-50%) scale(1);filter:blur(0);opacity:1;z-index:3;pointer-events:auto}
+    .review-card.prev{transform:translateX(calc(-50% - 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2}
+    .review-card.next{transform:translateX(calc(-50% + 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2}
+    .review-card.hidden{opacity:0;pointer-events:none;z-index:0}
     .review-text{font-size:1rem;line-height:1.7;color:#4b5563;margin-bottom:20px;font-style:italic}
     .review-author{display:flex;align-items:center;gap:14px}
     .review-avatar{width:56px;height:56px;border-radius:50%;overflow:hidden;border:3px solid #e5e7eb}
@@ -600,7 +585,7 @@ html.all-black .hero-stat-icon {
     .skeleton-text{height:16px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:12px}
     .skeleton-text.short{width:60%}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    @media(max-width:992px){.reviews-peek-container{gap:15px}.review-card{min-width:280px;max-width:350px}.review-card-prev,.review-card-next{display:none}}
+    @media(max-width:992px){.reviews-peek-container{gap:15px}.review-card{min-width:280px;max-width:350px}.review-card.prev,.review-card.next{opacity:0;transform:translateX(-50%) scale(0.7)}}
     @media(max-width:768px){.reviews-section{padding:60px 0}.review-card{min-width:90%;max-width:90%}}
     html.dark-blue .reviews-section{background:#001233}
     html.dark-blue .reviews-title{color:#fff}
@@ -624,11 +609,14 @@ html.all-black .hero-stat-icon {
     </style>
     <script nonce="<?= $_SERVER['CSP_NONCE'] ?? '' ?>">
     (function(){
+      var reviews = [];
+      var currentIndex = 0;
+
       function escapeHtml(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
       function stars(r){var f=Math.floor(r||0),h=((r||0)%1)>=.5,e=5-f-(h?1:0),s='';for(var i=0;i<f;i++)s+='<i class="fas fa-star"></i>';if(h)s+='<i class="fas fa-star-half-alt"></i>';for(var j=0;j<e;j++)s+='<i class="far fa-star"></i>';return s}
-      function buildCard(rv, position){
-        var posClass = position === 'center' ? 'review-card-center' : 'review-card-side ' + (position === 'prev' ? 'review-card-prev' : 'review-card-next');
-        return '<div class="review-card '+posClass+'">\
+
+      function buildCard(rv){
+        return '<div class="review-card">\
           <p class="review-text">'+escapeHtml(rv.review_text||'')+'</p>\
           <div class="review-author">\
             <div class="review-avatar"><img src="'+escapeHtml(rv.author_avatar||('https://i.pravatar.cc/150?img='+(Math.floor(Math.random()*70)+1)))+'" alt="'+escapeHtml(rv.author_name||'')+'" onerror="this.src=\'https://i.pravatar.cc/150?img=1\'"></div>\
@@ -640,18 +628,61 @@ html.all-black .hero-stat-icon {
           </div>\
         </div>';
       }
+
+      function updateCards(){
+        var container = document.getElementById('reviewsContainer');
+        if(!container) return;
+        var cards = container.querySelectorAll('.review-card');
+        var total = cards.length;
+        if(total === 0) return;
+
+        cards.forEach(function(card, idx){
+          card.classList.remove('active','prev','next','hidden');
+          if(idx === currentIndex){
+            card.classList.add('active');
+          } else if(idx === (currentIndex - 1 + total) % total){
+            card.classList.add('prev');
+          } else if(idx === (currentIndex + 1) % total){
+            card.classList.add('next');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      }
+
+      function next(){
+        if(reviews.length === 0) return;
+        currentIndex = (currentIndex + 1) % reviews.length;
+        updateCards();
+      }
+
+      function prev(){
+        if(reviews.length === 0) return;
+        currentIndex = (currentIndex - 1 + reviews.length) % reviews.length;
+        updateCards();
+      }
+
       async function load(){
-        try{var res=await fetch('/api/reviews');var j=await res.json();if(!j.success||!j.data||!j.data.length) return;
-          var inner=document.getElementById('reviewsCarouselInner');if(!inner) return; inner.innerHTML='';
-          j.data.forEach(function(rv,idx){
-            var item=document.createElement('div'); item.className='carousel-item'+(idx===0?' active':'');
-            var prevIdx = idx === 0 ? j.data.length - 1 : idx - 1;
-            var nextIdx = idx === j.data.length - 1 ? 0 : idx + 1;
-            item.innerHTML='<div class="reviews-peek-container">'+buildCard(j.data[prevIdx],'prev')+buildCard(rv,'center')+buildCard(j.data[nextIdx],'next')+'</div>';
-            inner.appendChild(item);
-          });
+        try{
+          var res=await fetch('/api/reviews');
+          var j=await res.json();
+          if(!j.success||!j.data||!j.data.length) return;
+
+          reviews = j.data;
+          var container=document.getElementById('reviewsContainer');
+          if(!container) return;
+          container.innerHTML = reviews.map(buildCard).join('');
+
+          currentIndex = 0;
+          updateCards();
+
+          var prevBtn = document.getElementById('reviewsPrev');
+          var nextBtn = document.getElementById('reviewsNext');
+          if(prevBtn) prevBtn.addEventListener('click', prev);
+          if(nextBtn) nextBtn.addEventListener('click', next);
         }catch(e){/* noop */}
       }
+
       if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',load);} else {load();}
     })();
     </script>
