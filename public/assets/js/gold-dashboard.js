@@ -60,7 +60,7 @@
   function formatPercent(pct) {
     var num = toNumber(pct);
     if (num === null || isNaN(num)) return '--';
-    var sign = num > 0 ? '+' : '';
+    var sign = num > 0 ? '+' : (num < 0 ? '-' : '');
     var abs = Math.abs(num);
     var s = abs.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
     return sign + s + '%';
