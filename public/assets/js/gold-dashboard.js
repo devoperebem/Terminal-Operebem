@@ -255,64 +255,148 @@
   }
 
   // ============================================================================
-  // GRID FUTUROS (GC1! .. GC7!) + MÉDIA
+  // GRID FUTUROS (GC1! .. GC7!) + MÉDIA - Card único com gráfico
   // ============================================================================
   function renderFuturesGrid(items, avg) {
     try {
       var wrap = document.getElementById('gold_futures_grid');
       if (!wrap) return;
       wrap.innerHTML = '';
-      var makeCard = function(title, it){
-        var pct = formatPercent(it && (it.pcp ?? it.pc));
-        var cls = 'text-neutral';
-        var num = toNumber(it && (it.pcp ?? it.pc));
-        if (num !== null) {
-          if (num > 0) cls = 'text-success'; else if (num < 0) cls = 'text-danger';
-        }
-        var timeTxt = it ? formatTime(it) : '--';
-        var price = it ? (it.last ?? it.last_numeric ?? '--') : '--';
-        var code = it ? (it.code || '') : '';
-        var el = document.createElement('div');
-        el.className = 'col-6 col-md-4 col-xl-2';
-        el.innerHTML = (
-          '<div class="card h-100">'
-          + '<div class="card-body p-3">'
-          + '<div class="text-uppercase small text-muted mb-1">' + title + '</div>'
-          + '<div class="fs-6 fw-semibold mb-1">' + price + '</div>'
-          + '<div class="d-flex align-items-center justify-content-between">'
-          +   '<div class="small ' + cls + '">' + (it ? (toNumber(it.last_numeric) && toNumber(it.last_close) ? ((toNumber(it.last_numeric)-toNumber(it.last_close))>=0?'+':'') + (toNumber(it.last_numeric)-toNumber(it.last_close)).toFixed(2) : '--') : '--') + '</div>'
-          +   '<div class="small fw-semibold ' + cls + '">' + pct + '</div>'
-          + '</div>'
-          + '<div class="small text-muted mt-1">' + (timeTxt) + '</div>'
-          + '</div>'
-          + '</div>'
-        );
-        wrap.appendChild(el);
-      };
 
-      // Criar cards para cada futuro em ordem de code GC1!..GC7!
+      // Organizar dados por código
       var order = ['GC1!','GC2!','GC3!','GC4!','GC5!','GC6!','GC7!'];
       var byCode = {};
       (items||[]).forEach(function(it){ if (it && it.code) byCode[String(it.code).toUpperCase()] = it; });
-      for (var i=0;i<order.length;i++) {
-        var c = order[i];
-        makeCard(c, byCode[c]);
+
+      // Preparar dados para o card
+      var futuresData = [];
+      for (var i = 0; i < order.length; i++) {
+        var code = order[i];
+        var item = byCode[code];
+        var pct = item ? toNumber(item.pcp ?? item.pc) : null;
+        var price = item ? (item.last ?? item.last_numeric ?? '--') : '--';
+        futuresData.push({ code: code, item: item, pct: pct, price: price });
       }
-      // Card de média
-      var elAvg = document.createElement('div');
-      elAvg.className = 'col-12 col-md-4 col-xl-2';
+
+      // Criar card único
+      var card = document.createElement('div');
+      card.className = 'col-12';
+
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '--';
-      elAvg.innerHTML = (
-        '<div class="card h-100">'
+
+      // HTML do card com tabela e gráfico lado a lado
+      var html = '<div class="card">'
         + '<div class="card-body p-3">'
-        + '<div class="text-uppercase small text-muted mb-1">Média GC1–GC7</div>'
-        + '<div class="fs-6 fw-semibold mb-1">' + avgTxt + '</div>'
-        + '<div class="small text-muted mt-1">' + (new Date()).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }) + '</div>'
+        + '<div class="d-flex align-items-center justify-content-between mb-3">'
+        + '<h6 class="mb-0 text-uppercase">Futuros de Ouro CME (GC1!-GC7!)</h6>'
+        + '<div class="small text-muted">Média: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '</div>'
+        + '<div class="row">'
+        + '<div class="col-md-5">'
+        + '<table class="table table-sm table-borderless mb-0">'
+        + '<tbody>';
+
+      // Adicionar linhas da tabela
+      for (var j = 0; j < futuresData.length; j++) {
+        var fd = futuresData[j];
+        var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
+        var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
+        html += '<tr>'
+          + '<td class="fw-semibold" style="width: 60px;">' + fd.code + '</td>'
+          + '<td class="text-end" style="width: 100px;">' + fd.price + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + '" style="width: 80px;">' + pctText + '</td>'
+          + '</tr>';
+      }
+
+      html += '</tbody></table></div>'
+        + '<div class="col-md-7">'
+        + '<canvas id="gc_futures_chart" style="max-height: 280px;"></canvas>'
         + '</div>'
         + '</div>'
-      );
-      wrap.appendChild(elAvg);
-    } catch(_){ }
+        + '</div>'
+        + '</div>';
+
+      card.innerHTML = html;
+      wrap.appendChild(card);
+
+      // Renderizar gráfico após inserir no DOM
+      setTimeout(function() {
+        window.__lastFuturesData = futuresData; // Salvar para re-renderização
+        renderFuturesChart(futuresData);
+      }, 100);
+
+    } catch(e){ console.error('renderFuturesGrid error:', e); }
+  }
+
+  // Renderizar gráfico de barras dos futuros
+  function renderFuturesChart(data) {
+    try {
+      var canvas = document.getElementById('gc_futures_chart');
+      if (!canvas || !canvas.getContext) return;
+
+      window.__lastFuturesData = data; // Atualizar dados salvos
+
+      var ctx = canvas.getContext('2d');
+      var dpr = window.devicePixelRatio || 1;
+      var rect = canvas.getBoundingClientRect();
+
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      var width = rect.width;
+      var height = rect.height;
+      var padding = { top: 20, right: 20, bottom: 40, left: 40 };
+      var chartWidth = width - padding.left - padding.right;
+      var chartHeight = height - padding.top - padding.bottom;
+
+      // Encontrar valores min/max para escala
+      var values = data.map(function(d) { return d.pct !== null ? d.pct : 0; });
+      var maxVal = Math.max.apply(null, values.map(Math.abs));
+      maxVal = Math.max(maxVal, 1); // mínimo de 1%
+      var scale = chartHeight / (maxVal * 2.2);
+      var zeroY = padding.top + chartHeight / 2;
+
+      // Cores baseadas no tema
+      var isDark = document.documentElement.classList.contains('dark-blue') ||
+                   document.documentElement.classList.contains('all-black');
+      var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+      var textColor = isDark ? '#9ca3af' : '#6b7280';
+      var positiveColor = '#10b981';
+      var negativeColor = '#ef4444';
+
+      // Limpar canvas
+      ctx.clearRect(0, 0, width, height);
+
+      // Desenhar linha zero
+      ctx.beginPath();
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      ctx.moveTo(padding.left, zeroY);
+      ctx.lineTo(width - padding.right, zeroY);
+      ctx.stroke();
+
+      // Desenhar barras
+      var barWidth = chartWidth / data.length * 0.7;
+      var barSpacing = chartWidth / data.length;
+
+      for (var i = 0; i < data.length; i++) {
+        var pct = data[i].pct !== null ? data[i].pct : 0;
+        var barHeight = Math.abs(pct) * scale;
+        var x = padding.left + i * barSpacing + (barSpacing - barWidth) / 2;
+        var y = pct >= 0 ? (zeroY - barHeight) : zeroY;
+
+        ctx.fillStyle = pct >= 0 ? positiveColor : negativeColor;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Label do código
+        ctx.fillStyle = textColor;
+        ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(data[i].code, x + barWidth / 2, height - padding.bottom + 20);
+      }
+
+    } catch(e){ console.error('renderFuturesChart error:', e); }
   }
 
   // ============================================================================
@@ -592,9 +676,24 @@
     if (th !== __lastTheme) {
       __lastTheme = th;
       clearTimeout(__rerenderTimer);
-      __rerenderTimer = setTimeout(renderAll, 600);
+      __rerenderTimer = setTimeout(function() {
+        renderAll();
+        refreshQuotes(); // Re-renderizar futuros com novo tema
+      }, 600);
     }
   }).observe(document.documentElement, { attributes: true });
+
+  // Re-renderizar gráfico ao redimensionar janela
+  var __resizeTimer = null;
+  window.addEventListener('resize', function() {
+    clearTimeout(__resizeTimer);
+    __resizeTimer = setTimeout(function() {
+      var canvas = document.getElementById('gc_futures_chart');
+      if (canvas && window.__lastFuturesData) {
+        renderFuturesChart(window.__lastFuturesData);
+      }
+    }, 300);
+  });
 
   // ============================================================================
   // CLIENT LOGGING -> Monolog (servidor)

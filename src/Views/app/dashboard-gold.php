@@ -80,6 +80,17 @@ html.all-black .correlation-info:hover {
   background-color: #0d6efd;
   color: white;
 }
+
+/* Estilos para card de futuros */
+#gold_futures_grid .table td {
+  padding: 0.4rem 0.5rem;
+  vertical-align: middle;
+}
+
+#gold_futures_grid canvas {
+  width: 100% !important;
+  height: auto !important;
+}
 </style>
 
 <!-- Ticker Tape TradingView -->
