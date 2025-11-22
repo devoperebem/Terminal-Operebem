@@ -327,7 +327,9 @@ html.all-black .market-tooltip-status.closed {
 
 <script>
 (function(){
-    const BASE_TZ = -3; // BRT (UTC-3)
+    // Obter timezone do usuário (do window.USER_TIMEZONE ou fallback para BRT)
+    const USER_TZ = window.USER_TIMEZONE || 'America/Sao_Paulo';
+    const BASE_TZ = -3; // BRT (UTC-3) - usado como base de cálculo
     const CX = 300, CY = 300;
     const R_OUT = 280;
     const R_TICK_OUT = 270;
@@ -336,8 +338,8 @@ html.all-black .market-tooltip-status.closed {
     const R_HOUR_TEXT = 225;
     const R_MARKET_BASE = 195;
     const R_MARKET_STEP = 24;
-    const R_LABEL_OFFSET_TOP = 0;
-    const R_LABEL_OFFSET_BOTTOM = 0;
+    const R_LABEL_OFFSET_TOP = 12;
+    const R_LABEL_OFFSET_BOTTOM = -12;
     const MIN_GAP_MIN = 15;
     
     // Será preenchido via API (tabela clock). Mantemos fallback estático.
@@ -427,7 +429,7 @@ html.all-black .market-tooltip-status.closed {
                 <div class="market-status-indicator ${statusClass}"></div>
             </div>
             <div class="market-tooltip-location">📍 ${market.location}</div>
-            <div class="market-tooltip-hours">⏰ ${hours} (BRT)</div>
+            <div class="market-tooltip-hours">⏰ ${hours}</div>
             ${progressHtml}
             <div class="market-tooltip-status ${statusClass}">${status}</div>
         `;
@@ -643,13 +645,32 @@ html.all-black .market-tooltip-status.closed {
         drawHand(sAng, 180, 'hand-second');
     }
     
+    // Calcular offset UTC do timezone do usuário
+    function getUserTimezoneOffset() {
+        try {
+            // Criar data no timezone do usuário
+            const userDateStr = new Date().toLocaleString('en-US', { timeZone: USER_TZ });
+            const userDate = new Date(userDateStr);
+            const localDate = new Date();
+
+            // Diferença em minutos
+            const diffMs = userDate.getTime() - localDate.getTime() + (localDate.getTimezoneOffset() * 60000);
+            const offsetHours = Math.round(diffMs / 3600000);
+
+            return offsetHours;
+        } catch (e) {
+            console.warn('[MarketClock] Erro ao calcular timezone do usuário, usando timezone do navegador:', e);
+            return -(new Date().getTimezoneOffset() / 60);
+        }
+    }
+
     function renderAll() {
         const now = new Date();
-        const offset = -(now.getTimezoneOffset() / 60);
+        const offset = getUserTimezoneOffset();
         drawDial();
         renderMarkets(now, offset);
         renderHands(now);
-        
+
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('class', 'center-dot');
         dot.setAttribute('cx', CX);
