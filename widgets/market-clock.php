@@ -648,14 +648,34 @@ html.all-black .market-tooltip-status.closed {
     // Calcular offset UTC do timezone do usuário
     function getUserTimezoneOffset() {
         try {
-            // Criar data no timezone do usuário
-            const userDateStr = new Date().toLocaleString('en-US', { timeZone: USER_TZ });
-            const userDate = new Date(userDateStr);
-            const localDate = new Date();
+            const now = new Date();
 
-            // Diferença em minutos
-            const diffMs = userDate.getTime() - localDate.getTime() + (localDate.getTimezoneOffset() * 60000);
-            const offsetHours = Math.round(diffMs / 3600000);
+            // Obter hora em UTC (formato ISO sem timezone)
+            const utcHours = now.getUTCHours();
+            const utcMinutes = now.getUTCMinutes();
+
+            // Obter hora no timezone do usuário
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: USER_TZ,
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            const parts = formatter.formatToParts(now);
+            const tzHours = parseInt(parts.find(p => p.type === 'hour').value);
+            const tzMinutes = parseInt(parts.find(p => p.type === 'minute').value);
+
+            // Calcular diferença em horas (com fração para minutos)
+            const utcTotalMinutes = utcHours * 60 + utcMinutes;
+            const tzTotalMinutes = tzHours * 60 + tzMinutes;
+            let diffMinutes = tzTotalMinutes - utcTotalMinutes;
+
+            // Ajustar para mudança de dia (crossing midnight)
+            if (diffMinutes > 720) diffMinutes -= 1440;  // Se diferença > 12h, subtrair 24h
+            if (diffMinutes < -720) diffMinutes += 1440; // Se diferença < -12h, adicionar 24h
+
+            const offsetHours = diffMinutes / 60;
 
             return offsetHours;
         } catch (e) {
