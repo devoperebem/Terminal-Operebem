@@ -152,7 +152,7 @@ html.all-black .tooltip.bs-tooltip-end .tooltip-arrow::before { border-right-col
 .status-bubble:hover { cursor: pointer; }
 .status-bubble.active::after { background-color: #00bf63; }
 .status-bubble.close::after { background-color: #999; }
-.status-bubble.after-hours::after { background-color: #0d47a1; }
+.status-bubble.after-hours::after { background-color: #2196f3; /* Azul moderno e vibrante */ }
 .status-bubble.pre-market::after { background-color: #fbbf24; }
 
 /* Tooltips globais baseadas em data-tooltip */
