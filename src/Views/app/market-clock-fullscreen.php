@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <?php
-// Detectar tema do usuário
+// Detectar tema e timezone do usuário
 $userTheme = $_SESSION['user_theme'] ?? 'light';
+$userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
 ?>
 <html lang="pt-BR" class="<?= htmlspecialchars($userTheme, ENT_QUOTES, 'UTF-8') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relógio de Mercados Globais - Terminal Operebem</title>
+    <script>
+        // Disponibilizar timezone do usuário para o widget
+        window.USER_TIMEZONE = <?= json_encode($userTimezone) ?>;
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -200,7 +205,7 @@ $userTheme = $_SESSION['user_theme'] ?? 'light';
         </div>
         
         <div class="footer">
-            <p>Horários em BRT (UTC-3) | Atualização em tempo real</p>
+            <p>Horários no seu fuso horário configurado | Atualização em tempo real</p>
             <p><a href="https://terminal.operebem.com.br" target="_blank">Terminal Operebem</a></p>
         </div>
     </div>

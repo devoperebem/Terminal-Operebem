@@ -405,6 +405,7 @@ $router->put('/api/admin/reviews/{id}', [AdminReviewsController::class, 'update'
 $router->delete('/api/admin/reviews/{id}', [AdminReviewsController::class, 'delete'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->patch('/api/admin/reviews/{id}/toggle', [AdminReviewsController::class, 'toggle'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->patch('/api/admin/reviews/reorder', [AdminReviewsController::class, 'reorder'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/reviews/upload-avatar', [AdminReviewsController::class, 'uploadAvatar'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
 // ============================================================================
 // MARKET CLOCK API
