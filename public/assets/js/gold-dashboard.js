@@ -143,7 +143,8 @@
   
   var ENDPOINT = '/api/quotes/gold-boot';
   var TARGETS = {
-    gold: { codes: ['XAUUSD','XAU/USD','GOLD','GOLDUSD','GC1!','TVC:GOLD'], names: ['OURO','GOLD'], keywords: ['OURO','GOLD'] },
+    gold: { codes: ['68','XAUUSD','XAU/USD'], names: ['OURO','GOLD'], keywords: [] },
+    gold2: { codes: ['8830','GOLD'], names: ['OURO 2!','GOLD 2!'], keywords: [] },
     dxy: { codes: ['DXY','TVC:DXY','DX-Y.NYB','ICEUS:DXY'], names: ['DXY','DOLLAR INDEX'], keywords: ['DOLLAR','DÓLAR','INDEX'] },
     us10y: { codes: ['US10Y','^TNX','UST10Y','US10Y.Y'], names: ['10Y','10-Y','TREASURY'], keywords: ['10Y','UST','TREASURY'] },
     vix: { codes: ['VIX','^VIX'], names: ['VIX','VOLATILITY'], keywords: ['VIX','VOLATILITY'] },
@@ -228,13 +229,15 @@
       var futuresAvg = json && json.futures_avg !== undefined ? json.futures_avg : null;
 
       var gg = data.gold || null;
+      var gg2 = data.gold2 || null;
       var dd = data.dxy || null;
       var uu = data.us10y || null;
       var vv = data.vix || null;
       var gvz = data.gvz || null;
 
-      if (gg || dd || uu || vv || gvz) {
+      if (gg || gg2 || dd || uu || vv || gvz) {
         updateCard('gold', gg);
+        updateCard('gold2', gg2);
         updateCard('dxy', dd);
         updateCard('us10y', uu);
         updateCard('vix', vv);
@@ -242,6 +245,7 @@
       } else {
         var arr = Array.isArray(data) ? data : [];
         updateCard('gold', findByCandidates(arr, TARGETS.gold));
+        updateCard('gold2', findByCandidates(arr, TARGETS.gold2));
         updateCard('dxy', findByCandidates(arr, TARGETS.dxy));
         updateCard('us10y', findByCandidates(arr, TARGETS.us10y));
         updateCard('vix', findByCandidates(arr, TARGETS.vix));
@@ -255,7 +259,7 @@
   }
 
   // ============================================================================
-  // GRID FUTUROS (GC1! .. GC7!) + MÉDIA - Card único com gráfico
+  // GRID FUTUROS (GC1! .. GC7!) + MÉDIA - Card único com gráficos interativos
   // ============================================================================
   function renderFuturesGrid(items, avg) {
     try {
@@ -270,13 +274,44 @@
 
       // Preparar dados para o card
       var futuresData = [];
+      var totalPct = 0;
+      var countPct = 0;
+
       for (var i = 0; i < order.length; i++) {
         var code = order[i];
         var item = byCode[code];
         var pct = item ? toNumber(item.pcp ?? item.pc) : null;
         var price = item ? (item.last ?? item.last_numeric ?? '--') : '--';
-        futuresData.push({ code: code, item: item, pct: pct, price: price });
+        var nome = item ? (item.nome || item.apelido || code) : code;
+
+        // Calcular variação nominal
+        var nominalChange = '--';
+        var lastNum = item ? toNumber(item.last ?? item.last_numeric) : null;
+        var closeNum = item ? toNumber(item.last_close) : null;
+        if (lastNum !== null && closeNum !== null) {
+          var change = lastNum - closeNum;
+          nominalChange = (change >= 0 ? '+' : '') + change.toFixed(2);
+        }
+
+        futuresData.push({
+          code: code,
+          item: item,
+          pct: pct,
+          price: price,
+          nome: nome,
+          nominalChange: nominalChange
+        });
+
+        if (pct !== null) {
+          totalPct += pct;
+          countPct++;
+        }
       }
+
+      // Calcular média de oscilação
+      var avgPct = countPct > 0 ? (totalPct / countPct) : null;
+      var avgPctText = avgPct !== null ? formatPercent(avgPct) : '--';
+      var avgPctClass = avgPct > 0 ? 'text-success' : (avgPct < 0 ? 'text-danger' : 'text-muted');
 
       // Criar card único
       var card = document.createElement('div');
@@ -284,33 +319,39 @@
 
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '--';
 
-      // HTML do card com tabela e gráfico lado a lado
+      // HTML do card com tabela e gráficos lado a lado
       var html = '<div class="card">'
         + '<div class="card-body p-3">'
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
-        + '<h6 class="mb-0 text-uppercase">Futuros de Ouro CME (GC1!-GC7!)</h6>'
-        + '<div class="small text-muted">Média: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
+        + '<div class="d-flex gap-3">'
+        + '<div class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<div class="small text-muted">Média Osc.: <span class="fw-semibold ' + avgPctClass + '">' + avgPctText + '</span></div>'
+        + '</div>'
         + '</div>'
         + '<div class="row">'
-        + '<div class="col-md-5">'
-        + '<table class="table table-sm table-borderless mb-0">'
+        + '<div class="col-md-4">'
+        + '<table class="table table-sm table-borderless mb-0 futures-table">'
         + '<tbody>';
 
-      // Adicionar linhas da tabela
+      // Adicionar linhas da tabela com tooltips
       for (var j = 0; j < futuresData.length; j++) {
         var fd = futuresData[j];
         var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
         html += '<tr>'
-          + '<td class="fw-semibold" style="width: 60px;">' + fd.code + '</td>'
-          + '<td class="text-end" style="width: 100px;">' + fd.price + '</td>'
-          + '<td class="text-end fw-semibold ' + cls + '" style="width: 80px;">' + pctText + '</td>'
+          + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
+          + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help;">' + pctText + '</td>'
           + '</tr>';
       }
 
       html += '</tbody></table></div>'
-        + '<div class="col-md-7">'
+        + '<div class="col-md-4">'
         + '<canvas id="gc_futures_chart" style="max-height: 280px;"></canvas>'
+        + '</div>'
+        + '<div class="col-md-4">'
+        + '<canvas id="gc_futures_curve" style="max-height: 280px;"></canvas>'
         + '</div>'
         + '</div>'
         + '</div>'
@@ -319,16 +360,54 @@
       card.innerHTML = html;
       wrap.appendChild(card);
 
-      // Renderizar gráfico após inserir no DOM
+      // Ativar tooltips customizados
       setTimeout(function() {
-        window.__lastFuturesData = futuresData; // Salvar para re-renderização
+        activateFuturesTooltips();
+      }, 50);
+
+      // Renderizar gráficos após inserir no DOM
+      setTimeout(function() {
+        window.__lastFuturesData = futuresData;
         renderFuturesChart(futuresData);
+        renderFuturesCurve(futuresData);
       }, 100);
 
     } catch(e){ console.error('renderFuturesGrid error:', e); }
   }
 
-  // Renderizar gráfico de barras dos futuros
+  // Ativar tooltips customizados para a tabela de futuros
+  function activateFuturesTooltips() {
+    try {
+      document.querySelectorAll('.futures-table .has-tooltip').forEach(function(el) {
+        var tooltipText = el.getAttribute('data-tooltip-text');
+        if (!tooltipText) return;
+
+        el.addEventListener('mouseenter', function(e) {
+          var tooltip = document.createElement('div');
+          tooltip.className = 'custom-tooltip';
+          tooltip.textContent = tooltipText;
+          tooltip.style.cssText = 'position: fixed; background: rgba(0,0,0,0.9); color: white; padding: 6px 10px; border-radius: 4px; font-size: 12px; z-index: 10000; pointer-events: none; white-space: nowrap;';
+
+          var rect = el.getBoundingClientRect();
+          tooltip.style.top = (rect.top - 30) + 'px';
+          tooltip.style.left = (rect.left + rect.width/2) + 'px';
+          tooltip.style.transform = 'translateX(-50%)';
+
+          document.body.appendChild(tooltip);
+          el._customTooltip = tooltip;
+        });
+
+        el.addEventListener('mouseleave', function() {
+          if (el._customTooltip) {
+            el._customTooltip.remove();
+            el._customTooltip = null;
+          }
+        });
+      });
+    } catch(e){ console.error('activateFuturesTooltips error:', e); }
+  }
+
+  // Renderizar gráfico de barras animado e interativo dos futuros
   function renderFuturesChart(data) {
     try {
       var canvas = document.getElementById('gc_futures_chart');
@@ -364,39 +443,333 @@
       var textColor = isDark ? '#9ca3af' : '#6b7280';
       var positiveColor = '#10b981';
       var negativeColor = '#ef4444';
+      var hoverColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
       // Limpar canvas
       ctx.clearRect(0, 0, width, height);
 
-      // Desenhar linha zero
-      ctx.beginPath();
+      // Desenhar linhas de grade horizontais
       ctx.strokeStyle = gridColor;
       ctx.lineWidth = 1;
+      ctx.setLineDash([2, 3]);
+      for (var g = -2; g <= 2; g++) {
+        if (g === 0) continue;
+        var gy = zeroY + (g * scale * (maxVal / 2));
+        ctx.beginPath();
+        ctx.moveTo(padding.left, gy);
+        ctx.lineTo(width - padding.right, gy);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      // Desenhar linha zero (mais destacada)
+      ctx.beginPath();
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+      ctx.lineWidth = 2;
       ctx.moveTo(padding.left, zeroY);
       ctx.lineTo(width - padding.right, zeroY);
       ctx.stroke();
 
-      // Desenhar barras
-      var barWidth = chartWidth / data.length * 0.7;
+      // Calcular posições das barras
+      var barWidth = chartWidth / data.length * 0.65;
       var barSpacing = chartWidth / data.length;
 
+      // Animação: usar progresso salvo ou iniciar nova
+      if (!window.__futuresChartProgress) {
+        window.__futuresChartProgress = 0;
+      }
+      var progress = Math.min(window.__futuresChartProgress, 1);
+      if (progress < 1) {
+        window.__futuresChartProgress += 0.08;
+        requestAnimationFrame(function() { renderFuturesChart(data); });
+      }
+
+      // Easing function para animação suave
+      var easeOutCubic = function(t) { return 1 - Math.pow(1 - t, 3); };
+      var animProgress = easeOutCubic(progress);
+
+      // Desenhar barras com animação
       for (var i = 0; i < data.length; i++) {
         var pct = data[i].pct !== null ? data[i].pct : 0;
-        var barHeight = Math.abs(pct) * scale;
+        var barHeight = Math.abs(pct) * scale * animProgress;
         var x = padding.left + i * barSpacing + (barSpacing - barWidth) / 2;
         var y = pct >= 0 ? (zeroY - barHeight) : zeroY;
 
-        ctx.fillStyle = pct >= 0 ? positiveColor : negativeColor;
+        // Gradiente para barras
+        var gradient = ctx.createLinearGradient(x, pct >= 0 ? y : zeroY, x, pct >= 0 ? zeroY : y + barHeight);
+        var baseColor = pct >= 0 ? positiveColor : negativeColor;
+        gradient.addColorStop(0, baseColor);
+        gradient.addColorStop(1, baseColor + 'aa'); // mais transparente embaixo
+
+        ctx.fillStyle = gradient;
         ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Borda sutil nas barras
+        ctx.strokeStyle = pct >= 0 ? '#059669' : '#dc2626';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, barWidth, barHeight);
 
         // Label do código
         ctx.fillStyle = textColor;
-        ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(data[i].code, x + barWidth / 2, height - padding.bottom + 20);
+
+        // Valor percentual acima/abaixo da barra
+        if (progress >= 0.8) { // mostrar após animação avançar
+          var pctDisplay = formatPercent(pct);
+          ctx.fillStyle = baseColor;
+          ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          var labelY = pct >= 0 ? (y - 8) : (y + barHeight + 16);
+          ctx.fillText(pctDisplay, x + barWidth / 2, labelY);
+        }
+      }
+
+      // Labels dos eixos
+      ctx.fillStyle = textColor;
+      ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('+' + maxVal.toFixed(1) + '%', padding.left - 8, padding.top + 15);
+      ctx.fillText('-' + maxVal.toFixed(1) + '%', padding.left - 8, height - padding.bottom - 5);
+
+      // Interatividade via mousemove
+      if (!canvas.__hasHoverListener) {
+        canvas.__hasHoverListener = true;
+        canvas.addEventListener('mousemove', function(e) {
+          var rect = canvas.getBoundingClientRect();
+          var mouseX = e.clientX - rect.left;
+          var mouseY = e.clientY - rect.top;
+
+          // Verificar se está sobre alguma barra
+          var hoveredIndex = -1;
+          for (var i = 0; i < data.length; i++) {
+            var x = padding.left + i * barSpacing + (barSpacing - barWidth) / 2;
+            if (mouseX >= x && mouseX <= x + barWidth) {
+              hoveredIndex = i;
+              break;
+            }
+          }
+
+          if (hoveredIndex >= 0) {
+            canvas.style.cursor = 'pointer';
+            // Renderizar novamente com highlight (simplificado: apenas mudar cursor)
+          } else {
+            canvas.style.cursor = 'default';
+          }
+        });
       }
 
     } catch(e){ console.error('renderFuturesChart error:', e); }
+  }
+
+  // Renderizar gráfico de curva dos futuros (term structure)
+  function renderFuturesCurve(data) {
+    try {
+      var canvas = document.getElementById('gc_futures_curve');
+      if (!canvas || !canvas.getContext) return;
+
+      var ctx = canvas.getContext('2d');
+      var dpr = window.devicePixelRatio || 1;
+      var rect = canvas.getBoundingClientRect();
+
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      var width = rect.width;
+      var height = rect.height;
+      var padding = { top: 30, right: 30, bottom: 40, left: 55 };
+      var chartWidth = width - padding.left - padding.right;
+      var chartHeight = height - padding.top - padding.bottom;
+
+      // Extrair preços numéricos
+      var prices = [];
+      for (var i = 0; i < data.length; i++) {
+        var p = toNumber(data[i].price);
+        prices.push(p !== null ? p : null);
+      }
+
+      // Encontrar min/max para escala (ignorar nulls)
+      var validPrices = prices.filter(function(p) { return p !== null; });
+      if (validPrices.length === 0) return; // Sem dados válidos
+
+      var minPrice = Math.min.apply(null, validPrices);
+      var maxPrice = Math.max.apply(null, validPrices);
+      var priceRange = maxPrice - minPrice;
+      if (priceRange === 0) priceRange = maxPrice * 0.01; // Evitar divisão por zero
+      var priceScale = chartHeight / (priceRange * 1.2);
+
+      // Cores baseadas no tema
+      var isDark = document.documentElement.classList.contains('dark-blue') ||
+                   document.documentElement.classList.contains('all-black');
+      var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+      var textColor = isDark ? '#9ca3af' : '#6b7280';
+      var lineColor = '#3b82f6'; // Azul vibrante
+      var fillColor = isDark ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.15)';
+      var dotColor = '#1d4ed8';
+
+      // Limpar canvas
+      ctx.clearRect(0, 0, width, height);
+
+      // Título
+      ctx.fillStyle = textColor;
+      ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Curva de Futuros (Term Structure)', width / 2, 18);
+
+      // Desenhar grade horizontal
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 3]);
+      var gridLines = 5;
+      for (var g = 0; g <= gridLines; g++) {
+        var gy = padding.top + (chartHeight / gridLines) * g;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, gy);
+        ctx.lineTo(width - padding.right, gy);
+        ctx.stroke();
+
+        // Label do preço
+        var priceLabel = maxPrice - (priceRange * 1.2 / gridLines) * g;
+        ctx.fillStyle = textColor;
+        ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText('$' + priceLabel.toFixed(2), padding.left - 8, gy + 4);
+      }
+      ctx.setLineDash([]);
+
+      // Animação: usar progresso salvo ou iniciar nova
+      if (!window.__futuresCurveProgress) {
+        window.__futuresCurveProgress = 0;
+      }
+      var progress = Math.min(window.__futuresCurveProgress, 1);
+      if (progress < 1) {
+        window.__futuresCurveProgress += 0.06;
+        requestAnimationFrame(function() { renderFuturesCurve(data); });
+      }
+
+      // Easing
+      var easeOutQuad = function(t) { return t * (2 - t); };
+      var animProgress = easeOutQuad(progress);
+
+      // Calcular pontos da curva
+      var points = [];
+      var xStep = chartWidth / (data.length - 1);
+      for (var i = 0; i < data.length; i++) {
+        var price = prices[i];
+        if (price === null) continue;
+
+        var x = padding.left + i * xStep;
+        var normalizedPrice = (maxPrice - price) / (priceRange * 1.2);
+        var y = padding.top + normalizedPrice * chartHeight;
+
+        // Aplicar animação: revelar da esquerda para direita
+        if (i / (data.length - 1) <= animProgress) {
+          points.push({ x: x, y: y, price: price, code: data[i].code });
+        }
+      }
+
+      if (points.length < 2) return; // Precisa de pelo menos 2 pontos
+
+      // Desenhar área preenchida sob a curva
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, height - padding.bottom);
+      ctx.lineTo(points[0].x, points[0].y);
+      for (var i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.lineTo(points[points.length - 1].x, height - padding.bottom);
+      ctx.closePath();
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+
+      // Desenhar linha da curva
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (var i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // Desenhar pontos (dots)
+      for (var i = 0; i < points.length; i++) {
+        var pt = points[i];
+
+        // Círculo externo (borda branca)
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = isDark ? '#1f2937' : '#ffffff';
+        ctx.fill();
+
+        // Círculo interno (cor)
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = dotColor;
+        ctx.fill();
+      }
+
+      // Labels dos contratos (eixo X)
+      ctx.fillStyle = textColor;
+      ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'center';
+      for (var i = 0; i < data.length; i++) {
+        var x = padding.left + i * xStep;
+        ctx.fillText(data[i].code, x, height - padding.bottom + 20);
+      }
+
+      // Interatividade: mostrar tooltip ao passar sobre pontos
+      if (!canvas.__hasHoverListener) {
+        canvas.__hasHoverListener = true;
+        canvas.addEventListener('mousemove', function(e) {
+          var rect = canvas.getBoundingClientRect();
+          var mouseX = e.clientX - rect.left;
+          var mouseY = e.clientY - rect.top;
+
+          // Verificar proximidade com algum ponto
+          var hoveredPoint = null;
+          for (var i = 0; i < points.length; i++) {
+            var pt = points[i];
+            var dist = Math.sqrt(Math.pow(mouseX - pt.x, 2) + Math.pow(mouseY - pt.y, 2));
+            if (dist < 10) {
+              hoveredPoint = pt;
+              break;
+            }
+          }
+
+          // Remover tooltip anterior
+          var oldTooltip = document.querySelector('.curve-tooltip');
+          if (oldTooltip) oldTooltip.remove();
+
+          if (hoveredPoint) {
+            canvas.style.cursor = 'pointer';
+
+            // Criar tooltip
+            var tooltip = document.createElement('div');
+            tooltip.className = 'curve-tooltip';
+            tooltip.innerHTML = '<strong>' + hoveredPoint.code + '</strong><br>$' + hoveredPoint.price.toFixed(2);
+            tooltip.style.cssText = 'position: fixed; background: rgba(0,0,0,0.9); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 10000; pointer-events: none;';
+
+            tooltip.style.left = (e.clientX + 10) + 'px';
+            tooltip.style.top = (e.clientY - 10) + 'px';
+
+            document.body.appendChild(tooltip);
+          } else {
+            canvas.style.cursor = 'default';
+          }
+        });
+
+        canvas.addEventListener('mouseleave', function() {
+          var tooltip = document.querySelector('.curve-tooltip');
+          if (tooltip) tooltip.remove();
+          canvas.style.cursor = 'default';
+        });
+      }
+
+    } catch(e){ console.error('renderFuturesCurve error:', e); }
   }
 
   // ============================================================================
@@ -683,14 +1056,18 @@
     }
   }).observe(document.documentElement, { attributes: true });
 
-  // Re-renderizar gráfico ao redimensionar janela
+  // Re-renderizar gráficos ao redimensionar janela
   var __resizeTimer = null;
   window.addEventListener('resize', function() {
     clearTimeout(__resizeTimer);
     __resizeTimer = setTimeout(function() {
-      var canvas = document.getElementById('gc_futures_chart');
-      if (canvas && window.__lastFuturesData) {
+      if (window.__lastFuturesData) {
+        // Resetar progresso das animações para re-renderizar
+        window.__futuresChartProgress = 1; // Sem animação no resize
+        window.__futuresCurveProgress = 1;
+
         renderFuturesChart(window.__lastFuturesData);
+        renderFuturesCurve(window.__lastFuturesData);
       }
     }, 300);
   });
