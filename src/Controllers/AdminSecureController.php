@@ -596,7 +596,7 @@ class AdminSecureController extends BaseController
         }
         
         if ($search !== '') {
-            $where[] = '(name ILIKE ? OR email ILIKE ? OR phone ILIKE ?)';
+            $where[] = '(name LIKE ? OR email LIKE ? OR phone LIKE ?)';
             $like = '%' . $search . '%';
             $params[] = $like;
             $params[] = $like;
