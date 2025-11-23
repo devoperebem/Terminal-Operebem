@@ -92,7 +92,7 @@
     if (num === null || isNaN(num)) return '--';
     var sign = num > 0 ? '+' : (num < 0 ? '-' : '');
     var abs = Math.abs(num);
-    var s = abs.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+    var s = abs.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return sign + s + '%';
   }
 
@@ -373,7 +373,7 @@
         html += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
           + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
-          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ';">' + pctText + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
           + '</tr>';
       }
 
