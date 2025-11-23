@@ -798,7 +798,24 @@ html.all-black .market-tooltip-message.closed {
             const code = NAME_TO_CODE[market.name] || null;
             const statusDb = code ? (DB_STATUS_BY_CODE[code] || null) : null;
             const isOpenFinal = statusDb ? (String(statusDb).toLowerCase() === 'open') : openByTime;
-            segments.forEach(([s, e]) => {
+
+            // Mesclar segmentos adjacentes na meia-noite para renderização contínua
+            const renderSegments = [];
+            let i = 0;
+            while (i < segments.length) {
+                const [s, e] = segments[i];
+                // Verificar se este segmento termina em meia-noite e o próximo começa em meia-noite
+                if (e === 1440 && i + 1 < segments.length && segments[i + 1][0] === 0) {
+                    // Mesclar: criar segmento contínuo atravessando meia-noite
+                    renderSegments.push([s, segments[i + 1][1] + 1440]); // Ex: [1350, 60+1440] = [1350, 1500]
+                    i += 2; // Pular próximo segmento (já mesclado)
+                } else {
+                    renderSegments.push([s, e]);
+                    i++;
+                }
+            }
+
+            renderSegments.forEach(([s, e]) => {
                 const sDeg = minutesToAngle(s);
                 const eDeg = minutesToAngle(e);
 
