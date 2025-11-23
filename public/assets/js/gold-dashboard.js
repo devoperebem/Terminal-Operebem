@@ -348,8 +348,6 @@
       card.className = 'col-12';
 
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
-      // Usar a cor baseada na oscilação média (avgPct), não no valor absoluto
-      var avgPriceClass = avgPct > 0 ? 'text-success' : (avgPct < 0 ? 'text-danger' : 'text-muted');
 
       // HTML do card com tabela e gráficos lado a lado
       var html = '<div class="card mb-4">'
@@ -357,8 +355,8 @@
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
         + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
         + '<div class="d-flex gap-3">'
-        + '<div class="small text-muted">Média Preço: <span class="fw-semibold ' + avgPriceClass + '">' + avgTxt + '</span></div>'
-        + '<div class="small text-muted">Média Osc.: <span class="fw-semibold ' + avgPctClass + '">' + avgPctText + '</span></div>'
+        + '<div class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<div class="small text-muted">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
         + '</div>'
         + '</div>'
         + '<div class="row">'
