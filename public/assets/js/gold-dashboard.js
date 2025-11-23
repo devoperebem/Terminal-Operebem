@@ -348,7 +348,8 @@
       card.className = 'col-12';
 
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
-      var avgPriceClass = (avg !== null && avg !== undefined && avg > 0) ? 'text-success' : ((avg !== null && avg !== undefined && avg < 0) ? 'text-danger' : 'text-muted');
+      // Usar a cor baseada na oscilação média (avgPct), não no valor absoluto
+      var avgPriceClass = avgPct > 0 ? 'text-success' : (avgPct < 0 ? 'text-danger' : 'text-muted');
 
       // HTML do card com tabela e gráficos lado a lado
       var html = '<div class="card mb-4">'
