@@ -471,12 +471,9 @@ html.all-black .market-tooltip-message.closed {
                         statusMessage = `Fecha em ${minutesLeft} minuto${minutesLeft !== 1 ? 's' : ''}`;
                     }
 
-                    // Informação de quando abriu
-                    if (lastOpenTime) {
-                        lastStateInfo = `Abriu às ${hhmmFrom(lastOpenTime) || start}`;
-                    } else {
-                        lastStateInfo = `Abriu às ${start}`;
-                    }
+                    // Informação de quando abriu - sempre mostrar
+                    const openTimeDisplay = (lastOpenTime && hhmmFrom(lastOpenTime)) || start;
+                    lastStateInfo = `Abriu às ${openTimeDisplay} • Fecha às ${end}`;
                     break;
                 }
             }
@@ -560,10 +557,9 @@ html.all-black .market-tooltip-message.closed {
                 progressStart = nextOpenStr;
                 progressEnd = nextCloseStr;
 
-                // Informação de quando fechou
-                if (lastCloseTime) {
-                    lastStateInfo = `Fechou às ${hhmmFrom(lastCloseTime)}`;
-                }
+                // Informação de quando fechou e quando abrirá - sempre mostrar
+                const closeTimeDisplay = (lastCloseTime && hhmmFrom(lastCloseTime)) || '--:--';
+                lastStateInfo = `Fechou às ${closeTimeDisplay} • Abre às ${nextOpenStr}`;
             } else {
                 statusMessage = 'Horário de abertura não disponível';
             }
@@ -584,7 +580,7 @@ html.all-black .market-tooltip-message.closed {
         `;
 
         // Informação de último estado
-        const lastStateHtml = lastStateInfo ? `<div class="market-tooltip-last-state" style="font-size: 11px; color: #6b7280; margin-bottom: 6px;">${lastStateInfo}</div>` : '';
+        const lastStateHtml = lastStateInfo ? `<div class="market-tooltip-last-state" style="font-size: 11px; color: #6b7280; margin-bottom: 6px; font-weight: 500;">${lastStateInfo}</div>` : '';
 
         // Status principal
         const statusBadge = isOpen
@@ -638,9 +634,10 @@ html.all-black .market-tooltip-message.closed {
         tooltip.style.top = finalY + 'px';
         tooltip.classList.add('show');
     }
-    
+
     function hideTooltip() {
         tooltip.classList.remove('show');
+        tooltip.style.display = ''; // Remover inline style para permitir CSS controlar
     }
     
     function polar(r, deg) {
