@@ -151,7 +151,9 @@ html.all-black {
 }
 
 .market-tooltip.show {
-    display: block;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .market-tooltip-header {
@@ -361,8 +363,9 @@ html.all-black .market-tooltip-message.closed {
         <g id="clock-hands"></g>
         <g id="clock-center"></g>
     </svg>
-    <div class="market-tooltip" id="market-tooltip"></div>
 </div>
+<!-- Tooltip fora do widget para evitar problemas de overflow/z-index -->
+<div class="market-tooltip" id="market-tooltip"></div>
 
 <script>
 (function(){
@@ -404,6 +407,12 @@ html.all-black .market-tooltip-message.closed {
     const tooltip = document.getElementById('market-tooltip');
 
     console.log('[MarketClock] Widget initialized. Tooltip element:', tooltip ? 'FOUND' : 'NOT FOUND');
+
+    // Mover tooltip para o body para evitar problemas de overflow/z-index
+    if (tooltip && tooltip.parentElement !== document.body) {
+        console.log('[MarketClock] Moving tooltip to body');
+        document.body.appendChild(tooltip);
+    }
     
     // Função auxiliar para calcular próximo dia útil
     function getNextTradingDay(tradingDays, currentDay) {
@@ -647,7 +656,14 @@ html.all-black .market-tooltip-message.closed {
         tooltip.style.top = finalY + 'px';
         tooltip.classList.add('show');
 
-        console.log('[MarketClock] Tooltip positioned at:', finalX, finalY, 'display:', tooltip.style.display, 'classList:', tooltip.classList.toString());
+        // Verificar estado computado
+        const computedStyle = window.getComputedStyle(tooltip);
+        console.log('[MarketClock] Tooltip positioned at:', finalX, finalY);
+        console.log('[MarketClock] Tooltip inline style display:', tooltip.style.display);
+        console.log('[MarketClock] Tooltip computed display:', computedStyle.display);
+        console.log('[MarketClock] Tooltip computed visibility:', computedStyle.visibility);
+        console.log('[MarketClock] Tooltip computed z-index:', computedStyle.zIndex);
+        console.log('[MarketClock] Tooltip classList:', tooltip.classList.toString());
     }
 
     function hideTooltip() {
