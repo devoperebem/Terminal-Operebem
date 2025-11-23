@@ -700,6 +700,11 @@ html.all-black .market-tooltip-message.closed {
             }
         });
 
+        // Debug temporário
+        if (mk.name === 'HKEX') {
+            console.log('[HKEX Debug] Segments before merge:', JSON.stringify(segs));
+        }
+
         // Mesclar segmentos adjacentes (tolerância de 1 minuto)
         if (segs.length > 1) {
             segs.sort((a, b) => a[0] - b[0]);
@@ -717,6 +722,11 @@ html.all-black .market-tooltip-message.closed {
                 }
             }
             merged.push(current);
+
+            if (mk.name === 'HKEX') {
+                console.log('[HKEX Debug] Segments after merge:', JSON.stringify(merged));
+            }
+
             return merged;
         }
 
