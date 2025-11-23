@@ -347,7 +347,8 @@
       var card = document.createElement('div');
       card.className = 'col-12';
 
-      var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '--';
+      var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
+      var avgPriceClass = (avg !== null && avg !== undefined && avg > 0) ? 'text-success' : ((avg !== null && avg !== undefined && avg < 0) ? 'text-danger' : 'text-muted');
 
       // HTML do card com tabela e gráficos lado a lado
       var html = '<div class="card mb-4">'
@@ -355,7 +356,7 @@
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
         + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
         + '<div class="d-flex gap-3">'
-        + '<div class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<div class="small text-muted">Média Preço: <span class="fw-semibold ' + avgPriceClass + '">' + avgTxt + '</span></div>'
         + '<div class="small text-muted">Média Osc.: <span class="fw-semibold ' + avgPctClass + '">' + avgPctText + '</span></div>'
         + '</div>'
         + '</div>'
