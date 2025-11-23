@@ -84,8 +84,7 @@ html.all-black {
     fill: none;
     stroke: var(--clock-closed);
     stroke-width: 20;
-    stroke-linecap: butt;
-    stroke-linejoin: round;
+    stroke-linecap: round;
     transition: stroke 0.3s ease;
     opacity: 0.9;
     pointer-events: auto;
@@ -800,8 +799,19 @@ html.all-black .market-tooltip-message.closed {
             const statusDb = code ? (DB_STATUS_BY_CODE[code] || null) : null;
             const isOpenFinal = statusDb ? (String(statusDb).toLowerCase() === 'open') : openByTime;
             segments.forEach(([s, e]) => {
-                const sDeg = minutesToAngle(s);
-                const eDeg = minutesToAngle(e);
+                let sDeg = minutesToAngle(s);
+                let eDeg = minutesToAngle(e);
+
+                // Estender arcos na meia-noite para cobrir gap com pontas arredondadas
+                // Se termina exatamente na meia-noite, estender 0.5°
+                if (e === 1440) {
+                    eDeg += 0.5;
+                }
+                // Se começa exatamente na meia-noite, começar 0.5° antes
+                if (s === 0) {
+                    sDeg -= 0.5;
+                }
+
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('class', 'market-arc' + (isOpenFinal ? ' open' : ''));
                 path.setAttribute('d', arcPath(r, sDeg, eDeg));
