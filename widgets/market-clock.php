@@ -135,14 +135,14 @@ html.all-black {
 
 /* Tooltip - Tema Light (padrão) */
 .market-tooltip {
-    position: fixed;
+    position: fixed !important;
     background: rgba(255, 255, 255, 0.98);
     color: #1f2937;
     padding: 14px 18px;
     border-radius: 10px;
     font-size: 13px;
     pointer-events: none;
-    z-index: 10000;
+    z-index: 999999 !important;
     display: none;
     min-width: 240px;
     max-width: 320px;
@@ -402,6 +402,8 @@ html.all-black .market-tooltip-message.closed {
     const hands = document.getElementById('clock-hands');
     const center = document.getElementById('clock-center');
     const tooltip = document.getElementById('market-tooltip');
+
+    console.log('[MarketClock] Widget initialized. Tooltip element:', tooltip ? 'FOUND' : 'NOT FOUND');
     
     // Função auxiliar para calcular próximo dia útil
     function getNextTradingDay(tradingDays, currentDay) {
@@ -426,6 +428,13 @@ html.all-black .market-tooltip-message.closed {
     }
 
     function showTooltip(market, isOpen, event) {
+        console.log('[MarketClock] showTooltip called:', market.name, isOpen);
+
+        if (!tooltip) {
+            console.error('[MarketClock] Tooltip element not found!');
+            return;
+        }
+
         const hours = market.brt.map(([s, e]) => `${s} - ${e}`).join(' | ');
         const statusClass = isOpen ? 'open' : 'closed';
 
@@ -637,6 +646,8 @@ html.all-black .market-tooltip-message.closed {
         tooltip.style.left = finalX + 'px';
         tooltip.style.top = finalY + 'px';
         tooltip.classList.add('show');
+
+        console.log('[MarketClock] Tooltip positioned at:', finalX, finalY, 'display:', tooltip.style.display, 'classList:', tooltip.classList.toString());
     }
 
     function hideTooltip() {
@@ -775,7 +786,10 @@ html.all-black .market-tooltip-message.closed {
                 path.style.cursor = 'pointer';
                 
                 // Eventos de mouse para tooltip
-                path.addEventListener('mouseenter', (e) => showTooltip(market, isOpenFinal, e));
+                path.addEventListener('mouseenter', (e) => {
+                    console.log('[MarketClock] mouseenter on path:', market.name);
+                    showTooltip(market, isOpenFinal, e);
+                });
                 path.addEventListener('mousemove', (e) => {
                     if (!tooltip.classList.contains('show')) return;
 
