@@ -28,19 +28,11 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-        }
-        
-        html.light .container {
-            width: 100%;
-            max-width: 800px;
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         html.light .footer {
@@ -55,20 +47,11 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0a1628 0%, #1e2a3a 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-        }
-        
-        html.dark-blue .container {
-            width: 100%;
-            max-width: 800px;
-            background: rgba(26, 37, 47, 0.95);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         html.dark-blue .footer {
@@ -83,20 +66,11 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
             font-family: 'Inter', sans-serif;
             background: #000000;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-        }
-        
-        html.all-black .container {
-            width: 100%;
-            max-width: 800px;
-            background: rgba(17, 17, 17, 0.95);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         html.all-black .footer {
@@ -131,31 +105,23 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
         html.all-black .footer a {
             color: #60a5fa;
         }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="clock-wrapper">
-            <?php
-            $clockPath = __DIR__ . '/../../../widgets/market-clock.php';
-            if (is_file($clockPath)) {
-                include $clockPath;
-            } else {
-                echo '<div style="text-align:center;color:#ef4444;">Widget de Market Clock indisponível.</div>';
-            }
-            ?>
-        </div>
-        
-        <div class="footer">
-            <p>Horários no seu fuso horário configurado | Atualização em tempo real</p>
-            <p><a href="https://terminal.operebem.com.br" target="_blank">Terminal Operebem</a></p>
-        </div>
+    <div class="clock-wrapper">
+        <?php
+        $clockPath = __DIR__ . '/../../../widgets/market-clock.php';
+        if (is_file($clockPath)) {
+            include $clockPath;
+        } else {
+            echo '<div style="text-align:center;color:#ef4444;">Widget de Market Clock indisponível.</div>';
+        }
+        ?>
+    </div>
+
+    <div class="footer">
+        <p>Horários no seu fuso horário configurado | Atualização em tempo real</p>
+        <p><a href="https://terminal.operebem.com.br" target="_blank">Terminal Operebem</a></p>
     </div>
 </body>
 </html>
