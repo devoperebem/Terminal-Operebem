@@ -700,14 +700,33 @@ html.all-black .market-tooltip-message.closed {
             }
         });
 
-        // Debug temporário
-        if (mk.name === 'HKEX') {
-            console.log('[HKEX Debug] Segments before merge:', JSON.stringify(segs));
-        }
-
         // Mesclar segmentos adjacentes (tolerância de 1 minuto)
         if (segs.length > 1) {
             segs.sort((a, b) => a[0] - b[0]);
+
+            // Verificar se há segmentos que atravessam a meia-noite e devem ser mesclados
+            // Ex: [1350,1440] e [0,60] devem virar um único segmento
+            const hasWrapAround = segs.some(s => s[1] >= 1440 || s[1] === 1440) && segs.some(s => s[0] === 0);
+
+            if (hasWrapAround) {
+                // Encontrar segmento que termina na meia-noite e que começa na meia-noite
+                const endAtMidnight = segs.find(s => Math.abs(s[1] - 1440) <= 1);
+                const startAtMidnight = segs.find(s => s[0] === 0);
+
+                if (endAtMidnight && startAtMidnight && endAtMidnight !== startAtMidnight) {
+                    // Se são adjacentes (tolerância de 1 min), mesclar
+                    if (Math.abs(endAtMidnight[1] - 1440) <= 1 && startAtMidnight[0] <= 1) {
+                        // Criar novo segmento mesclado atravessando meia-noite
+                        const mergedWrap = [endAtMidnight[0], startAtMidnight[1]];
+
+                        // Remover os dois segmentos originais e adicionar o mesclado
+                        segs = segs.filter(s => s !== endAtMidnight && s !== startAtMidnight);
+                        segs.push(mergedWrap);
+                        segs.sort((a, b) => a[0] - b[0]);
+                    }
+                }
+            }
+
             const merged = [];
             let current = segs[0];
 
@@ -722,10 +741,6 @@ html.all-black .market-tooltip-message.closed {
                 }
             }
             merged.push(current);
-
-            if (mk.name === 'HKEX') {
-                console.log('[HKEX Debug] Segments after merge:', JSON.stringify(merged));
-            }
 
             return merged;
         }
