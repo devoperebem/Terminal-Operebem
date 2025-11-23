@@ -803,13 +803,15 @@ html.all-black .market-tooltip-message.closed {
                 let eDeg = minutesToAngle(e);
 
                 // Estender arcos na meia-noite para cobrir gap com pontas arredondadas
-                // Se termina exatamente na meia-noite, estender 1.5°
+                // Se termina exatamente na meia-noite, estender 3°
                 if (e === 1440) {
-                    eDeg += 1.5;
+                    console.log(`[Gap Fix] ${market.name} segment [${s},${e}] ends at midnight, extending +3°`);
+                    eDeg += 3;
                 }
-                // Se começa exatamente na meia-noite, começar 1.5° antes
+                // Se começa exatamente na meia-noite, começar 3° antes
                 if (s === 0) {
-                    sDeg -= 1.5;
+                    console.log(`[Gap Fix] ${market.name} segment [${s},${e}] starts at midnight, extending -3°`);
+                    sDeg -= 3;
                 }
 
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
