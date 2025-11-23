@@ -803,13 +803,13 @@ html.all-black .market-tooltip-message.closed {
                 let eDeg = minutesToAngle(e);
 
                 // Estender arcos na meia-noite para cobrir gap com pontas arredondadas
-                // Se termina exatamente na meia-noite, estender 0.5°
+                // Se termina exatamente na meia-noite, estender 1.5°
                 if (e === 1440) {
-                    eDeg += 0.5;
+                    eDeg += 1.5;
                 }
-                // Se começa exatamente na meia-noite, começar 0.5° antes
+                // Se começa exatamente na meia-noite, começar 1.5° antes
                 if (s === 0) {
-                    sDeg -= 0.5;
+                    sDeg -= 1.5;
                 }
 
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
