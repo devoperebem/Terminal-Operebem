@@ -369,10 +369,11 @@
         var fd = futuresData[j];
         var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
+        var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
         html += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
           + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
-          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help;">' + pctText + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ';">' + pctText + '</td>'
           + '</tr>';
       }
 
