@@ -560,6 +560,7 @@ html.all-black .hero-stat-icon {
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Próximo</span>
             </button>
+            <div class="reviews-dots" id="reviewsDots"></div>
         </div>
     </div>
     <style>
@@ -570,7 +571,7 @@ html.all-black .hero-stat-icon {
     .reviews-carousel-wrapper{position:relative;overflow:visible;padding:20px 0}
     .reviews-carousel-wrapper .carousel-control-prev,
     .reviews-carousel-wrapper .carousel-control-next{display:none}
-    .reviews-peek-container{display:flex;justify-content:center;align-items:center;gap:30px;min-height:400px;position:relative;touch-action:pan-y}
+    .reviews-peek-container{display:flex;justify-content:center;align-items:center;gap:30px;min-height:400px;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
     .review-card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:28px;border:1px solid rgba(0,0,0,.08);min-width:320px;max-width:420px;flex-shrink:0;transition:all .6s cubic-bezier(0.4, 0, 0.2, 1);position:absolute;left:50%;transform:translateX(-50%) scale(0.85);filter:blur(3px);opacity:0.5;z-index:1;pointer-events:none}
     .review-card.active{transform:translateX(-50%) scale(1);filter:blur(0);opacity:1;z-index:3;pointer-events:auto}
     .review-card.prev{transform:translateX(calc(-50% - 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2;pointer-events:auto;cursor:pointer}
@@ -589,7 +590,14 @@ html.all-black .hero-stat-icon {
     .skeleton-text{height:16px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:12px}
     .skeleton-text.short{width:60%}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    @media(max-width:992px){.reviews-peek-container{gap:0;overflow:hidden}.review-card{min-width:85%;max-width:85%}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.7);opacity:0;pointer-events:none}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{display:flex;width:40px;height:40px;opacity:0.7;background:rgba(0,0,0,.5);border-radius:50%;top:50%;transform:translateY(-50%)}.reviews-carousel-wrapper .carousel-control-prev{left:10px}.reviews-carousel-wrapper .carousel-control-next{right:10px}.reviews-carousel-wrapper .carousel-control-prev-icon,.reviews-carousel-wrapper .carousel-control-next-icon{filter:invert(1)}}
+    .reviews-dots{display:none;justify-content:center;align-items:center;gap:8px;margin-top:24px}
+    .reviews-dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,.25);transition:all .3s ease;cursor:pointer}
+    .reviews-dot.active{background:#3b82f6;transform:scale(1.3)}
+    html.dark-blue .reviews-dot{background:rgba(255,255,255,.25)}
+    html.dark-blue .reviews-dot.active{background:#0d84ff}
+    html.all-black .reviews-dot{background:rgba(255,255,255,.25)}
+    html.all-black .reviews-dot.active{background:#0d84ff}
+    @media(max-width:992px){.reviews-dots{display:flex}.reviews-peek-container{gap:0;overflow:hidden;touch-action:pan-y;cursor:grab}.reviews-peek-container:active{cursor:grabbing}.review-card{min-width:85%;max-width:85%}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.7);opacity:0;pointer-events:none}.review-card.active{pointer-events:none}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{display:flex;width:44px;height:44px;opacity:0.85;background:rgba(0,0,0,.65);border-radius:50%;top:50%;transform:translateY(-50%);z-index:10}.reviews-carousel-wrapper .carousel-control-prev:active,.reviews-carousel-wrapper .carousel-control-next:active{background:rgba(0,0,0,.85)}.reviews-carousel-wrapper .carousel-control-prev{left:8px}.reviews-carousel-wrapper .carousel-control-next{right:8px}.reviews-carousel-wrapper .carousel-control-prev-icon,.reviews-carousel-wrapper .carousel-control-next-icon{filter:invert(1);width:20px;height:20px}}
     @media(max-width:768px){.reviews-section{padding:60px 0}.reviews-peek-container{min-height:350px}.review-card{min-width:90%;max-width:90%;padding:24px}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.6)}}
     html.dark-blue .reviews-section{background:#001233}
     html.dark-blue .reviews-title{color:#fff}
@@ -669,6 +677,35 @@ html.all-black .hero-stat-icon {
             card.classList.add('hidden');
           }
         });
+
+        // Update dots
+        var dotsContainer = document.getElementById('reviewsDots');
+        if(dotsContainer){
+          var dots = dotsContainer.querySelectorAll('.reviews-dot');
+          dots.forEach(function(dot, idx){
+            if(idx === currentIndex){
+              dot.classList.add('active');
+            } else {
+              dot.classList.remove('active');
+            }
+          });
+        }
+      }
+
+      function renderDots(){
+        var dotsContainer = document.getElementById('reviewsDots');
+        if(!dotsContainer || reviews.length === 0) return;
+
+        dotsContainer.innerHTML = '';
+        reviews.forEach(function(_, idx){
+          var dot = document.createElement('div');
+          dot.className = 'reviews-dot' + (idx === 0 ? ' active' : '');
+          dot.onclick = function(){
+            currentIndex = idx;
+            updateCards();
+          };
+          dotsContainer.appendChild(dot);
+        });
       }
 
       function next(){
@@ -687,20 +724,21 @@ html.all-black .hero-stat-icon {
       var touchStartX = 0;
       var touchEndX = 0;
       var touchStartY = 0;
-      var touchEndY = 0;
+      var isSwiping = false;
 
-      function handleSwipe(){
+      function handleSwipeEnd(){
         var deltaX = touchEndX - touchStartX;
-        var deltaY = touchEndY - touchStartY;
+        var deltaY = touchStartY - touchStartY;
 
-        // Check if horizontal swipe is dominant (prevent conflict with vertical scroll)
-        if(Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50){
+        // Check if horizontal swipe (threshold: 30px)
+        if(Math.abs(deltaX) > 30 && isSwiping){
           if(deltaX > 0){
             prev(); // Swipe right -> previous
           } else {
             next(); // Swipe left -> next
           }
         }
+        isSwiping = false;
       }
 
       async function load(){
@@ -716,22 +754,33 @@ html.all-black .hero-stat-icon {
 
           currentIndex = 0;
           updateCards();
+          renderDots();
 
           var prevBtn = document.getElementById('reviewsPrev');
           var nextBtn = document.getElementById('reviewsNext');
           if(prevBtn) prevBtn.addEventListener('click', prev);
           if(nextBtn) nextBtn.addEventListener('click', next);
 
-          // Add swipe support
+          // Add swipe support - attach to container
           container.addEventListener('touchstart', function(e){
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isSwiping = true;
+          }, {passive: true});
+
+          container.addEventListener('touchmove', function(e){
+            if(!isSwiping) return;
+            touchEndX = e.touches[0].clientX;
           }, {passive: true});
 
           container.addEventListener('touchend', function(e){
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
+            if(!isSwiping) return;
+            touchEndX = e.changedTouches[0].clientX;
+            handleSwipeEnd();
+          }, {passive: true});
+
+          container.addEventListener('touchcancel', function(){
+            isSwiping = false;
           }, {passive: true});
         }catch(e){/* noop */}
       }
