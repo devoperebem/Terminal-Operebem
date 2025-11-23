@@ -84,7 +84,7 @@ html.all-black {
     fill: none;
     stroke: var(--clock-closed);
     stroke-width: 20;
-    stroke-linecap: butt;
+    stroke-linecap: round;
     transition: stroke 0.3s ease;
     opacity: 0.9;
     pointer-events: auto;
