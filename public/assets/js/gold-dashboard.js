@@ -373,7 +373,7 @@
         html += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
           + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
-          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ';">' + pctText + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
           + '</tr>';
       }
 
