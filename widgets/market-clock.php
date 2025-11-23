@@ -17,6 +17,7 @@
     width: 100%;
     height: auto;
     display: block;
+    pointer-events: auto;
 }
 
 /* Cores adaptadas aos temas - Light */
@@ -86,6 +87,8 @@ html.all-black {
     stroke-linecap: round;
     transition: stroke 0.3s ease;
     opacity: 0.9;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .market-clock-widget .market-arc.open {
@@ -105,6 +108,7 @@ html.all-black {
     stroke-width: 3px;
     stroke-linecap: round;
     stroke-linejoin: round;
+    pointer-events: none;
 }
 
 .market-clock-widget .hand-hour {
