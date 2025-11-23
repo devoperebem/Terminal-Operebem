@@ -406,11 +406,8 @@ html.all-black .market-tooltip-message.closed {
     const center = document.getElementById('clock-center');
     const tooltip = document.getElementById('market-tooltip');
 
-    console.log('[MarketClock] Widget initialized. Tooltip element:', tooltip ? 'FOUND' : 'NOT FOUND');
-
     // Mover tooltip para o body para evitar problemas de overflow/z-index
     if (tooltip && tooltip.parentElement !== document.body) {
-        console.log('[MarketClock] Moving tooltip to body');
         document.body.appendChild(tooltip);
     }
     
@@ -437,12 +434,7 @@ html.all-black .market-tooltip-message.closed {
     }
 
     function showTooltip(market, isOpen, event) {
-        console.log('[MarketClock] showTooltip called:', market.name, isOpen);
-
-        if (!tooltip) {
-            console.error('[MarketClock] Tooltip element not found!');
-            return;
-        }
+        if (!tooltip) return;
 
         const hours = market.brt.map(([s, e]) => `${s} - ${e}`).join(' | ');
         const statusClass = isOpen ? 'open' : 'closed';
@@ -655,15 +647,6 @@ html.all-black .market-tooltip-message.closed {
         tooltip.style.left = finalX + 'px';
         tooltip.style.top = finalY + 'px';
         tooltip.classList.add('show');
-
-        // Verificar estado computado
-        const computedStyle = window.getComputedStyle(tooltip);
-        console.log('[MarketClock] Tooltip positioned at:', finalX, finalY);
-        console.log('[MarketClock] Tooltip inline style display:', tooltip.style.display);
-        console.log('[MarketClock] Tooltip computed display:', computedStyle.display);
-        console.log('[MarketClock] Tooltip computed visibility:', computedStyle.visibility);
-        console.log('[MarketClock] Tooltip computed z-index:', computedStyle.zIndex);
-        console.log('[MarketClock] Tooltip classList:', tooltip.classList.toString());
     }
 
     function hideTooltip() {
@@ -716,6 +699,27 @@ html.all-black .market-tooltip-message.closed {
                 segs.push([start, end]);
             }
         });
+
+        // Mesclar segmentos adjacentes (tolerância de 1 minuto)
+        if (segs.length > 1) {
+            segs.sort((a, b) => a[0] - b[0]);
+            const merged = [];
+            let current = segs[0];
+
+            for (let i = 1; i < segs.length; i++) {
+                const next = segs[i];
+                // Se o próximo segmento começa onde o atual termina (ou com 1min de diferença)
+                if (Math.abs(next[0] - current[1]) <= 1) {
+                    current = [current[0], next[1]];
+                } else {
+                    merged.push(current);
+                    current = next;
+                }
+            }
+            merged.push(current);
+            return merged;
+        }
+
         return segs;
     }
     
@@ -802,10 +806,7 @@ html.all-black .market-tooltip-message.closed {
                 path.style.cursor = 'pointer';
                 
                 // Eventos de mouse para tooltip
-                path.addEventListener('mouseenter', (e) => {
-                    console.log('[MarketClock] mouseenter on path:', market.name);
-                    showTooltip(market, isOpenFinal, e);
-                });
+                path.addEventListener('mouseenter', (e) => showTooltip(market, isOpenFinal, e));
                 path.addEventListener('mousemove', (e) => {
                     if (!tooltip.classList.contains('show')) return;
 
