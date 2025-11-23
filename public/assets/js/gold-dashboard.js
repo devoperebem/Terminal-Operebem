@@ -2,13 +2,13 @@
  * Dashboard Ouro - Terminal Operebem
  * Consolidado: Ticker Tape, Cotações, Gráficos, Widgets TradingView
  */
-(function(){
+(function () {
   'use strict';
 
   // ============================================================================
   // UTILITIES
   // ============================================================================
-  
+
   function getCurrentTheme() {
     var cls = document.documentElement.classList;
     if (cls.contains('dark-blue') || cls.contains('all-black')) return 'dark';
@@ -21,7 +21,37 @@
 
   function toNumber(val) {
     if (val === null || val === undefined || val === '') return null;
-    var s = String(val).replace(/[^\d.,-]/g, '').replace(',', '.');
+
+    // Converter para string e remover espaços
+    var s = String(val).trim();
+
+    // Detectar formato: se tem vírgula E ponto, identificar qual é decimal
+    // Formato BR: 4.079,50 (ponto = separador de milhares, vírgula = decimal)
+    // Formato US: 4,079.50 (vírgula = separador de milhares, ponto = decimal)
+
+    var lastComma = s.lastIndexOf(',');
+    var lastDot = s.lastIndexOf('.');
+
+    // Se tem ambos, o último é o separador decimal
+    if (lastComma > -1 && lastDot > -1) {
+      if (lastComma > lastDot) {
+        // Formato BR: 4.079,50 ou 1.234.567,89
+        // Remover pontos (separador de milhares) e trocar vírgula por ponto
+        s = s.replace(/\./g, '').replace(',', '.');
+      } else {
+        // Formato US: 4,079.50 ou 1,234,567.89
+        // Remover vírgulas (separador de milhares)
+        s = s.replace(/,/g, '');
+      }
+    } else if (lastComma > -1) {
+      // Só tem vírgula - assumir formato BR (4079,50)
+      s = s.replace(',', '.');
+    }
+    // Se só tem ponto ou nenhum separador, já está no formato correto
+
+    // Remover qualquer caracter não numérico exceto ponto decimal e sinal
+    s = s.replace(/[^\d.-]/g, '');
+
     var n = parseFloat(s);
     return isNaN(n) ? null : n;
   }
@@ -54,7 +84,7 @@
       }
       if (!date) return '--';
       return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: tz });
-    } catch(_) { return '--'; }
+    } catch (_) { return '--'; }
   }
 
   function formatPercent(pct) {
@@ -78,15 +108,15 @@
   // ============================================================================
   // LOADER OVERLAY CONTROL (DESABILITADO)
   // ============================================================================
-  function showLoader(){ /* desabilitado */ }
-  function hideLoaderSoon(delay){ /* desabilitado */ }
-  function incPending(){ /* desabilitado */ }
-  function decPending(){ /* desabilitado */ }
+  function showLoader() { /* desabilitado */ }
+  function hideLoaderSoon(delay) { /* desabilitado */ }
+  function incPending() { /* desabilitado */ }
+  function decPending() { /* desabilitado */ }
 
   // ============================================================================
   // TICKER TAPE (igual ao dashboard principal)
   // ============================================================================
-  
+
   var __tapeRendering = false;
   var __tapeTimer = null;
 
@@ -129,10 +159,10 @@
       script.async = true;
       script.text = JSON.stringify(cfg);
       incPending();
-      script.onload = function() { setTimeout(function() { __tapeRendering = false; decPending(); }, 150); };
-      script.onerror = function() { __tapeRendering = false; };
+      script.onload = function () { setTimeout(function () { __tapeRendering = false; decPending(); }, 150); };
+      script.onerror = function () { __tapeRendering = false; };
       container.appendChild(script);
-    } catch(e) {
+    } catch (e) {
       __tapeRendering = false;
     }
   }
@@ -140,19 +170,19 @@
   // ============================================================================
   // COTAÇÕES (5 CARDS)
   // ============================================================================
-  
+
   var ENDPOINT = '/api/quotes/gold-boot';
   var TARGETS = {
-    gold: { codes: ['68','XAUUSD','XAU/USD'], names: ['OURO','GOLD'], keywords: [] },
-    gold2: { codes: ['8830','GOLD'], names: ['OURO 2!','GOLD 2!'], keywords: [] },
-    dxy: { codes: ['DXY','TVC:DXY','DX-Y.NYB','ICEUS:DXY'], names: ['DXY','DOLLAR INDEX'], keywords: ['DOLLAR','DÓLAR','INDEX'] },
-    us10y: { codes: ['US10Y','^TNX','UST10Y','US10Y.Y'], names: ['10Y','10-Y','TREASURY'], keywords: ['10Y','UST','TREASURY'] },
-    vix: { codes: ['VIX','^VIX'], names: ['VIX','VOLATILITY'], keywords: ['VIX','VOLATILITY'] },
-    gvz: { codes: ['GVZ','^GVZ','GVOL'], names: ['GVZ','GOLD VOLATILITY'], keywords: ['GOLD','VOLATILITY','GVZ'] }
+    gold: { codes: ['68', 'XAUUSD', 'XAU/USD'], names: ['OURO', 'GOLD'], keywords: [] },
+    gold2: { codes: ['8830', 'GOLD'], names: ['OURO 2!', 'GOLD 2!'], keywords: [] },
+    dxy: { codes: ['DXY', 'TVC:DXY', 'DX-Y.NYB', 'ICEUS:DXY'], names: ['DXY', 'DOLLAR INDEX'], keywords: ['DOLLAR', 'DÓLAR', 'INDEX'] },
+    us10y: { codes: ['US10Y', '^TNX', 'UST10Y', 'US10Y.Y'], names: ['10Y', '10-Y', 'TREASURY'], keywords: ['10Y', 'UST', 'TREASURY'] },
+    vix: { codes: ['VIX', '^VIX'], names: ['VIX', 'VOLATILITY'], keywords: ['VIX', 'VOLATILITY'] },
+    gvz: { codes: ['GVZ', '^GVZ', 'GVOL'], names: ['GVZ', 'GOLD VOLATILITY'], keywords: ['GOLD', 'VOLATILITY', 'GVZ'] }
   };
 
   function findByCandidates(arr, spec) {
-    var norm = function(v) { return String(v || '').toUpperCase().trim(); };
+    var norm = function (v) { return String(v || '').toUpperCase().trim(); };
     var codes = (spec.codes || []).map(norm);
     var names = (spec.names || []).map(norm);
     var keywords = (spec.keywords || []).map(norm);
@@ -253,7 +283,7 @@
       }
 
       renderFuturesGrid(futures, futuresAvg);
-    } catch(e) {
+    } catch (e) {
       // Manter valores anteriores
     }
   }
@@ -268,9 +298,9 @@
       wrap.innerHTML = '';
 
       // Organizar dados por código
-      var order = ['GC1!','GC2!','GC3!','GC4!','GC5!','GC6!','GC7!'];
+      var order = ['GC1!', 'GC2!', 'GC3!', 'GC4!', 'GC5!', 'GC6!', 'GC7!'];
       var byCode = {};
-      (items||[]).forEach(function(it){ if (it && it.code) byCode[String(it.code).toUpperCase()] = it; });
+      (items || []).forEach(function (it) { if (it && it.code) byCode[String(it.code).toUpperCase()] = it; });
 
       // Preparar dados para o card
       var futuresData = [];
@@ -361,28 +391,28 @@
       wrap.appendChild(card);
 
       // Ativar tooltips customizados
-      setTimeout(function() {
+      setTimeout(function () {
         activateFuturesTooltips();
       }, 50);
 
       // Renderizar gráficos após inserir no DOM
-      setTimeout(function() {
+      setTimeout(function () {
         window.__lastFuturesData = futuresData;
         renderFuturesChart(futuresData);
         renderFuturesCurve(futuresData);
       }, 100);
 
-    } catch(e){ console.error('renderFuturesGrid error:', e); }
+    } catch (e) { console.error('renderFuturesGrid error:', e); }
   }
 
   // Ativar tooltips customizados para a tabela de futuros
   function activateFuturesTooltips() {
     try {
-      document.querySelectorAll('.futures-table .has-tooltip').forEach(function(el) {
+      document.querySelectorAll('.futures-table .has-tooltip').forEach(function (el) {
         var tooltipText = el.getAttribute('data-tooltip-text');
         if (!tooltipText || tooltipText === '--' || tooltipText.trim() === '') return;
 
-        el.addEventListener('mouseenter', function(e) {
+        el.addEventListener('mouseenter', function (e) {
           // Remover qualquer tooltip existente
           var existingTooltip = document.querySelector('.custom-tooltip');
           if (existingTooltip) existingTooltip.remove();
@@ -422,14 +452,14 @@
           el._customTooltip = tooltip;
         });
 
-        el.addEventListener('mouseleave', function() {
+        el.addEventListener('mouseleave', function () {
           if (el._customTooltip) {
             el._customTooltip.remove();
             el._customTooltip = null;
           }
         });
       });
-    } catch(e){ console.error('activateFuturesTooltips error:', e); }
+    } catch (e) { console.error('activateFuturesTooltips error:', e); }
   }
 
   // Renderizar gráfico de barras animado e interativo dos futuros
@@ -455,7 +485,7 @@
       var chartHeight = height - padding.top - padding.bottom;
 
       // Encontrar valores min/max para escala
-      var values = data.map(function(d) { return d.pct !== null ? d.pct : 0; });
+      var values = data.map(function (d) { return d.pct !== null ? d.pct : 0; });
       var maxVal = Math.max.apply(null, values.map(Math.abs));
       maxVal = Math.max(maxVal, 1); // mínimo de 1%
       var scale = chartHeight / (maxVal * 2.2);
@@ -463,7 +493,7 @@
 
       // Cores baseadas no tema
       var isDark = document.documentElement.classList.contains('dark-blue') ||
-                   document.documentElement.classList.contains('all-black');
+        document.documentElement.classList.contains('all-black');
       var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
       var textColor = isDark ? '#9ca3af' : '#6b7280';
       var positiveColor = '#10b981';
@@ -506,11 +536,11 @@
       var progress = Math.min(window.__futuresChartProgress, 1);
       if (progress < 1) {
         window.__futuresChartProgress += 0.08;
-        requestAnimationFrame(function() { renderFuturesChart(data); });
+        requestAnimationFrame(function () { renderFuturesChart(data); });
       }
 
       // Easing function para animação suave
-      var easeOutCubic = function(t) { return 1 - Math.pow(1 - t, 3); };
+      var easeOutCubic = function (t) { return 1 - Math.pow(1 - t, 3); };
       var animProgress = easeOutCubic(progress);
 
       // Desenhar barras com animação
@@ -560,7 +590,7 @@
       // Interatividade via mousemove
       if (!canvas.__hasHoverListener) {
         canvas.__hasHoverListener = true;
-        canvas.addEventListener('mousemove', function(e) {
+        canvas.addEventListener('mousemove', function (e) {
           var rect = canvas.getBoundingClientRect();
           var mouseX = e.clientX - rect.left;
           var mouseY = e.clientY - rect.top;
@@ -584,7 +614,7 @@
         });
       }
 
-    } catch(e){ console.error('renderFuturesChart error:', e); }
+    } catch (e) { console.error('renderFuturesChart error:', e); }
   }
 
   // Renderizar gráfico de curva dos futuros (term structure)
@@ -615,7 +645,7 @@
       }
 
       // Encontrar min/max para escala (ignorar nulls)
-      var validPrices = prices.filter(function(p) { return p !== null; });
+      var validPrices = prices.filter(function (p) { return p !== null; });
       if (validPrices.length === 0) return; // Sem dados válidos
 
       var minPrice = Math.min.apply(null, validPrices);
@@ -626,7 +656,7 @@
 
       // Cores baseadas no tema
       var isDark = document.documentElement.classList.contains('dark-blue') ||
-                   document.documentElement.classList.contains('all-black');
+        document.documentElement.classList.contains('all-black');
       var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
       var textColor = isDark ? '#9ca3af' : '#6b7280';
       var lineColor = '#3b82f6'; // Azul vibrante
@@ -670,11 +700,11 @@
       var progress = Math.min(window.__futuresCurveProgress, 1);
       if (progress < 1) {
         window.__futuresCurveProgress += 0.06;
-        requestAnimationFrame(function() { renderFuturesCurve(data); });
+        requestAnimationFrame(function () { renderFuturesCurve(data); });
       }
 
       // Easing
-      var easeOutQuad = function(t) { return t * (2 - t); };
+      var easeOutQuad = function (t) { return t * (2 - t); };
       var animProgress = easeOutQuad(progress);
 
       // Calcular pontos da curva
@@ -749,7 +779,7 @@
       // Interatividade: mostrar tooltip ao passar sobre pontos
       if (!canvas.__hasHoverListener) {
         canvas.__hasHoverListener = true;
-        canvas.addEventListener('mousemove', function(e) {
+        canvas.addEventListener('mousemove', function (e) {
           var rect = canvas.getBoundingClientRect();
           var mouseX = e.clientX - rect.left;
           var mouseY = e.clientY - rect.top;
@@ -787,20 +817,20 @@
           }
         });
 
-        canvas.addEventListener('mouseleave', function() {
+        canvas.addEventListener('mouseleave', function () {
           var tooltip = document.querySelector('.curve-tooltip');
           if (tooltip) tooltip.remove();
           canvas.style.cursor = 'default';
         });
       }
 
-    } catch(e){ console.error('renderFuturesCurve error:', e); }
+    } catch (e) { console.error('renderFuturesCurve error:', e); }
   }
 
   // ============================================================================
   // GRÁFICO PRINCIPAL (GOLD)
   // ============================================================================
-  
+
   function renderGoldChart() {
     var el = document.getElementById('tv_gold_chart');
     if (!el) return;
@@ -837,13 +867,13 @@
         watchlist: ['OANDA:XAUUSD', 'FOREXCOM:XAUUSD', 'TVC:GOLD', 'COMEX:GC1!']
       });
       setTimeout(decPending, 1400);
-    } catch(e) {}
+    } catch (e) { }
   }
 
   // ============================================================================
   // COMPARAÇÕES (Advanced Chart com compareSymbols)
   // ============================================================================
-  
+
   function renderComparison(containerId, baseSymbol, compareSymbol) {
     var el = document.getElementById(containerId);
     if (!el) return;
@@ -903,14 +933,14 @@
     wrapper.appendChild(script);
     el.appendChild(wrapper);
     incPending();
-    script.onload = function(){ setTimeout(decPending, 800); };
-    script.onerror = function(){ decPending(); };
+    script.onload = function () { setTimeout(decPending, 800); };
+    script.onerror = function () { decPending(); };
   }
 
   // ============================================================================
   // RAZÕES (Ratio Charts)
   // ============================================================================
-  
+
   function renderRatio(containerId, ratioSymbol) {
     var el = document.getElementById(containerId);
     if (!el) return;
@@ -974,7 +1004,7 @@
   // ============================================================================
   // INDICADORES TÉCNICOS (Technical Analysis Widget)
   // ============================================================================
-  
+
   function renderTechnical(containerId, symbol) {
     var el = document.getElementById(containerId);
     if (!el) return;
@@ -1047,19 +1077,19 @@
   // ============================================================================
   // INICIALIZAÇÃO
   // ============================================================================
-  
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Remover modal de login se existir (não necessário em dashboard autenticado)
-      try { var lm = document.getElementById('loginModal'); if (lm && lm.parentNode) lm.parentNode.removeChild(lm); } catch(_){ }
-      try { document.querySelectorAll('[data-bs-target="#loginModal"]').forEach(function(b){ b.style.display='none'; }); } catch(_){ }
+      try { var lm = document.getElementById('loginModal'); if (lm && lm.parentNode) lm.parentNode.removeChild(lm); } catch (_) { }
+      try { document.querySelectorAll('[data-bs-target="#loginModal"]').forEach(function (b) { b.style.display = 'none'; }); } catch (_) { }
       renderAll();
       refreshQuotes();
       setInterval(refreshQuotes, 60000);
     });
   } else {
-    try { var lm2 = document.getElementById('loginModal'); if (lm2 && lm2.parentNode) lm2.parentNode.removeChild(lm2); } catch(_){ }
-    try { document.querySelectorAll('[data-bs-target="#loginModal"]').forEach(function(b){ b.style.display='none'; }); } catch(_){ }
+    try { var lm2 = document.getElementById('loginModal'); if (lm2 && lm2.parentNode) lm2.parentNode.removeChild(lm2); } catch (_) { }
+    try { document.querySelectorAll('[data-bs-target="#loginModal"]').forEach(function (b) { b.style.display = 'none'; }); } catch (_) { }
     renderAll();
     refreshQuotes();
     setInterval(refreshQuotes, 60000);
@@ -1068,13 +1098,13 @@
   // Re-render ao trocar tema (apenas quando o tema realmente muda)
   var __lastTheme = getCurrentTheme();
   var __rerenderTimer = null;
-  new MutationObserver(function(muts) {
-    if (!muts.some(function(m) { return m.attributeName === 'class'; })) return;
+  new MutationObserver(function (muts) {
+    if (!muts.some(function (m) { return m.attributeName === 'class'; })) return;
     var th = getCurrentTheme();
     if (th !== __lastTheme) {
       __lastTheme = th;
       clearTimeout(__rerenderTimer);
-      __rerenderTimer = setTimeout(function() {
+      __rerenderTimer = setTimeout(function () {
         renderAll();
         refreshQuotes(); // Re-renderizar futuros com novo tema
       }, 600);
@@ -1083,9 +1113,9 @@
 
   // Re-renderizar gráficos ao redimensionar janela
   var __resizeTimer = null;
-  window.addEventListener('resize', function() {
+  window.addEventListener('resize', function () {
     clearTimeout(__resizeTimer);
-    __resizeTimer = setTimeout(function() {
+    __resizeTimer = setTimeout(function () {
       if (window.__lastFuturesData) {
         // Resetar progresso das animações para re-renderizar
         window.__futuresChartProgress = 1; // Sem animação no resize
@@ -1100,20 +1130,20 @@
   // ============================================================================
   // CLIENT LOGGING -> Monolog (servidor)
   // ============================================================================
-  function clientLog(level, message, metadata){
-    try{
+  function clientLog(level, message, metadata) {
+    try {
       fetch('/api/client-log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ level: level || 'error', message: String(message || ''), meta: metadata || {} })
       });
-    }catch(_){ }
+    } catch (_) { }
   }
-  window.addEventListener('error', function(e){
-    try { clientLog('error', e && e.message ? e.message : 'window.error', { source: e && e.filename, lineno: e && e.lineno, colno: e && e.colno }); } catch(_){ }
+  window.addEventListener('error', function (e) {
+    try { clientLog('error', e && e.message ? e.message : 'window.error', { source: e && e.filename, lineno: e && e.lineno, colno: e && e.colno }); } catch (_) { }
   });
-  window.addEventListener('unhandledrejection', function(e){
-    try { clientLog('error', 'unhandledrejection', { reason: (e && e.reason && (e.reason.stack || e.reason.message || String(e.reason))) }); } catch(_){ }
+  window.addEventListener('unhandledrejection', function (e) {
+    try { clientLog('error', 'unhandledrejection', { reason: (e && e.reason && (e.reason.stack || e.reason.message || String(e.reason))) }); } catch (_) { }
   });
 
 })();
