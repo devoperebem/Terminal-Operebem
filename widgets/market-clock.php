@@ -702,16 +702,21 @@ html.all-black .market-tooltip-message.closed {
 
         // Mesclar segmentos adjacentes (tolerância de 1 minuto)
         if (segs.length > 1) {
+            console.log('[Debug]', mk.name, 'Before sort:', JSON.stringify(segs));
             segs.sort((a, b) => a[0] - b[0]);
+            console.log('[Debug]', mk.name, 'After sort:', JSON.stringify(segs));
 
             // Verificar se há segmentos que atravessam a meia-noite e devem ser mesclados
             // Ex: [1350,1440] e [0,60] devem virar um único segmento
             const hasWrapAround = segs.some(s => s[1] >= 1440 || s[1] === 1440) && segs.some(s => s[0] === 0);
+            console.log('[Debug]', mk.name, 'hasWrapAround:', hasWrapAround);
 
             if (hasWrapAround) {
                 // Encontrar segmento que termina na meia-noite e que começa na meia-noite
                 const endAtMidnight = segs.find(s => Math.abs(s[1] - 1440) <= 1);
                 const startAtMidnight = segs.find(s => s[0] === 0);
+
+                console.log('[Debug]', mk.name, 'endAtMidnight:', endAtMidnight, 'startAtMidnight:', startAtMidnight);
 
                 if (endAtMidnight && startAtMidnight && endAtMidnight !== startAtMidnight) {
                     // Se são adjacentes (tolerância de 1 min), mesclar
@@ -719,10 +724,14 @@ html.all-black .market-tooltip-message.closed {
                         // Criar novo segmento mesclado atravessando meia-noite
                         const mergedWrap = [endAtMidnight[0], startAtMidnight[1]];
 
+                        console.log('[Debug]', mk.name, 'Merging wraparound:', mergedWrap);
+
                         // Remover os dois segmentos originais e adicionar o mesclado
                         segs = segs.filter(s => s !== endAtMidnight && s !== startAtMidnight);
                         segs.push(mergedWrap);
                         segs.sort((a, b) => a[0] - b[0]);
+
+                        console.log('[Debug]', mk.name, 'After wraparound merge:', JSON.stringify(segs));
                     }
                 }
             }
@@ -742,9 +751,12 @@ html.all-black .market-tooltip-message.closed {
             }
             merged.push(current);
 
+            console.log('[Debug]', mk.name, 'Final merged:', JSON.stringify(merged));
+
             return merged;
         }
 
+        console.log('[Debug]', mk.name, 'Single segment, no merge:', JSON.stringify(segs));
         return segs;
     }
     
