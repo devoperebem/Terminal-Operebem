@@ -350,7 +350,7 @@
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '--';
 
       // HTML do card com tabela e gráficos lado a lado
-      var html = '<div class="card">'
+      var html = '<div class="card mb-4">'
         + '<div class="card-body p-3">'
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
         + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
@@ -378,10 +378,10 @@
 
       html += '</tbody></table></div>'
         + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_chart" style="height: 380px;"></canvas>'
+        + '<canvas id="gc_futures_chart" style="height: 450px;"></canvas>'
         + '</div>'
         + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_curve" style="height: 380px;"></canvas>'
+        + '<canvas id="gc_futures_curve" style="height: 450px;"></canvas>'
         + '</div>'
         + '</div>'
         + '</div>'
