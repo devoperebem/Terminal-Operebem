@@ -42,22 +42,7 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
-        
-        html.light h1 {
-            text-align: center;
-            color: #1f2937;
-            font-size: 2rem;
-            margin-bottom: 10px;
-            font-weight: 800;
-        }
-        
-        html.light .subtitle {
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
-        }
-        
+
         html.light .footer {
             text-align: center;
             margin-top: 30px;
@@ -84,21 +69,6 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        html.dark-blue h1 {
-            text-align: center;
-            color: #ffffff;
-            font-size: 2rem;
-            margin-bottom: 10px;
-            font-weight: 800;
-        }
-        
-        html.dark-blue .subtitle {
-            text-align: center;
-            color: #9ca3af;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
         }
         
         html.dark-blue .footer {
@@ -128,22 +98,7 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        html.all-black h1 {
-            text-align: center;
-            color: #ffffff;
-            font-size: 2rem;
-            margin-bottom: 10px;
-            font-weight: 800;
-        }
-        
-        html.all-black .subtitle {
-            text-align: center;
-            color: #9ca3af;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
-        }
-        
+
         html.all-black .footer {
             text-align: center;
             margin-top: 30px;
@@ -181,18 +136,11 @@ $userTimezone = $user['timezone'] ?? 'America/Sao_Paulo';
             .container {
                 padding: 20px;
             }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌍 Mercados Globais 24h</h1>
-        <p class="subtitle">Acompanhe os horários de funcionamento das principais bolsas de valores do mundo em tempo real</p>
-        
         <div class="clock-wrapper">
             <?php
             $clockPath = __DIR__ . '/../../../widgets/market-clock.php';
