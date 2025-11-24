@@ -865,7 +865,11 @@
         details: true,
         calendar: true,
         hide_volume: false,
-        watchlist: ['OANDA:XAUUSD', 'FOREXCOM:XAUUSD', 'TVC:GOLD', 'COMEX:GC1!']
+        watchlist: ['OANDA:XAUUSD', 'FOREXCOM:XAUUSD', 'TVC:GOLD', 'COMEX:GC1!'],
+        studies: [
+          'STD;Bollinger_Bands',
+          'STD;Cumulative%1Volume%1Delta'
+        ]
       });
       setTimeout(decPending, 1400);
     } catch (e) { }
