@@ -293,80 +293,330 @@
   // ============================================================================
   function renderFuturesGrid(items, avg) {
     try {
-      // O PHP já renderizou a tabela com os dados corretos (window.goldData).
-      // Agora precisamos apenas renderizar os gráficos (Chart.js) nos canvas existentes.
-
-      var data = window.goldData || [];
-      if (data.length === 0) return;
-
-      // Mapear dados para o formato esperado pelos gráficos
-      var futuresData = data.map(function (item) {
-        return {
-          code: item.code,
-          price: item.price,
-          fair_value: item.fair_value,
-          pct: null // A view nova não tem variação percentual, mas o gráfico de barras precisa. 
-          // Se não tiver, o gráfico de barras ficará zerado ou podemos omitir.
-          // O usuário pediu "Term Structure" (Curva). O gráfico de barras era de variação.
-          // O request foca no "Term Structure". Vou manter a curva e talvez adaptar o de barras ou removê-lo se não fizer sentido.
-          // O request diz: "O gráfico de linha precisa contar uma história sobre o tempo." (Term Structure).
-          // Não mencionou o gráfico de barras.
-          // Vou focar no gráfico de Curva (Term Structure) que é o solicitado.
-        };
-      });
-
-      // Renderizar apenas a Curva de Futuros (Term Structure)
-      // O layout PHP novo tem apenas a tabela. Onde colocar o gráfico?
-      // O request diz: "Front-End: O Gráfico 'Term Structure'".
-      // O layout anterior tinha 3 colunas: Tabela, Barras, Curva.
-      // O meu PHP substituiu tudo por um card com tabela.
-      // ERRO NO PLANO: Eu substituí o grid inteiro pela tabela, matando os canvas dos gráficos.
-      // CORREÇÃO: Preciso reinserir o canvas do gráfico no layout PHP ou via JS.
-      // O usuário pediu "Transforme a tabela atual nisto". E depois "Front-End: O Gráfico Term Structure".
-      // Vou ajustar o layout via JS para incluir o gráfico ao lado ou abaixo da tabela, 
-      // OU (melhor) ajustar o PHP para incluir o container do gráfico.
-      // Como já editei o PHP, vou injetar o gráfico via JS no container 'gold_futures_grid' 
-      // mas preservando a tabela que o PHP gerou? Não, o PHP gerou dentro de 'gold_futures_grid'.
-
-      // Vamos ver o que o PHP gerou:
-      // <div id="gold_futures_grid"><div class="col-12"><div class="card">...<table>...</table>...</div></div></div>
-
-      // Vou adicionar uma nova coluna ou linha para o gráfico dentro desse card ou num novo card.
-      // O melhor é colocar o gráfico em um card separado ou ao lado da tabela se houver espaço.
-      // Vou criar um novo card para o Gráfico de Term Structure logo abaixo da tabela.
-
       var wrap = document.getElementById('gold_futures_grid');
       if (!wrap) return;
+      wrap.innerHTML = '';
 
-      // Verificar se já existe o container do gráfico, se não, criar
-      if (!document.getElementById('term_structure_card')) {
-        var chartCard = document.createElement('div');
-        chartCard.className = 'col-12 mt-3';
-        chartCard.id = 'term_structure_card';
-        chartCard.innerHTML = ''
-          + '<div class="card h-100">'
-          + '<div class="card-header bg-transparent border-0">'
-          + '<h5 class="card-title mb-0 fw-bold">Term Structure (Market vs Fair Value)</h5>'
-          + '</div>'
-          + '<div class="card-body">'
-          + '<canvas id="gc_futures_curve" style="height: 400px; width: 100%;"></canvas>'
-          + '</div>'
-          + '</div>';
-        wrap.appendChild(chartCard);
+      // Organizar dados por código
+      var order = ['GC1!', 'GC2!', 'GC3!', 'GC4!', 'GC5!', 'GC6!', 'GC7!'];
+      var byCode = {};
+      (items || []).forEach(function (it) { if (it && it.code) byCode[String(it.code).toUpperCase()] = it; });
+
+      // Preparar dados para o card
+      var futuresData = [];
+      var totalPct = 0;
+      var countPct = 0;
+
+      for (var i = 0; i < order.length; i++) {
+        var code = order[i];
+        var item = byCode[code];
+        var pct = item ? toNumber(item.pcp ?? item.pc) : null;
+        var price = item ? (item.last ?? item.last_numeric ?? '--') : '--';
+        var nome = item ? (item.nome || item.apelido || code) : code;
+
+        // Calcular variação nominal
+        var nominalChange = '--';
+        var lastNum = item ? toNumber(item.last ?? item.last_numeric) : null;
+        var closeNum = item ? toNumber(item.last_close) : null;
+        if (lastNum !== null && closeNum !== null) {
+          var change = lastNum - closeNum;
+          nominalChange = (change >= 0 ? '+' : '') + change.toFixed(2);
+        }
+
+        futuresData.push({
+          code: code,
+          item: item,
+          pct: pct,
+          price: price,
+          nome: nome,
+          nominalChange: nominalChange
+        });
+
+        if (pct !== null) {
+          totalPct += pct;
+          countPct++;
+        }
       }
 
-      // Renderizar a Curva
+      // Calcular média de oscilação
+      var avgPct = countPct > 0 ? (totalPct / countPct) : null;
+      var avgPctText = avgPct !== null ? formatPercent(avgPct) : '--';
+      var avgPctClass = avgPct > 0 ? 'text-success' : (avgPct < 0 ? 'text-danger' : 'text-muted');
+
+      // Criar card único
+      var card = document.createElement('div');
+      card.className = 'col-12';
+
+      var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
+
+      // HTML do card com tabela e gráficos lado a lado
+      var html = '<div class="card mb-4">'
+        + '<div class="card-body p-3">'
+        + '<div class="d-flex align-items-center justify-content-between mb-3">'
+        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
+        + '<div class="d-flex gap-3">'
+        + '<div class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<div class="small text-muted">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="row">'
+        + '<div class="col-md-4">'
+        + '<table class="table table-sm table-borderless mb-0 futures-table">'
+        + '<tbody>';
+
+      // Adicionar linhas da tabela com tooltips
+      for (var j = 0; j < futuresData.length; j++) {
+        var fd = futuresData[j];
+        var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
+        var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
+        var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
+        html += '<tr>'
+          + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
+          + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
+          + '</tr>';
+      }
+
+      html += '</tbody></table></div>'
+        + '<div class="col-md-4">'
+        + '<canvas id="gc_futures_chart" style="height: 450px;"></canvas>'
+        + '</div>'
+        + '<div class="col-md-4">'
+        + '<canvas id="gc_futures_curve" style="height: 450px;"></canvas>'
+        + '</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+
+      card.innerHTML = html;
+      wrap.appendChild(card);
+
+      // Ativar tooltips customizados
       setTimeout(function () {
+        activateFuturesTooltips();
+      }, 50);
+
+      // Renderizar gráficos após inserir no DOM
+      setTimeout(function () {
+        window.__lastFuturesData = futuresData;
+        renderFuturesChart(futuresData);
         renderFuturesCurve(futuresData);
       }, 100);
 
     } catch (e) { console.error('renderFuturesGrid error:', e); }
   }
 
-  // ... (activateFuturesTooltips removido pois não é mais necessário para a tabela PHP estática)
+  // Ativar tooltips customizados para a tabela de futuros
+  function activateFuturesTooltips() {
+    try {
+      document.querySelectorAll('.futures-table .has-tooltip').forEach(function (el) {
+        var tooltipText = el.getAttribute('data-tooltip-text');
+        if (!tooltipText || tooltipText === '--' || tooltipText.trim() === '') return;
 
-  // Renderizar gráfico de barras (REMOVIDO - Foco no Term Structure)
-  function renderFuturesChart(data) { /* ... */ }
+        el.addEventListener('mouseenter', function (e) {
+          // Remover qualquer tooltip existente
+          var existingTooltip = document.querySelector('.custom-tooltip');
+          if (existingTooltip) existingTooltip.remove();
+
+          var tooltip = document.createElement('div');
+          tooltip.className = 'custom-tooltip';
+          tooltip.textContent = tooltipText;
+          tooltip.style.cssText = 'position: fixed; background: rgba(0,0,0,0.9); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 10000; pointer-events: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
+
+          document.body.appendChild(tooltip);
+
+          // Calcular posição após inserir no DOM (para ter dimensões corretas)
+          var rect = el.getBoundingClientRect();
+          var tooltipRect = tooltip.getBoundingClientRect();
+
+          // Centralizar horizontalmente em relação ao elemento
+          var left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+          // Garantir que não saia da tela
+          var windowWidth = window.innerWidth;
+          if (left < 10) left = 10;
+          if (left + tooltipRect.width > windowWidth - 10) {
+            left = windowWidth - tooltipRect.width - 10;
+          }
+
+          // Posicionar acima do elemento
+          var top = rect.top - tooltipRect.height - 10;
+
+          // Se não couber em cima, mostrar embaixo
+          if (top < 10) {
+            top = rect.bottom + 10;
+          }
+
+          tooltip.style.left = left + 'px';
+          tooltip.style.top = top + 'px';
+
+          el._customTooltip = tooltip;
+        });
+
+        el.addEventListener('mouseleave', function () {
+          if (el._customTooltip) {
+            el._customTooltip.remove();
+            el._customTooltip = null;
+          }
+        });
+      });
+    } catch (e) { console.error('activateFuturesTooltips error:', e); }
+  }
+
+  // Renderizar gráfico de barras animado e interativo dos futuros
+  function renderFuturesChart(data) {
+    try {
+      var canvas = document.getElementById('gc_futures_chart');
+      if (!canvas || !canvas.getContext) return;
+
+      window.__lastFuturesData = data; // Atualizar dados salvos
+
+      var ctx = canvas.getContext('2d');
+      var dpr = window.devicePixelRatio || 1;
+      var rect = canvas.getBoundingClientRect();
+
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      var width = rect.width;
+      var height = rect.height;
+      var padding = { top: 20, right: 20, bottom: 40, left: 40 };
+      var chartWidth = width - padding.left - padding.right;
+      var chartHeight = height - padding.top - padding.bottom;
+
+      // Encontrar valores min/max para escala
+      var values = data.map(function (d) { return d.pct !== null ? d.pct : 0; });
+      var maxVal = Math.max.apply(null, values.map(Math.abs));
+      maxVal = Math.max(maxVal, 1); // mínimo de 1%
+      var scale = chartHeight / (maxVal * 2.2);
+      var zeroY = padding.top + chartHeight / 2;
+
+      // Cores baseadas no tema
+      var isDark = document.documentElement.classList.contains('dark-blue') ||
+        document.documentElement.classList.contains('all-black');
+      var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+      var textColor = isDark ? '#9ca3af' : '#6b7280';
+      var positiveColor = '#10b981';
+      var negativeColor = '#ef4444';
+      var hoverColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+      // Limpar canvas
+      ctx.clearRect(0, 0, width, height);
+
+      // Desenhar linhas de grade horizontais
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 3]);
+      for (var g = -2; g <= 2; g++) {
+        if (g === 0) continue;
+        var gy = zeroY + (g * scale * (maxVal / 2));
+        ctx.beginPath();
+        ctx.moveTo(padding.left, gy);
+        ctx.lineTo(width - padding.right, gy);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      // Desenhar linha zero (mais destacada)
+      ctx.beginPath();
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+      ctx.lineWidth = 2;
+      ctx.moveTo(padding.left, zeroY);
+      ctx.lineTo(width - padding.right, zeroY);
+      ctx.stroke();
+
+      // Calcular posições das barras
+      var barWidth = chartWidth / data.length * 0.65;
+      var barSpacing = chartWidth / data.length;
+
+      // Animação: usar progresso salvo ou iniciar nova
+      if (!window.__futuresChartProgress) {
+        window.__futuresChartProgress = 0;
+      }
+      var progress = Math.min(window.__futuresChartProgress, 1);
+      if (progress < 1) {
+        window.__futuresChartProgress += 0.08;
+        requestAnimationFrame(function () { renderFuturesChart(data); });
+      }
+
+      // Easing function para animação suave
+      var easeOutCubic = function (t) { return 1 - Math.pow(1 - t, 3); };
+      var animProgress = easeOutCubic(progress);
+
+      // Desenhar barras com animação
+      for (var i = 0; i < data.length; i++) {
+        var pct = data[i].pct !== null ? data[i].pct : 0;
+        var barHeight = Math.abs(pct) * scale * animProgress;
+        var x = padding.left + i * barSpacing + (barSpacing - barWidth) / 2;
+        var y = pct >= 0 ? (zeroY - barHeight) : zeroY;
+
+        // Gradiente para barras
+        var gradient = ctx.createLinearGradient(x, pct >= 0 ? y : zeroY, x, pct >= 0 ? zeroY : y + barHeight);
+        var baseColor = pct >= 0 ? positiveColor : negativeColor;
+        gradient.addColorStop(0, baseColor);
+        gradient.addColorStop(1, baseColor + 'aa'); // mais transparente embaixo
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Borda sutil nas barras
+        ctx.strokeStyle = pct >= 0 ? '#059669' : '#dc2626';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, barWidth, barHeight);
+
+        // Label do código
+        ctx.fillStyle = textColor;
+        ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(data[i].code, x + barWidth / 2, height - padding.bottom + 20);
+
+        // Valor percentual acima/abaixo da barra
+        if (progress >= 0.8) { // mostrar após animação avançar
+          var pctDisplay = formatPercent(pct);
+          ctx.fillStyle = baseColor;
+          ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          var labelY = pct >= 0 ? (y - 8) : (y + barHeight + 16);
+          ctx.fillText(pctDisplay, x + barWidth / 2, labelY);
+        }
+      }
+
+      // Labels dos eixos
+      ctx.fillStyle = textColor;
+      ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('+' + maxVal.toFixed(1) + '%', padding.left - 8, padding.top + 15);
+      ctx.fillText('-' + maxVal.toFixed(1) + '%', padding.left - 8, height - padding.bottom - 5);
+
+      // Interatividade via mousemove
+      if (!canvas.__hasHoverListener) {
+        canvas.__hasHoverListener = true;
+        canvas.addEventListener('mousemove', function (e) {
+          var rect = canvas.getBoundingClientRect();
+          var mouseX = e.clientX - rect.left;
+          var mouseY = e.clientY - rect.top;
+
+          // Verificar se está sobre alguma barra
+          var hoveredIndex = -1;
+          for (var i = 0; i < data.length; i++) {
+            var x = padding.left + i * barSpacing + (barSpacing - barWidth) / 2;
+            if (mouseX >= x && mouseX <= x + barWidth) {
+              hoveredIndex = i;
+              break;
+            }
+          }
+
+          if (hoveredIndex >= 0) {
+            canvas.style.cursor = 'pointer';
+            // Renderizar novamente com highlight (simplificado: apenas mudar cursor)
+          } else {
+            canvas.style.cursor = 'default';
+          }
+        });
+      }
+
+    } catch (e) { console.error('renderFuturesChart error:', e); }
+  }
 
   // Renderizar gráfico de curva dos futuros (term structure)
   function renderFuturesCurve(data) {
@@ -388,42 +638,42 @@
       var chartWidth = width - padding.left - padding.right;
       var chartHeight = height - padding.top - padding.bottom;
 
-      // Extrair preços
+      // Extrair preços numéricos
       var prices = [];
-      var fairValues = [];
-
       for (var i = 0; i < data.length; i++) {
-        prices.push(toNumber(data[i].price));
-        fairValues.push(toNumber(data[i].fair_value));
+        var p = toNumber(data[i].price);
+        prices.push(p !== null ? p : null);
       }
 
-      // Escala Y (Min/Max de ambos os datasets)
-      var allValues = prices.concat(fairValues).filter(function (v) { return v !== null; });
-      if (allValues.length === 0) return;
+      // Encontrar min/max para escala (ignorar nulls)
+      var validPrices = prices.filter(function (p) { return p !== null; });
+      if (validPrices.length === 0) return; // Sem dados válidos
 
-      var minVal = Math.min.apply(null, allValues);
-      var maxVal = Math.max.apply(null, allValues);
-      var range = maxVal - minVal;
-      if (range === 0) range = maxVal * 0.01;
+      var minPrice = Math.min.apply(null, validPrices);
+      var maxPrice = Math.max.apply(null, validPrices);
+      var priceRange = maxPrice - minPrice;
+      if (priceRange === 0) priceRange = maxPrice * 0.01; // Evitar divisão por zero
+      var priceScale = chartHeight / (priceRange * 1.2);
 
-      // Margem de 10%
-      var yMin = minVal - range * 0.1;
-      var yMax = maxVal + range * 0.1;
-      var yRange = yMax - yMin;
-
-      // Cores
+      // Cores baseadas no tema
       var isDark = document.documentElement.classList.contains('dark-blue') ||
         document.documentElement.classList.contains('all-black');
       var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
       var textColor = isDark ? '#9ca3af' : '#6b7280';
+      var lineColor = '#3b82f6'; // Azul vibrante
+      var fillColor = isDark ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.15)';
+      var dotColor = '#1d4ed8';
 
-      var marketColor = '#3b82f6'; // Azul Sólido
-      var fairColor = '#10b981';   // Verde Tracejado
-
-      // Limpar
+      // Limpar canvas
       ctx.clearRect(0, 0, width, height);
 
-      // Grade e Labels Y
+      // Título
+      ctx.fillStyle = textColor;
+      ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Curva de Futuros (Term Structure)', width / 2, 18);
+
+      // Desenhar grade horizontal
       ctx.strokeStyle = gridColor;
       ctx.lineWidth = 1;
       ctx.setLineDash([2, 3]);
@@ -435,119 +685,114 @@
         ctx.lineTo(width - padding.right, gy);
         ctx.stroke();
 
-        var val = yMax - (yRange / gridLines) * g;
+        // Label do preço
+        var priceLabel = maxPrice - (priceRange * 1.2 / gridLines) * g;
         ctx.fillStyle = textColor;
-        ctx.font = '10px sans-serif';
+        ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText(val.toFixed(1), padding.left - 8, gy + 4);
+        ctx.fillText('$' + priceLabel.toFixed(2), padding.left - 8, gy + 4);
       }
       ctx.setLineDash([]);
 
-      // Função auxiliar para plotar linha
-      function drawLine(values, color, isDashed) {
-        var points = [];
-        var xStep = chartWidth / (data.length - 1);
-
-        for (var i = 0; i < data.length; i++) {
-          if (values[i] === null) continue;
-          var x = padding.left + i * xStep;
-          var y = padding.top + ((yMax - values[i]) / yRange) * chartHeight;
-          points.push({ x: x, y: y });
-        }
-
-        if (points.length < 2) return;
-
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        for (var i = 1; i < points.length; i++) {
-          ctx.lineTo(points[i].x, points[i].y);
-        }
-
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        if (isDashed) ctx.setLineDash([5, 5]);
-        else ctx.setLineDash([]);
-        ctx.stroke();
-        ctx.setLineDash([]); // Reset
-
-        // Dots
-        points.forEach(function (pt) {
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
-          ctx.fillStyle = color;
-          ctx.fill();
-        });
-
-        return points;
+      // Animação: usar progresso salvo ou iniciar nova
+      if (!window.__futuresCurveProgress) {
+        window.__futuresCurveProgress = 0;
+      }
+      var progress = Math.min(window.__futuresCurveProgress, 1);
+      if (progress < 1) {
+        window.__futuresCurveProgress += 0.06;
+        requestAnimationFrame(function () { renderFuturesCurve(data); });
       }
 
-      // Desenhar Datasets e guardar pontos para tooltip
-      var marketPoints = drawLine(prices, marketColor, false);      // Market (Azul Sólido)
-      var fairPoints = drawLine(fairValues, fairColor, true);       // Fair Value (Verde Tracejado)
+      // Easing
+      var easeOutQuad = function (t) { return t * (2 - t); };
+      var animProgress = easeOutQuad(progress);
 
-      // Labels X
+      // Calcular pontos da curva
+      var points = [];
       var xStep = chartWidth / (data.length - 1);
+      for (var i = 0; i < data.length; i++) {
+        var price = prices[i];
+        if (price === null) continue;
+
+        var x = padding.left + i * xStep;
+        var normalizedPrice = (maxPrice - price) / (priceRange * 1.2);
+        var y = padding.top + normalizedPrice * chartHeight;
+
+        // Aplicar animação: revelar da esquerda para direita
+        if (i / (data.length - 1) <= animProgress) {
+          points.push({ x: x, y: y, price: price, code: data[i].code });
+        }
+      }
+
+      if (points.length < 2) return; // Precisa de pelo menos 2 pontos
+
+      // Desenhar área preenchida sob a curva
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, height - padding.bottom);
+      ctx.lineTo(points[0].x, points[0].y);
+      for (var i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.lineTo(points[points.length - 1].x, height - padding.bottom);
+      ctx.closePath();
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+
+      // Desenhar linha da curva
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (var i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      // Desenhar pontos (dots)
+      for (var i = 0; i < points.length; i++) {
+        var pt = points[i];
+
+        // Círculo externo (borda branca)
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = isDark ? '#1f2937' : '#ffffff';
+        ctx.fill();
+
+        // Círculo interno (cor)
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = dotColor;
+        ctx.fill();
+      }
+
+      // Labels dos contratos (eixo X)
       ctx.fillStyle = textColor;
+      ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.textAlign = 'center';
       for (var i = 0; i < data.length; i++) {
         var x = padding.left + i * xStep;
-        ctx.fillText(data[i].code, x, height - padding.bottom + 15);
+        ctx.fillText(data[i].code, x, height - padding.bottom + 20);
       }
 
-      // Legenda
-      var legX = width - padding.right - 150;
-      var legY = padding.top - 15;
-
-      // Market Legend
-      ctx.fillStyle = marketColor;
-      ctx.fillRect(legX, legY, 10, 10);
-      ctx.fillStyle = textColor;
-      ctx.textAlign = 'left';
-      ctx.fillText('Market', legX + 15, legY + 9);
-
-      // Fair Value Legend
-      ctx.fillStyle = fairColor;
-      ctx.fillRect(legX + 60, legY, 10, 10);
-      ctx.fillStyle = textColor;
-      ctx.fillText('Fair Value', legX + 75, legY + 9);
-
-      // Interatividade: Tooltip
+      // Interatividade: mostrar tooltip ao passar sobre pontos
       if (!canvas.__hasHoverListener) {
         canvas.__hasHoverListener = true;
-
         canvas.addEventListener('mousemove', function (e) {
           var rect = canvas.getBoundingClientRect();
           var mouseX = e.clientX - rect.left;
           var mouseY = e.clientY - rect.top;
 
-          // Encontrar ponto mais próximo
-          var allPoints = [];
-          if (marketPoints) {
-            marketPoints.forEach(function (pt, idx) {
-              pt.code = data[idx].code;
-              pt.price = prices[idx];
-              pt.type = 'Market';
-              allPoints.push(pt);
-            });
-          }
-          if (fairPoints) {
-            fairPoints.forEach(function (pt, idx) {
-              pt.code = data[idx].code;
-              pt.price = fairValues[idx];
-              pt.type = 'Fair Value';
-              allPoints.push(pt);
-            });
-          }
-
+          // Verificar proximidade com algum ponto
           var hoveredPoint = null;
-          var minDist = 20; // Raio de detecção
-
-          for (var i = 0; i < allPoints.length; i++) {
-            var pt = allPoints[i];
+          for (var i = 0; i < points.length; i++) {
+            var pt = points[i];
             var dist = Math.sqrt(Math.pow(mouseX - pt.x, 2) + Math.pow(mouseY - pt.y, 2));
-            if (dist < minDist) {
-              minDist = dist;
+            if (dist < 10) {
               hoveredPoint = pt;
+              break;
             }
           }
 
@@ -558,9 +803,10 @@
           if (hoveredPoint) {
             canvas.style.cursor = 'pointer';
 
+            // Criar tooltip
             var tooltip = document.createElement('div');
             tooltip.className = 'curve-tooltip';
-            tooltip.innerHTML = '<strong>' + hoveredPoint.code + '</strong> (' + hoveredPoint.type + ')<br>$' + hoveredPoint.price.toFixed(2);
+            tooltip.innerHTML = '<strong>' + hoveredPoint.code + '</strong><br>$' + hoveredPoint.price.toFixed(2);
             tooltip.style.cssText = 'position: fixed; background: rgba(0,0,0,0.9); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 10000; pointer-events: none;';
 
             tooltip.style.left = (e.clientX + 10) + 'px';
