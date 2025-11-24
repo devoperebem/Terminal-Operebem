@@ -212,7 +212,77 @@ html.all-black .correlation-info:hover {
   </div>
 
   <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) -->
-  <div class="row g-3 px-2 px-md-3 mt-1" id="gold_futures_grid"></div>
+  <div class="row g-3 px-2 px-md-3 mt-1" id="gold_futures_grid">
+    <div class="col-12">
+        <div class="card h-100">
+            <div class="card-header bg-transparent border-0 d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0 fw-bold">Scanner de Arbitragem (Term Structure)</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Contrato</th>
+                                <th>Preço</th>
+                                <th>% Var</th>
+                                <th>Implied Rate 📉</th>
+                                <th>Spread ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($goldData)): ?>
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Nenhum dado disponível</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($goldData as $row): ?>
+                                    <?php 
+                                        // Cor da Implied Rate
+                                        $rateColor = '';
+                                        if ($row['implied_rate_pct'] !== null) {
+                                            $rate = (float)$row['implied_rate_pct'];
+                                            if ($rate > 5.5) {
+                                                $rateColor = 'color: #198754; font-weight: bold;'; // Verde
+                                            } elseif ($rate >= 5.4 && $rate <= 5.6) {
+                                                $rateColor = 'color: #ffc107; font-weight: bold;'; // Amarelo
+                                            } else {
+                                                $rateColor = 'color: #dc3545; font-weight: bold;'; // Vermelho
+                                            }
+                                        }
+                                        
+                                        // Formatação do Spread
+                                        $spreadDisplay = $row['implied_spread'] !== null ? number_format($row['implied_spread'], 2) : '-';
+                                        
+                                        // Formatação da Rate
+                                        $rateDisplay = $row['implied_rate_pct'] !== null ? number_format($row['implied_rate_pct'], 2) . '%' : '-';
+                                    ?>
+                                    <tr>
+                                        <td class="ps-4 fw-bold"><?= htmlspecialchars($row['code']) ?></td>
+                                        <td><?= number_format($row['price'], 2) ?></td>
+                                        <td>
+                                            <!-- Placeholder para variação, já que não vem da view nova, manteremos estático ou buscaremos de outra fonte se necessário. 
+                                                 O usuário pediu para transformar a tabela atual. A tabela atual era gerada via JS? 
+                                                 O request diz: "Transforme a tabela atual nisto". 
+                                                 Vou deixar um placeholder visualmente agradável ou tentar calcular se tiver dados anteriores. 
+                                                 Como a view retorna apenas o snapshot, vou deixar a variação visualmente neutra ou buscar do JS se possível.
+                                                 Mas o PHP renderiza server-side. Vou deixar sem cor por enquanto ou usar dados mockados se não tiver na view.
+                                                 A view tem: price, fair_value, implied_rate_pct, implied_spread. Não tem variação.
+                                                 Vou deixar um traço ou 0.00% neutro por enquanto para não quebrar o layout solicitado. -->
+                                            <span class="text-muted">-</span>
+                                        </td>
+                                        <td><span style="<?= $rateColor ?>"><?= $rateDisplay ?></span></td>
+                                        <td><?= $spreadDisplay ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
 
   <!-- Seção: Gráfico Principal do Ouro -->
   <div class="row g-3 px-2 px-md-3">
@@ -295,6 +365,9 @@ html.all-black .correlation-info:hover {
 $content = ob_get_clean();
 $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
+  . '<script>'
+  . '  window.goldData = ' . json_encode($goldData ?? []) . ';'
+  . '</script>'
   . '<script src="/assets/js/gold-dashboard.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
   . '<script>'

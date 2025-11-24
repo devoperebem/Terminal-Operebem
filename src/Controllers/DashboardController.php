@@ -34,10 +34,38 @@ class DashboardController extends BaseController
             'key' => $_ENV['WS_PROXY_KEY'] ?? ''
         ];
 
+        $goldData = $this->getGoldData();
+
         $this->view('app/dashboard-gold', [
             'user' => $user,
-            'ws_config' => $wsConfig
+            'ws_config' => $wsConfig,
+            'goldData' => $goldData
         ]);
+    }
+
+    private function getGoldData(): array
+    {
+        $host = '147.93.35.184';
+        $db   = 'operebem_quotes';
+        $user = 'operebem_services';
+        $pass = 'USR_JUIlYE32gI1vPuNM';
+        $port = 5432;
+
+        $dsn = "pgsql:host=$host;port=$port;dbname=$db";
+        $options = [
+            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        try {
+            $pdo = new \PDO($dsn, $user, $pass, $options);
+            $stmt = $pdo->query("SELECT * FROM v_gold_analysis_complete ORDER BY code");
+            return $stmt->fetchAll();
+        } catch (\PDOException $e) {
+            $this->app->logger()->error('Erro ao buscar dados do ouro: ' . $e->getMessage());
+            return [];
+        }
     }
 
     private function getQuotesData(): array
