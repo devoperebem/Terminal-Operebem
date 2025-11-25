@@ -732,7 +732,7 @@ class AuthController extends BaseController
               })($em);
         $_SESSION['registro_temp']['nome'] = $safeName;
         $emailService = new \App\Services\EmailService();
-        $emailSent = $emailService->sendVerificationCode($em, $verificationCode, $safeName);
+        $emailSent = $emailService->sendVerificationCode($safeName, $verificationCode, $em, 'user_register');
 
         if ($emailSent) {
             $this->json(['success' => true, 'message' => 'Novo código enviado']);

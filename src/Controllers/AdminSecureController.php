@@ -122,7 +122,7 @@ class AdminSecureController extends BaseController
             try { Application::getInstance()->logger()->error('SecureAdmin 2FA no recipient email (username not email and ADMIN_2FA_EMAIL missing)', ['username' => $adminUser]); } catch (\Throwable $__) {}
         } else {
             try {
-                $sent = (new EmailService())->sendVerificationCode($toName, $code, $toEmail);
+                $sent = (new EmailService())->sendVerificationCode($toName, $code, $toEmail, 'admin_2fa');
                 $_SESSION['adm_2fa_email_sent'] = (bool)$sent;
                 if ($sent) {
                     Application::getInstance()->logger()->info('SecureAdmin 2FA code sent', ['id' => $adminId, 'username' => $adminUser, 'to' => $toEmail]);
@@ -174,7 +174,7 @@ class AdminSecureController extends BaseController
         $code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $_SESSION['adm_fp'] = [ 'username' => $username, 'code' => $code, 'exp' => time() + 300 ];
         try {
-            if ($exists) { (new EmailService())->sendVerificationCode($username, $code, $username); }
+            if ($exists) { (new EmailService())->sendVerificationCode($username, $code, $username, 'admin_2fa'); }
         } catch (\Throwable $t) { /* ignore */ }
         try { Database::insert('login_attempts', [ 'email' => 'admin-forgot:'.$username, 'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '', 'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'success' => 0, 'attempted_at' => date('Y-m-d H:i:s') ]); } catch (\Throwable $t) {}
         $this->redirect('/secure/adm/forgot/verify?ok=sent');

@@ -286,7 +286,7 @@ ob_start();
 </div>
 <?php
 $content = ob_get_clean();
-$scripts = <<<'SCRIPTS'
+$scripts = <<<SCRIPTS
 <div class="modal fade" id="confirmDeleteUserModal" tabindex="-1" aria-labelledby="confirmDeleteUserLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="POST" action="/secure/adm/users/delete">
