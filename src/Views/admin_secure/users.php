@@ -139,6 +139,7 @@ ob_start();
 </div>
 <?php
 $content = ob_get_clean();
+$csrf = htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8');
 $scripts = <<<SCRIPTS
 <div class="modal fade" id="confirmDeleteUserModal" tabindex="-1" aria-labelledby="confirmDeleteUserLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -151,7 +152,7 @@ $scripts = <<<SCRIPTS
         Tem certeza que deseja excluir o usuário <span id="deleteUserName" class="fw-semibold">#</span>? Esta ação não pode ser desfeita.
       </div>
       <div class="modal-footer">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+        <input type="hidden" name="csrf_token" value="{$csrf}">
         <input type="hidden" name="id" id="deleteUserId" value="0">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" class="btn btn-danger">Excluir</button>
