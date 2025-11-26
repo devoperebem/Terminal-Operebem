@@ -157,7 +157,18 @@ class QuotesController
             }
             $avg = $cnt > 0 ? round($sum / $cnt, 2) : null;
 
-            echo json_encode(['data' => $pick, 'futures' => $futures, 'futures_avg' => $avg, 'error' => '']);
+            // Gold Miners: AEM, Barrick (B), NEM, WPM
+            $minersIds = ['13930', '13928', '8150', '8111'];
+            $miners = [];
+            try {
+                $mn = $this->quotesService->getByIdsOrCodes($minersIds);
+                $mn = is_array($mn) ? $mn : [];
+                foreach ($mn as $row) {
+                    $miners[] = $this->unifyQuote($this->sanitizeGoldRow($row));
+                }
+            } catch (\Throwable $t) { $miners = []; }
+
+            echo json_encode(['data' => $pick, 'futures' => $futures, 'futures_avg' => $avg, 'miners' => $miners, 'error' => '']);
         } catch (\Throwable $e) {
             echo json_encode(['error' => $e->getMessage()]);
         }

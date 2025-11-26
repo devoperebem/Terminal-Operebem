@@ -258,6 +258,8 @@
       var futures = json && Array.isArray(json.futures) ? json.futures : [];
       var futuresAvg = json && json.futures_avg !== undefined ? json.futures_avg : null;
 
+      var miners = json && Array.isArray(json.miners) ? json.miners : [];
+
       var gg = data.gold || null;
       var gg2 = data.gold2 || null;
       var dd = data.dxy || null;
@@ -282,27 +284,26 @@
         updateCard('gvz', findByCandidates(arr, TARGETS.gvz));
       }
 
-      renderFuturesGrid(futures, futuresAvg);
+      renderFuturesGrid(futures, futuresAvg, miners);
     } catch (e) {
       // Manter valores anteriores
     }
   }
 
   // ============================================================================
-  // GRID FUTUROS (GC1! .. GC7!) + MÉDIA - Card único com gráficos interativos
+  // GRID FUTUROS (GC1! .. GC7!) + MINERS + GRÁFICOS
   // ============================================================================
-  function renderFuturesGrid(items, avg) {
+  function renderFuturesGrid(items, avg, miners) {
     try {
       var wrap = document.getElementById('gold_futures_grid');
       if (!wrap) return;
       wrap.innerHTML = '';
 
-      // Organizar dados por código
+      // --- PROCESSAR FUTUROS ---
       var order = ['GC1!', 'GC2!', 'GC3!', 'GC4!', 'GC5!', 'GC6!', 'GC7!'];
       var byCode = {};
       (items || []).forEach(function (it) { if (it && it.code) byCode[String(it.code).toUpperCase()] = it; });
 
-      // Preparar dados para o card
       var futuresData = [];
       var totalPct = 0;
       var countPct = 0;
@@ -314,7 +315,6 @@
         var price = item ? (item.last ?? item.last_numeric ?? '--') : '--';
         var nome = item ? (item.nome || item.apelido || code) : code;
 
-        // Calcular variação nominal
         var nominalChange = '--';
         var lastNum = item ? toNumber(item.last ?? item.last_numeric) : null;
         var closeNum = item ? toNumber(item.last_close) : null;
@@ -338,55 +338,117 @@
         }
       }
 
-      // Calcular média de oscilação
       var avgPct = countPct > 0 ? (totalPct / countPct) : null;
       var avgPctText = avgPct !== null ? formatPercent(avgPct) : '--';
-      var avgPctClass = avgPct > 0 ? 'text-success' : (avgPct < 0 ? 'text-danger' : 'text-muted');
+      // var avgPctClass = avgPct > 0 ? 'text-success' : (avgPct < 0 ? 'text-danger' : 'text-muted');
+      var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
 
-      // Criar card único
+      // --- PROCESSAR MINERS ---
+      var minersData = [];
+      // Ordem desejada ou apenas listar o que vier
+      // O backend manda na ordem: AEM, B, NEM, WPM (se vierem do banco nessa ordem)
+      // Vamos apenas iterar o que vier
+      (miners || []).forEach(function (item) {
+        var code = item.code || item.apelido || '--';
+        var pct = toNumber(item.pcp ?? item.pc);
+        var price = (item.last ?? item.last_numeric ?? '--');
+        var nome = item.nome || code;
+
+        var nominalChange = '--';
+        var lastNum = toNumber(item.last ?? item.last_numeric);
+        var closeNum = toNumber(item.last_close);
+        if (lastNum !== null && closeNum !== null) {
+          var change = lastNum - closeNum;
+          nominalChange = (change >= 0 ? '+' : '') + change.toFixed(2);
+        }
+
+        minersData.push({
+          code: code,
+          pct: pct,
+          price: price,
+          nome: nome,
+          nominalChange: nominalChange
+        });
+      });
+
+
+      // --- CONSTRUIR HTML ---
       var card = document.createElement('div');
       card.className = 'col-12';
 
-      var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
-
-      // HTML do card com tabela e gráficos lado a lado
       var html = '<div class="card mb-4">'
         + '<div class="card-body p-3">'
+
+        // Header Geral
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
-        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
+        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros & Miners</h6>'
         + '<div class="d-flex gap-3">'
-        + '<div class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></div>'
-        + '<div class="small text-muted">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
+        + '<div class="small text-muted">Média Futuros: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<div class="small text-muted">Osc. Média: <span class="fw-semibold">' + avgPctText + '</span></div>'
         + '</div>'
         + '</div>'
+
         + '<div class="row">'
-        + '<div class="col-md-4">'
+
+        // COLUNA 1: Tabela Futuros (3 cols)
+        + '<div class="col-lg-3 col-md-12 mb-3 mb-lg-0">'
+        + '<h6 class="small text-muted text-uppercase mb-2">Futuros CME</h6>'
         + '<table class="table table-sm table-borderless mb-0 futures-table">'
         + '<tbody>';
 
-      // Adicionar linhas da tabela com tooltips
       for (var j = 0; j < futuresData.length; j++) {
         var fd = futuresData[j];
         var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
         var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
         html += '<tr>'
-          + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
-          + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
-          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
+          + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 50px; cursor: help;">' + fd.code + '</td>'
+          + '<td class="text-end">' + fd.price + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
           + '</tr>';
+      }
+      html += '</tbody></table></div>'
+
+        // COLUNA 2: Gráficos (6 cols) -> 2 sub-colunas
+        + '<div class="col-lg-6 col-md-12 mb-3 mb-lg-0">'
+        + '<div class="row h-100">'
+        + '<div class="col-6">'
+        + '<canvas id="gc_futures_chart" style="height: 450px; width: 100%;"></canvas>'
+        + '</div>'
+        + '<div class="col-6">'
+        + '<canvas id="gc_futures_curve" style="height: 450px; width: 100%;"></canvas>'
+        + '</div>'
+        + '</div>'
+        + '</div>'
+
+        // COLUNA 3: Tabela Miners (3 cols)
+        + '<div class="col-lg-3 col-md-12">'
+        + '<h6 class="small text-muted text-uppercase mb-2">Gold Miners</h6>'
+        + '<table class="table table-sm table-borderless mb-0 futures-table">'
+        + '<tbody>';
+
+      // Renderizar tabela Miners
+      if (minersData.length === 0) {
+        html += '<tr><td colspan="3" class="text-center text-muted small">Sem dados</td></tr>';
+      } else {
+        for (var k = 0; k < minersData.length; k++) {
+          var md = minersData[k];
+          var pctTextM = md.pct !== null ? formatPercent(md.pct) : '--';
+          var clsM = md.pct > 0 ? 'text-success' : (md.pct < 0 ? 'text-danger' : 'text-muted');
+          var colorM = md.pct > 0 ? '#10b981' : (md.pct < 0 ? '#ef4444' : '');
+          html += '<tr>'
+            + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + md.nome + '" style="width: 50px; cursor: help;">' + md.code + '</td>'
+            + '<td class="text-end">' + md.price + '</td>'
+            + '<td class="text-end fw-semibold ' + clsM + ' has-tooltip" data-tooltip-text="' + md.nominalChange + '" style="cursor: help; color: ' + colorM + ' !important;">' + pctTextM + '</td>'
+            + '</tr>';
+        }
       }
 
       html += '</tbody></table></div>'
-        + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_chart" style="height: 450px;"></canvas>'
-        + '</div>'
-        + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_curve" style="height: 450px;"></canvas>'
-        + '</div>'
-        + '</div>'
-        + '</div>'
-        + '</div>';
+
+        + '</div>' // end row
+        + '</div>' // end card-body
+        + '</div>'; // end card
 
       card.innerHTML = html;
       wrap.appendChild(card);
