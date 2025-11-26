@@ -230,7 +230,34 @@ class CommunityController extends BaseController
                     updated_at = NOW()
                 WHERE user_id = :user_id
             ", ['user_id' => $userId]);
-            
+        } catch (\PDOException $e) {
+            // Ambiente pode ter constraint UNIQUE/NOT NULL em discord_id; usar placeholder único para evitar 500
+            $placeholder = 'pending-' . $userId . '-' . substr(bin2hex(random_bytes(4)), 0, 6);
+            Database::query("
+                UPDATE discord_users
+                SET discord_id = :placeholder,
+                    discord_username = NULL,
+                    discord_avatar = NULL,
+                    is_verified = FALSE,
+                    verified_at = NULL,
+                    updated_at = NOW()
+                WHERE user_id = :user_id
+            ", [
+                'placeholder' => $placeholder,
+                'user_id' => $userId
+            ]);
+        } catch (\Exception $e) {
+            error_log('[CommunityController] Erro ao desconectar (update): ' . $e->getMessage());
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erro ao desconectar conta'
+            ]);
+            return;
+        }
+        
+        try {
             // Log
             Database::query("
                 INSERT INTO discord_logs (user_id, action, details, created_at)
