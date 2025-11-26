@@ -971,10 +971,9 @@
         "container_id": "tv_gold_chart",
         "hide_legend": false,
         "save_image": false,
-        "studies": [
-          "RSI@tv-basicstudies",
-          "MACD@tv-basicstudies",
-          "MASimple@tv-basicstudies"
+        studies: [
+          'STD;Bollinger_Bands',
+          'STD;Cumulative%1Volume%1Delta'
         ]
       });
       setTimeout(decPending, 1000);
