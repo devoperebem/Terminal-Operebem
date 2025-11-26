@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS discord_users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    -- Nota: Não criamos índice único em discord_id porque ele pode ser NULL para múltiplos usuários
     INDEX idx_discord_id (discord_id),
     INDEX idx_user_id (user_id),
     INDEX idx_is_verified (is_verified),

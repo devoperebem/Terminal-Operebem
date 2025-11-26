@@ -970,7 +970,12 @@
         "allow_symbol_change": true,
         "container_id": "tv_gold_chart",
         "hide_legend": false,
-        "save_image": false
+        "save_image": false,
+        "studies": [
+          "RSI@tv-basicstudies",
+          "MACD@tv-basicstudies",
+          "MASimple@tv-basicstudies"
+        ]
       });
       setTimeout(decPending, 1000);
     } catch (e) {

@@ -87,70 +87,67 @@ header('Content-Type: text/html; charset=utf-8');
 $success_count = 0;
 $error_count = 0;
 $errors = [];
-
-// Tentar carregar via Application ou Database class
 $connection = null;
+$db_driver = 'pgsql'; // Default para Hostinger
+$db_type = 'PostgreSQL (assumido)';
+
+// Carregar .env manualmente (sem Dotenv)
+$env_file = __DIR__ . '/.env';
+$env_vars = [];
+
+if (file_exists($env_file)) {
+    $env_lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($env_lines as $line) {
+        // Pular linhas em branco e comentários
+        if (empty($line) || strpos(trim($line), '#') === 0) {
+            continue;
+        }
+
+        if (strpos($line, '=') !== false) {
+            [$key, $value] = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value, '\'" ');
+            $env_vars[$key] = $value;
+        }
+    }
+}
+
+// Tentar conexão PDO (PostgreSQL preferido)
 try {
-    require_once __DIR__ . '/src/Core/Application.php';
-    $app = \App\Core\Application::getInstance();
-    $connection = \App\Core\Database::connection();
+    $db_host = $env_vars['DB_HOST'] ?? 'localhost';
+    $db_port = $env_vars['DB_PORT'] ?? 5432;
+    $db_name = $env_vars['DB_DATABASE'] ?? 'operebem';
+    $db_user = $env_vars['DB_USERNAME'] ?? 'postgres';
+    $db_pass = $env_vars['DB_PASSWORD'] ?? '';
+
+    // Tentar PostgreSQL primeiro
+    $dsn = "pgsql:host=$db_host;port=$db_port;dbname=$db_name";
+    $connection = new PDO($dsn, $db_user, $db_pass);
+    $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db_driver = 'pgsql';
+    $db_type = 'PostgreSQL';
 } catch (Exception $e1) {
-    // Se falhar, tentar conexão direta via .env
+    // Fallback para MySQL
     try {
-        $env_file = __DIR__ . '/.env';
-        if (file_exists($env_file)) {
-            $env_lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            $env_vars = [];
-            foreach ($env_lines as $line) {
-                if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-                    [$key, $value] = explode('=', $line, 2);
-                    $env_vars[trim($key)] = trim($value, '\'"');
-                }
-            }
-            $_ENV = array_merge($_ENV, $env_vars);
-        }
+        $db_host = $env_vars['DB_HOST'] ?? 'localhost';
+        $db_port = $env_vars['DB_PORT'] ?? 3306;
+        $db_name = $env_vars['DB_DATABASE'] ?? 'operebem';
+        $db_user = $env_vars['DB_USERNAME'] ?? 'root';
+        $db_pass = $env_vars['DB_PASSWORD'] ?? '';
 
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $user = $_ENV['DB_USERNAME'] ?? 'root';
-        $pass = $_ENV['DB_PASSWORD'] ?? '';
-        $db = $_ENV['DB_DATABASE'] ?? 'operebem';
-        $port = $_ENV['DB_PORT'] ?? 3306;
-
-        $connection = new mysqli($host, $user, $pass, $db, $port);
-        if ($connection->connect_error) {
-            throw new Exception("MySQLi: " . $connection->connect_error);
-        }
-        $connection->set_charset("utf8mb4");
+        $dsn = "mysql:host=$db_host;port=$db_port;dbname=$db_name;charset=utf8mb4";
+        $connection = new PDO($dsn, $db_user, $db_pass);
+        $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db_driver = 'mysql';
+        $db_type = 'MySQL';
     } catch (Exception $e2) {
         echo "<div class='error'><strong>❌ Erro ao conectar ao banco:</strong><br>";
-        echo "Tentativa 1: " . htmlspecialchars($e1->getMessage()) . "<br>";
-        echo "Tentativa 2: " . htmlspecialchars($e2->getMessage()) . "<br>";
+        echo "PostgreSQL: " . htmlspecialchars($e1->getMessage()) . "<br>";
+        echo "MySQL: " . htmlspecialchars($e2->getMessage()) . "<br>";
         echo "</div>";
         echo "</div></body></html>";
         exit;
     }
-}
-
-// Detectar o tipo de banco de dados
-$db_driver = null;
-$db_type = 'unknown';
-
-// Tentar detectar através da classe Database
-try {
-    if (method_exists($connection, 'getAttribute')) {
-        $driver_name = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
-        if (strpos($driver_name, 'pgsql') !== false) {
-            $db_driver = 'pgsql';
-            $db_type = 'PostgreSQL';
-        } elseif (strpos($driver_name, 'mysql') !== false) {
-            $db_driver = 'mysql';
-            $db_type = 'MySQL';
-        }
-    }
-} catch (Exception $e) {
-    // Fallback: tentar by hostname or config
-    $db_driver = 'pgsql'; // Padrão para Hostinger é PostgreSQL
-    $db_type = 'PostgreSQL (assumido)';
 }
 
 // Migrações a executar - versão PostgreSQL
@@ -200,6 +197,12 @@ if ($db_driver === 'pgsql' || $db_driver === null) {
                     ('xp_discord_msg_daily_cap', '25', 'Limite diário de XP vindo de mensagens no Discord (0 desativa)')
                 ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value;"
         ],
+        [
+            'name' => 'Fix discord_users unique constraint (PostgreSQL)',
+            'sql' => "ALTER TABLE discord_users DROP CONSTRAINT IF EXISTS discord_users_discord_id_key;
+            DROP INDEX IF EXISTS idx_discord_id;
+            CREATE INDEX IF NOT EXISTS idx_discord_id ON discord_users(discord_id);"
+        ],
     ];
 } else {
     // Migrações MySQL
@@ -247,6 +250,12 @@ if ($db_driver === 'pgsql' || $db_driver === null) {
                     ('xp_discord_msg_cooldown_minutes', '10', 'Cooldown em minutos entre premiações por mensagem'),
                     ('xp_discord_msg_daily_cap', '25', 'Limite diário de XP vindo de mensagens no Discord (0 desativa)')
                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
+        ],
+        [
+            'name' => 'Fix discord_users unique constraint (MySQL)',
+            'sql' => "ALTER TABLE discord_users DROP INDEX IF EXISTS discord_id;
+            ALTER TABLE discord_users DROP INDEX IF EXISTS idx_discord_id;
+            CREATE INDEX IF NOT EXISTS idx_discord_id ON discord_users(discord_id);"
         ],
     ];
 }

@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS discord_users (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Nota: Não criamos índice único em discord_id porque ele pode ser NULL para múltiplos usuários
+-- enquanto aguardam a verificação do Discord
 CREATE INDEX IF NOT EXISTS idx_discord_id ON discord_users(discord_id);
 CREATE INDEX IF NOT EXISTS idx_user_id ON discord_users(user_id);
 CREATE INDEX IF NOT EXISTS idx_is_verified ON discord_users(is_verified);
