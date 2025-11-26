@@ -258,8 +258,6 @@
       var futures = json && Array.isArray(json.futures) ? json.futures : [];
       var futuresAvg = json && json.futures_avg !== undefined ? json.futures_avg : null;
 
-      var miners = json && Array.isArray(json.miners) ? json.miners : [];
-
       var gg = data.gold || null;
       var gg2 = data.gold2 || null;
       var dd = data.dxy || null;
@@ -284,26 +282,27 @@
         updateCard('gvz', findByCandidates(arr, TARGETS.gvz));
       }
 
-      renderFuturesGrid(futures, futuresAvg, miners);
+      renderFuturesGrid(futures, futuresAvg);
     } catch (e) {
       // Manter valores anteriores
     }
   }
 
   // ============================================================================
-  // GRID FUTUROS (GC1! .. GC7!) + MINERS + GRÁFICOS
+  // GRID FUTUROS (GC1! .. GC7!) + MÉDIA - Card único com gráficos interativos
   // ============================================================================
-  function renderFuturesGrid(items, avg, miners) {
+  function renderFuturesGrid(items, avg) {
     try {
       var wrap = document.getElementById('gold_futures_grid');
       if (!wrap) return;
       wrap.innerHTML = '';
 
-      // --- PROCESSAR FUTUROS ---
+      // Organizar dados por código
       var order = ['GC1!', 'GC2!', 'GC3!', 'GC4!', 'GC5!', 'GC6!', 'GC7!'];
       var byCode = {};
       (items || []).forEach(function (it) { if (it && it.code) byCode[String(it.code).toUpperCase()] = it; });
 
+      // Preparar dados para o card
       var futuresData = [];
       var totalPct = 0;
       var countPct = 0;
@@ -315,6 +314,7 @@
         var price = item ? (item.last ?? item.last_numeric ?? '--') : '--';
         var nome = item ? (item.nome || item.apelido || code) : code;
 
+        // Calcular variação nominal
         var nominalChange = '--';
         var lastNum = item ? toNumber(item.last ?? item.last_numeric) : null;
         var closeNum = item ? toNumber(item.last_close) : null;
@@ -338,167 +338,58 @@
         }
       }
 
+      // Calcular média de oscilação
       var avgPct = countPct > 0 ? (totalPct / countPct) : null;
       var avgPctText = avgPct !== null ? formatPercent(avgPct) : '--';
+      var avgPctClass = avgPct > 0 ? 'text-success' : (avgPct < 0 ? 'text-danger' : 'text-muted');
+
+      // Criar card único
+      var card = document.createElement('div');
+      card.className = 'col-12';
+
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
 
-      // --- PROCESSAR MINERS ---
-      var minersData = [];
-      var totalPctM = 0;
-      var countPctM = 0;
-
-      (miners || []).forEach(function (item) {
-        var code = item.code || item.apelido || '--';
-        var pct = toNumber(item.pcp ?? item.pc);
-        var price = (item.last ?? item.last_numeric ?? '--');
-        var nome = item.nome || code;
-
-        var nominalChange = '--';
-        var lastNum = toNumber(item.last ?? item.last_numeric);
-        var closeNum = toNumber(item.last_close);
-        if (lastNum !== null && closeNum !== null) {
-          var change = lastNum - closeNum;
-          nominalChange = (change >= 0 ? '+' : '') + change.toFixed(2);
-        }
-
-        minersData.push({
-          code: code,
-          item: item, // Guardar item original para timestamp
-          pct: pct,
-          price: price,
-          nome: nome,
-          nominalChange: nominalChange
-        });
-
-        if (pct !== null) {
-          totalPctM += pct;
-          countPctM++;
-        }
-      });
-
-      var avgPctM = countPctM > 0 ? (totalPctM / countPctM) : null;
-      var avgPctTextM = avgPctM !== null ? formatPercent(avgPctM) : '--';
-
-
-      // --- CONSTRUIR HTML ---
-
-      // ROW 1: TABELAS (FUTUROS + MINERS)
-      var rowTables = document.createElement('div');
-      rowTables.className = 'row mb-4';
-
-      // CARD 1: FUTUROS (Col-6)
-      var htmlFutures = '<div class="col-12 col-lg-6 mb-3 mb-lg-0">'
-        + '<div class="card h-100">'
+      // HTML do card com tabela e gráficos lado a lado
+      var html = '<div class="card mb-4">'
         + '<div class="card-body p-3">'
-
-        // Header Futuros
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
-        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros CME</h6>'
+        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
         + '<div class="d-flex gap-3">'
-        + '<div class="small text-muted">Média: <span class="fw-semibold">' + avgTxt + '</span></div>'
-        + '<div class="small text-muted">Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
+        + '<div class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<div class="small text-muted">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
         + '</div>'
         + '</div>'
-
-        + '<div class="table-responsive">'
+        + '<div class="row">'
+        + '<div class="col-md-4">'
         + '<table class="table table-sm table-borderless mb-0 futures-table">'
-        + '<thead><tr>'
-        + '<th class="text-muted small fw-normal">Ativo</th>'
-        + '<th class="text-muted small fw-normal text-end">Preço</th>'
-        + '<th class="text-muted small fw-normal text-end">Var%</th>'
-        + '<th class="text-muted small fw-normal text-end">Hora</th>'
-        + '</tr></thead>'
         + '<tbody>';
 
+      // Adicionar linhas da tabela com tooltips
       for (var j = 0; j < futuresData.length; j++) {
         var fd = futuresData[j];
         var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
         var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
-
-        var timeStr = formatTime(fd.item); // HH:mm
-        // Tooltip com data completa (simulado ou extraído se disponível)
-        var fullDate = fd.item && (fd.item.time_utc || fd.item.timestamp) ? new Date(fd.item.timestamp ? fd.item.timestamp * 1000 : fd.item.time_utc).toLocaleString('pt-BR') : 'Data desconhecida';
-
-        htmlFutures += '<tr>'
-          + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="cursor: help;">' + fd.code + '</td>'
-          + '<td class="text-end">' + fd.price + '</td>'
-          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
-          + '<td class="text-end small text-muted has-tooltip" data-tooltip-text="' + fullDate + '" style="cursor: help;">' + timeStr + '</td>'
+        html += '<tr>'
+          + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
+          + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
           + '</tr>';
       }
-      htmlFutures += '</tbody></table></div>'
-        + '</div></div></div>'; // end card-body, card, col
 
-      // CARD 2: MINERS (Col-6)
-      var htmlMiners = '<div class="col-12 col-lg-6">'
-        + '<div class="card h-100">'
-        + '<div class="card-body p-3">'
-
-        // Header Miners
-        + '<div class="d-flex align-items-center justify-content-between mb-3">'
-        + '<h6 class="mb-0 text-uppercase fw-bold">Gold Miners</h6>'
-        + '<div class="small text-muted">Osc. Média: <span class="fw-semibold">' + avgPctTextM + '</span></div>'
+      html += '</tbody></table></div>'
+        + '<div class="col-md-4">'
+        + '<canvas id="gc_futures_chart" style="height: 450px;"></canvas>'
         + '</div>'
+        + '<div class="col-md-4">'
+        + '<canvas id="gc_futures_curve" style="height: 450px;"></canvas>'
+        + '</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
 
-        + '<div class="table-responsive">'
-        + '<table class="table table-sm table-borderless mb-0 futures-table">'
-        + '<thead><tr>'
-        + '<th class="text-muted small fw-normal">Ativo</th>'
-        + '<th class="text-muted small fw-normal text-end">Preço</th>'
-        + '<th class="text-muted small fw-normal text-end">Var%</th>'
-        + '<th class="text-muted small fw-normal text-end">Hora</th>'
-        + '</tr></thead>'
-        + '<tbody>';
-
-      // Renderizar tabela Miners
-      if (minersData.length === 0) {
-        htmlMiners += '<tr><td colspan="4" class="text-center text-muted small">Sem dados</td></tr>';
-      } else {
-        for (var k = 0; k < minersData.length; k++) {
-          var md = minersData[k];
-          var pctTextM = md.pct !== null ? formatPercent(md.pct) : '--';
-          var clsM = md.pct > 0 ? 'text-success' : (md.pct < 0 ? 'text-danger' : 'text-muted');
-          var colorM = md.pct > 0 ? '#10b981' : (md.pct < 0 ? '#ef4444' : '');
-
-          var timeStrM = formatTime(md.item);
-          var fullDateM = md.item && (md.item.time_utc || md.item.timestamp) ? new Date(md.item.timestamp ? md.item.timestamp * 1000 : md.item.time_utc).toLocaleString('pt-BR') : 'Data desconhecida';
-
-          htmlMiners += '<tr>'
-            + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + md.nome + '" style="cursor: help;">' + md.code + '</td>'
-            + '<td class="text-end">' + md.price + '</td>'
-            + '<td class="text-end fw-semibold ' + clsM + ' has-tooltip" data-tooltip-text="' + md.nominalChange + '" style="cursor: help; color: ' + colorM + ' !important;">' + pctTextM + '</td>'
-            + '<td class="text-end small text-muted has-tooltip" data-tooltip-text="' + fullDateM + '" style="cursor: help;">' + timeStrM + '</td>'
-            + '</tr>';
-        }
-      }
-
-      htmlMiners += '</tbody></table></div>'
-        + '</div></div></div>'; // end card-body, card, col
-
-      rowTables.innerHTML = htmlFutures + htmlMiners;
-      wrap.appendChild(rowTables);
-
-      // ROW 2: GRÁFICOS (CURVE + BAR)
-      var rowCharts = document.createElement('div');
-      rowCharts.className = 'row';
-
-      // CARD 3: CURVE CHART (Col-6)
-      var htmlCurve = '<div class="col-12 col-lg-6 mb-3 mb-lg-0">'
-        + '<div class="card h-100">'
-        + '<div class="card-body p-3">'
-        + '<canvas id="gc_futures_curve" style="height: 250px; width: 100%;"></canvas>'
-        + '</div></div></div>';
-
-      // CARD 4: BAR CHART (Col-6)
-      var htmlBar = '<div class="col-12 col-lg-6">'
-        + '<div class="card h-100">'
-        + '<div class="card-body p-3">'
-        + '<canvas id="gc_futures_chart" style="height: 250px; width: 100%;"></canvas>'
-        + '</div></div></div>';
-
-      rowCharts.innerHTML = htmlCurve + htmlBar;
-      wrap.appendChild(rowCharts);
+      card.innerHTML = html;
+      wrap.appendChild(card);
 
       // Ativar tooltips customizados
       setTimeout(function () {
@@ -957,87 +848,307 @@
     try {
       incPending();
       new TradingView.widget({
-        "autosize": true,
-        "symbol": "OANDA:XAUUSD",
-        "interval": "5",
-        "timezone": tz,
-        "theme": theme,
-        "style": "1",
-        "locale": "br",
-        "toolbar_bg": "#f1f3f6",
-        "enable_publishing": false,
-        "hide_side_toolbar": false,
-        "allow_symbol_change": true,
-        "container_id": "tv_gold_chart",
-        "hide_legend": false,
-        "save_image": false,
+        autosize: true,
+        symbol: 'OANDA:XAUUSD',
+        interval: '60',
+        timezone: tz,
+        theme: theme,
+        style: '1',
+        locale: 'br',
+        toolbar_bg: theme === 'light' ? '#ffffff' : '#111827',
+        enable_publishing: false,
+        hide_legend: false,
+        hide_side_toolbar: false,
+        allow_symbol_change: true,
+        container_id: 'tv_gold_chart',
+        withdateranges: true,
+        details: true,
+        calendar: true,
+        hide_volume: false,
+        watchlist: ['OANDA:XAUUSD', 'FOREXCOM:XAUUSD', 'TVC:GOLD', 'COMEX:GC1!'],
         studies: [
           'STD;Bollinger_Bands',
           'STD;Cumulative%1Volume%1Delta'
         ]
       });
-      setTimeout(decPending, 1000);
-    } catch (e) {
-      decPending();
-    }
+      setTimeout(decPending, 1400);
+    } catch (e) { }
   }
 
   // ============================================================================
-  // WIDGETS LATERAIS (TECHNICAL ANALYSIS)
+  // COMPARAÇÕES (Advanced Chart com compareSymbols)
   // ============================================================================
 
-  function renderSideWidgets() {
-    var ids = ['tv_tech_gold', 'tv_tech_dxy', 'tv_tech_us10y'];
-    var symbols = ['OANDA:XAUUSD', 'CAPITALCOM:DXY', 'TVC:US10Y'];
+  function renderComparison(containerId, baseSymbol, compareSymbol) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = '';
+
+    var theme = getCurrentTheme();
+    var tz = getUserTimezone();
+    var bgColor = theme === 'light' ? '#FFFFFF' : '#0F0F0F';
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'tradingview-widget-container';
+    wrapper.style.height = '100%';
+    wrapper.style.width = '100%';
+
+    var inner = document.createElement('div');
+    inner.className = 'tradingview-widget-container__widget';
+    inner.style.height = 'calc(100% - 32px)';
+    inner.style.width = '100%';
+    wrapper.appendChild(inner);
+
+    var copyright = document.createElement('div');
+    copyright.className = 'tradingview-widget-copyright';
+    copyright.style.display = 'none';
+    wrapper.appendChild(copyright);
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.async = true;
+
+    var config = {
+      autosize: true,
+      symbol: baseSymbol,
+      interval: '60',
+      timezone: tz,
+      theme: theme,
+      style: '2',
+      locale: 'br',
+      allow_symbol_change: false,
+      calendar: false,
+      details: false,
+      hide_side_toolbar: true,
+      hide_top_toolbar: true,
+      hide_legend: false,
+      hide_volume: true,
+      hotlist: false,
+      save_image: true,
+      backgroundColor: bgColor,
+      gridColor: 'rgba(242, 242, 242, 0)',
+      watchlist: [],
+      withdateranges: false,
+      compareSymbols: [{ symbol: compareSymbol, position: 'NewPriceScale' }],
+      studies: []
+    };
+
+    script.innerHTML = JSON.stringify(config);
+    wrapper.appendChild(script);
+    el.appendChild(wrapper);
+    incPending();
+    script.onload = function () { setTimeout(decPending, 800); };
+    script.onerror = function () { decPending(); };
+  }
+
+  // ============================================================================
+  // RAZÕES (Ratio Charts)
+  // ============================================================================
+
+  function renderRatio(containerId, ratioSymbol) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = '';
+
+    var theme = getCurrentTheme();
+    var tz = getUserTimezone();
+    var bgColor = theme === 'light' ? '#FFFFFF' : '#0F0F0F';
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'tradingview-widget-container';
+    wrapper.style.height = '100%';
+    wrapper.style.width = '100%';
+
+    var inner = document.createElement('div');
+    inner.className = 'tradingview-widget-container__widget';
+    inner.style.height = 'calc(100% - 32px)';
+    inner.style.width = '100%';
+    wrapper.appendChild(inner);
+
+    var copyright = document.createElement('div');
+    copyright.className = 'tradingview-widget-copyright';
+    copyright.style.display = 'none';
+    wrapper.appendChild(copyright);
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.async = true;
+
+    var config = {
+      autosize: true,
+      symbol: ratioSymbol,
+      interval: '60',
+      timezone: tz,
+      theme: theme,
+      style: '2',
+      locale: 'br',
+      allow_symbol_change: false,
+      calendar: false,
+      details: false,
+      hide_side_toolbar: true,
+      hide_top_toolbar: true,
+      hide_legend: false,
+      hide_volume: true,
+      hotlist: false,
+      save_image: true,
+      backgroundColor: bgColor,
+      gridColor: 'rgba(242, 242, 242, 0)',
+      watchlist: [],
+      withdateranges: false,
+      compareSymbols: [],
+      studies: []
+    };
+
+    script.innerHTML = JSON.stringify(config);
+    wrapper.appendChild(script);
+    el.appendChild(wrapper);
+  }
+
+  // ============================================================================
+  // INDICADORES TÉCNICOS (Technical Analysis Widget)
+  // ============================================================================
+
+  function renderTechnical(containerId, symbol) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = '';
 
     var theme = getCurrentTheme();
 
-    ids.forEach(function (id, idx) {
-      var container = document.getElementById(id);
-      if (!container) return;
-      container.innerHTML = '';
+    var wrapper = document.createElement('div');
+    wrapper.className = 'tradingview-widget-container';
+    wrapper.style.height = '100%';
+    wrapper.style.width = '100%';
 
-      var inner = document.createElement('div');
-      inner.className = 'tradingview-widget-container__widget';
-      container.appendChild(inner);
+    var inner = document.createElement('div');
+    inner.className = 'tradingview-widget-container__widget';
+    inner.style.height = '100%';
+    inner.style.width = '100%';
+    wrapper.appendChild(inner);
 
-      var cfg = {
-        interval: "15m",
-        width: "100%",
-        isTransparent: true,
-        height: 320,
-        symbol: symbols[idx],
-        showIntervalTabs: true,
-        locale: "br",
-        colorTheme: theme
-      };
+    var copyright = document.createElement('div');
+    copyright.className = 'tradingview-widget-copyright';
+    copyright.style.display = 'none';
+    wrapper.appendChild(copyright);
 
-      var script = document.createElement('script');
-      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-      script.async = true;
-      script.text = JSON.stringify(cfg);
-      container.appendChild(script);
-    });
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+    script.async = true;
+
+    var config = {
+      interval: '15m',
+      width: '100%',
+      height: '100%',
+      isTransparent: false,
+      symbol: symbol,
+      showIntervalTabs: true,
+      disableInterval: false,
+      displayMode: 'single',
+      locale: 'br',
+      colorTheme: theme
+    };
+
+    script.innerHTML = JSON.stringify(config);
+    wrapper.appendChild(script);
+    el.appendChild(wrapper);
+  }
+
+  // ============================================================================
+  // RENDERIZAÇÃO COMPLETA
+  // ============================================================================
+
+  function renderAll() {
+    renderTickerTape();
+    renderGoldChart();
+
+    // Seção de Comparações
+    renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'CAPITALCOM:DXY');
+    renderComparison('tv_compare_gold_btc', 'OANDA:XAUUSD', 'BITSTAMP:BTCUSD');
+
+    // Seção de Razões
+    renderRatio('tv_ratio_gold_miners', 'OANDA:XAUUSD/AMEX:GDX');
+    renderRatio('tv_ratio_gold_btc', 'OANDA:XAUUSD/COINBASE:BTCUSD');
+
+    // Seção de Indicadores Técnicos
+    renderTechnical('tv_tech_gold', 'OANDA:XAUUSD');
+    renderTechnical('tv_tech_dxy', 'CAPITALCOM:DXY');
+    renderTechnical('tv_tech_us10y', 'TVC:US10Y');
+    renderTechnical('tv_tech_vix', 'CBOE:VIX');
   }
 
   // ============================================================================
   // INICIALIZAÇÃO
   // ============================================================================
 
-  function init() {
-    renderTickerTape();
-    renderGoldChart();
-    renderSideWidgets();
-    refreshQuotes();
-
-    // Auto-refresh a cada 30s
-    setInterval(refreshQuotes, 30000);
-  }
-
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function () {
+      // Remover modal de login se existir (não necessário em dashboard autenticado)
+      try { var lm = document.getElementById('loginModal'); if (lm && lm.parentNode) lm.parentNode.removeChild(lm); } catch (_) { }
+      try { document.querySelectorAll('[data-bs-target="#loginModal"]').forEach(function (b) { b.style.display = 'none'; }); } catch (_) { }
+      renderAll();
+      refreshQuotes();
+      setInterval(refreshQuotes, 60000);
+    });
   } else {
-    init();
+    try { var lm2 = document.getElementById('loginModal'); if (lm2 && lm2.parentNode) lm2.parentNode.removeChild(lm2); } catch (_) { }
+    try { document.querySelectorAll('[data-bs-target="#loginModal"]').forEach(function (b) { b.style.display = 'none'; }); } catch (_) { }
+    renderAll();
+    refreshQuotes();
+    setInterval(refreshQuotes, 60000);
   }
+
+  // Re-render ao trocar tema (apenas quando o tema realmente muda)
+  var __lastTheme = getCurrentTheme();
+  var __rerenderTimer = null;
+  new MutationObserver(function (muts) {
+    if (!muts.some(function (m) { return m.attributeName === 'class'; })) return;
+    var th = getCurrentTheme();
+    if (th !== __lastTheme) {
+      __lastTheme = th;
+      clearTimeout(__rerenderTimer);
+      __rerenderTimer = setTimeout(function () {
+        renderAll();
+        refreshQuotes(); // Re-renderizar futuros com novo tema
+      }, 600);
+    }
+  }).observe(document.documentElement, { attributes: true });
+
+  // Re-renderizar gráficos ao redimensionar janela
+  var __resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(__resizeTimer);
+    __resizeTimer = setTimeout(function () {
+      if (window.__lastFuturesData) {
+        // Resetar progresso das animações para re-renderizar
+        window.__futuresChartProgress = 1; // Sem animação no resize
+        window.__futuresCurveProgress = 1;
+
+        renderFuturesChart(window.__lastFuturesData);
+        renderFuturesCurve(window.__lastFuturesData);
+      }
+    }, 300);
+  });
+
+  // ============================================================================
+  // CLIENT LOGGING -> Monolog (servidor)
+  // ============================================================================
+  function clientLog(level, message, metadata) {
+    try {
+      fetch('/api/client-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level: level || 'error', message: String(message || ''), meta: metadata || {} })
+      });
+    } catch (_) { }
+  }
+  window.addEventListener('error', function (e) {
+    try { clientLog('error', e && e.message ? e.message : 'window.error', { source: e && e.filename, lineno: e && e.lineno, colno: e && e.colno }); } catch (_) { }
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    try { clientLog('error', 'unhandledrejection', { reason: (e && e.reason && (e.reason.stack || e.reason.message || String(e.reason))) }); } catch (_) { }
+  });
 
 })();
