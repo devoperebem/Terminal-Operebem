@@ -409,14 +409,14 @@
       }
       html += '</tbody></table></div>'
 
-        // COLUNA 2: Gráficos (6 cols) -> 2 sub-colunas
+        // COLUNA 2: Gráficos (6 cols) -> 2 linhas (stacked)
         + '<div class="col-lg-6 col-md-12 mb-3 mb-lg-0">'
-        + '<div class="row h-100">'
-        + '<div class="col-6">'
-        + '<canvas id="gc_futures_chart" style="height: 450px; width: 100%;"></canvas>'
+        + '<div class="row">'
+        + '<div class="col-12 mb-3">'
+        + '<canvas id="gc_futures_chart" style="height: 215px; width: 100%;"></canvas>'
         + '</div>'
-        + '<div class="col-6">'
-        + '<canvas id="gc_futures_curve" style="height: 450px; width: 100%;"></canvas>'
+        + '<div class="col-12">'
+        + '<canvas id="gc_futures_curve" style="height: 215px; width: 100%;"></canvas>'
         + '</div>'
         + '</div>'
         + '</div>'
