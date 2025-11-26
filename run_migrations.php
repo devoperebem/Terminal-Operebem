@@ -83,19 +83,51 @@ header('Content-Type: text/html; charset=utf-8');
 
 <?php
 
-// Carregar configuração do banco
-require_once __DIR__ . '/src/Core/Database.php';
-
 $success_count = 0;
 $error_count = 0;
 $errors = [];
 
+// Tentar carregar via Application ou Database class
+$connection = null;
 try {
+    require_once __DIR__ . '/src/Core/Application.php';
+    $app = \App\Core\Application::getInstance();
     $connection = \App\Core\Database::connection();
-} catch (Exception $e) {
-    echo "<div class='error'><strong>❌ Erro ao conectar:</strong> " . htmlspecialchars($e->getMessage()) . "</div>";
-    echo "</div></body></html>";
-    exit;
+} catch (Exception $e1) {
+    // Se falhar, tentar conexão direta via .env
+    try {
+        $env_file = __DIR__ . '/.env';
+        if (file_exists($env_file)) {
+            $env_lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $env_vars = [];
+            foreach ($env_lines as $line) {
+                if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+                    [$key, $value] = explode('=', $line, 2);
+                    $env_vars[trim($key)] = trim($value, '\'"');
+                }
+            }
+            $_ENV = array_merge($_ENV, $env_vars);
+        }
+
+        $host = $_ENV['DB_HOST'] ?? 'localhost';
+        $user = $_ENV['DB_USERNAME'] ?? 'root';
+        $pass = $_ENV['DB_PASSWORD'] ?? '';
+        $db = $_ENV['DB_DATABASE'] ?? 'operebem';
+        $port = $_ENV['DB_PORT'] ?? 3306;
+
+        $connection = new mysqli($host, $user, $pass, $db, $port);
+        if ($connection->connect_error) {
+            throw new Exception("MySQLi: " . $connection->connect_error);
+        }
+        $connection->set_charset("utf8mb4");
+    } catch (Exception $e2) {
+        echo "<div class='error'><strong>❌ Erro ao conectar ao banco:</strong><br>";
+        echo "Tentativa 1: " . htmlspecialchars($e1->getMessage()) . "<br>";
+        echo "Tentativa 2: " . htmlspecialchars($e2->getMessage()) . "<br>";
+        echo "</div>";
+        echo "</div></body></html>";
+        exit;
+    }
 }
 
 // Migrações a executar
