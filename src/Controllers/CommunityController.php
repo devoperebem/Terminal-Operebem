@@ -35,9 +35,9 @@ class CommunityController extends BaseController
             WHERE user_id = :user_id
         ", ['user_id' => $userId]);
         
-        // Se não existe, criar entrada (trigger já deve ter criado, mas garantir)
+        // Se n?o existe, criar entrada (trigger j? deve ter criado, mas garantir)
         if (!$discordData) {
-            // Gerar código único
+            // Gerar c?digo ?nico
             $verificationCode = $this->generateVerificationCode();
 
             try {
@@ -50,7 +50,26 @@ class CommunityController extends BaseController
                     'user_id' => $userId,
                     'code' => $verificationCode
                 ]);
-            } catch (Exception $e) {
+            } catch (\PDOException $e) {
+                // Alguns bancos legados possuem constraint ?nico em discord_id; usar placeholder para evitar 500
+                $placeholderDiscordId = 'pending-' . $userId . '-' . substr($verificationCode, 0, 6);
+                Database::query("
+                    INSERT INTO discord_users (user_id, verification_code, discord_id)
+                    VALUES (:user_id, :code, :placeholder)
+                    ON CONFLICT (user_id) DO UPDATE SET
+                        verification_code = EXCLUDED.verification_code,
+                        discord_id = EXCLUDED.discord_id,
+                        discord_username = NULL,
+                        discord_avatar = NULL,
+                        is_verified = FALSE,
+                        verified_at = NULL,
+                        updated_at = NOW()
+                ", [
+                    'user_id' => $userId,
+                    'code' => $verificationCode,
+                    'placeholder' => $placeholderDiscordId
+                ]);
+            } catch (\Exception $e) {
                 // Fallback para MySQL (ON DUPLICATE KEY)
                 Database::query("
                     INSERT INTO discord_users (user_id, verification_code, discord_id)
@@ -62,7 +81,19 @@ class CommunityController extends BaseController
                 ]);
             }
             
-            $discordData = [
+            // Recarrega dados rec?m criados; se n?o houver, usa fallback em mem?ria
+            $discordData = Database::fetch("
+                SELECT 
+                    discord_id,
+                    discord_username,
+                    discord_avatar,
+                    verification_code,
+                    is_verified,
+                    verified_at,
+                    last_sync_at
+                FROM discord_users
+                WHERE user_id = :user_id
+            ", ['user_id' => $userId]) ?: [
                 'verification_code' => $verificationCode,
                 'is_verified' => false,
                 'discord_id' => null,
