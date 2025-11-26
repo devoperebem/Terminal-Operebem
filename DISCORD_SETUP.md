@@ -14,14 +14,21 @@ Como você está usando **Hostinger** (sem acesso a terminal), existe um script 
 
 1. Após fazer push do código, acesse a URL:
    ```
-   https://terminal.operebem.com.br/database/run_discord_migrations.php?token=EXECUTE_DISCORD_MIGRATIONS
+   https://terminal.operebem.com.br/run_migrations.php
    ```
 
-2. A página vai mostrar o resultado de cada migração:
+2. Insira o token de segurança:
+   ```
+   discord123
+   ```
+
+3. Clique em **"Executar Migrações"**
+
+4. A página vai mostrar o resultado de cada migração:
    - ✅ Se vir mensagens verdes = sucesso!
    - ❌ Se vir mensagens vermelhas = houve um erro
 
-3. **IMPORTANTE**: Após executar com sucesso, **delete o arquivo** `database/run_discord_migrations.php` por questões de segurança:
+5. **IMPORTANTE**: Após executar com sucesso, **delete o arquivo** `run_migrations.php` por questões de segurança:
    - Via File Manager da Hostinger
    - Ou via FTP
 
@@ -72,13 +79,13 @@ Após executar as migrações:
 
 ## 🔐 Segurança
 
-**NUNCA deixe o arquivo `run_discord_migrations.php` no servidor!**
+**NUNCA deixe o arquivo `run_migrations.php` no servidor!**
 
 Após usar:
 1. Faça login no painel Hostinger
 2. Vá para File Manager
-3. Navegue até `/public_html/database/`
-4. Delete `run_discord_migrations.php`
+3. Navegue até `/public_html/`
+4. Delete `run_migrations.php`
 
 ---
 
@@ -94,10 +101,10 @@ Se encontrar problemas:
 ## 🎯 Checklist
 
 - [ ] Fazer push do código
-- [ ] Executar script de migração (`run_discord_migrations.php`)
+- [ ] Executar script de migração (`run_migrations.php?token=discord123`)
 - [ ] Verificar que retornou ✅ para todas as migrações
 - [ ] Testar acesso em `/app/community`
-- [ ] **Deletar o arquivo `run_discord_migrations.php`**
-- [ ] Testador desconectar da comunidade (POST `/app/community/disconnect`)
+- [ ] **Deletar o arquivo `run_migrations.php`**
+- [ ] Testar desconectar da comunidade (POST `/app/community/disconnect`)
 
 Pronto! 🚀
