@@ -7,4 +7,4 @@ VALUES
     ('xp_discord_msg_amount', 1, 'XP concedido por mensagem no Discord (0 desativa)'),
     ('xp_discord_msg_cooldown_minutes', 10, 'Cooldown em minutos entre premiações por mensagem'),
     ('xp_discord_msg_daily_cap', 25, 'Limite diário de XP vindo de mensagens no Discord (0 desativa)')
-ON CONFLICT (setting_key) DO NOTHING;
+ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
