@@ -42,7 +42,7 @@ class CommunityController extends BaseController
             
             Database::query("
                 INSERT INTO discord_users (user_id, verification_code, discord_id)
-                VALUES (:user_id, :code, '')
+                VALUES (:user_id, :code, NULL)
                 ON DUPLICATE KEY UPDATE updated_at = NOW()
             ", [
                 'user_id' => $userId,
@@ -178,7 +178,7 @@ class CommunityController extends BaseController
             // Resetar dados do Discord mas manter o código
             Database::query("
                 UPDATE discord_users
-                SET discord_id = '',
+                SET discord_id = NULL,
                     discord_username = NULL,
                     discord_avatar = NULL,
                     is_verified = FALSE,
