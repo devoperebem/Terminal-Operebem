@@ -371,28 +371,28 @@
         });
       });
 
-
       // --- CONSTRUIR HTML ---
-      var card = document.createElement('div');
-      card.className = 'col-12';
 
-      var html = '<div class="card mb-4">'
+      // CARD 1: FUTUROS + GRÁFICOS (Col-8)
+      var cardFutures = document.createElement('div');
+      cardFutures.className = 'col-12 col-lg-8';
+
+      var htmlFutures = '<div class="card h-100 mb-4">'
         + '<div class="card-body p-3">'
 
-        // Header Geral
+        // Header Futuros
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
-        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros & Miners</h6>'
+        + '<h6 class="mb-0 text-uppercase fw-bold">Futuros CME</h6>'
         + '<div class="d-flex gap-3">'
-        + '<div class="small text-muted">Média Futuros: <span class="fw-semibold">' + avgTxt + '</span></div>'
-        + '<div class="small text-muted">Osc. Média: <span class="fw-semibold">' + avgPctText + '</span></div>'
+        + '<div class="small text-muted">Média: <span class="fw-semibold">' + avgTxt + '</span></div>'
+        + '<div class="small text-muted">Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
         + '</div>'
         + '</div>'
 
         + '<div class="row">'
 
-        // COLUNA 1: Tabela Futuros (3 cols)
-        + '<div class="col-lg-3 col-md-12 mb-3 mb-lg-0">'
-        + '<h6 class="small text-muted text-uppercase mb-2">Futuros CME</h6>'
+        // COLUNA 1: Tabela Futuros
+        + '<div class="col-md-4 mb-3 mb-md-0">'
         + '<table class="table table-sm table-borderless mb-0 futures-table">'
         + '<tbody>';
 
@@ -401,42 +401,59 @@
         var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
         var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
-        html += '<tr>'
+        htmlFutures += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 50px; cursor: help;">' + fd.code + '</td>'
           + '<td class="text-end">' + fd.price + '</td>'
           + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
           + '</tr>';
       }
-      html += '</tbody></table></div>'
+      htmlFutures += '</tbody></table></div>'
 
-        // COLUNA 2: Gráficos (6 cols) -> 2 linhas (stacked)
-        + '<div class="col-lg-6 col-md-12 mb-3 mb-lg-0">'
+        // COLUNA 2: Gráficos Stacked (Curve TOP, Bar BOTTOM)
+        + '<div class="col-md-8">'
         + '<div class="row">'
-        + '<div class="col-12 mb-3">'
-        + '<canvas id="gc_futures_chart" style="height: 215px; width: 100%;"></canvas>'
+        + '<div class="col-12 mb-2">'
+        + '<canvas id="gc_futures_curve" style="height: 150px; width: 100%;"></canvas>'
         + '</div>'
         + '<div class="col-12">'
-        + '<canvas id="gc_futures_curve" style="height: 215px; width: 100%;"></canvas>'
+        + '<canvas id="gc_futures_chart" style="height: 150px; width: 100%;"></canvas>'
         + '</div>'
         + '</div>'
         + '</div>'
 
-        // COLUNA 3: Tabela Miners (3 cols)
-        + '<div class="col-lg-3 col-md-12">'
-        + '<h6 class="small text-muted text-uppercase mb-2">Gold Miners</h6>'
+        + '</div>' // end row
+        + '</div>' // end card-body
+        + '</div>'; // end card
+
+      cardFutures.innerHTML = htmlFutures;
+      wrap.appendChild(cardFutures);
+
+      // CARD 2: MINERS (Col-4)
+      var cardMiners = document.createElement('div');
+      cardMiners.className = 'col-12 col-lg-4';
+
+      var htmlMiners = '<div class="card h-100 mb-4">'
+        + '<div class="card-body p-3">'
+
+        // Header Miners
+        + '<div class="d-flex align-items-center justify-content-between mb-3">'
+        + '<h6 class="mb-0 text-uppercase fw-bold">Gold Miners</h6>'
+        + '</div>'
+
+        + '<div class="table-responsive">'
         + '<table class="table table-sm table-borderless mb-0 futures-table">'
         + '<tbody>';
 
       // Renderizar tabela Miners
       if (minersData.length === 0) {
-        html += '<tr><td colspan="3" class="text-center text-muted small">Sem dados</td></tr>';
+        htmlMiners += '<tr><td colspan="3" class="text-center text-muted small">Sem dados</td></tr>';
       } else {
         for (var k = 0; k < minersData.length; k++) {
           var md = minersData[k];
           var pctTextM = md.pct !== null ? formatPercent(md.pct) : '--';
           var clsM = md.pct > 0 ? 'text-success' : (md.pct < 0 ? 'text-danger' : 'text-muted');
           var colorM = md.pct > 0 ? '#10b981' : (md.pct < 0 ? '#ef4444' : '');
-          html += '<tr>'
+          htmlMiners += '<tr>'
             + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + md.nome + '" style="width: 50px; cursor: help;">' + md.code + '</td>'
             + '<td class="text-end">' + md.price + '</td>'
             + '<td class="text-end fw-semibold ' + clsM + ' has-tooltip" data-tooltip-text="' + md.nominalChange + '" style="cursor: help; color: ' + colorM + ' !important;">' + pctTextM + '</td>'
@@ -444,14 +461,13 @@
         }
       }
 
-      html += '</tbody></table></div>'
+      htmlMiners += '</tbody></table></div>'
 
-        + '</div>' // end row
         + '</div>' // end card-body
         + '</div>'; // end card
 
-      card.innerHTML = html;
-      wrap.appendChild(card);
+      cardMiners.innerHTML = htmlMiners;
+      wrap.appendChild(cardMiners);
 
       // Ativar tooltips customizados
       setTimeout(function () {
