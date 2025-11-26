@@ -43,7 +43,7 @@ class CommunityController extends BaseController
             Database::query("
                 INSERT INTO discord_users (user_id, verification_code, discord_id)
                 VALUES (:user_id, :code, '')
-                ON CONFLICT (user_id) DO NOTHING
+                ON DUPLICATE KEY UPDATE updated_at = NOW()
             ", [
                 'user_id' => $userId,
                 'code' => $verificationCode
