@@ -80,6 +80,7 @@ header('Content-Type: text/html; charset=utf-8');
 <body>
     <div class="container">
         <h1>🗄️ Executando Migrações Discord</h1>
+        <p style="color: #5865f2; margin: 10px 0;"><strong>Banco de dados detectado:</strong> <code><?php echo htmlspecialchars($db_type); ?></code></p>
 
 <?php
 
@@ -130,53 +131,125 @@ try {
     }
 }
 
-// Migrações a executar
-$migrations = [
-    [
-        'name' => 'discord_users',
-        'sql' => "CREATE TABLE IF NOT EXISTS discord_users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT NOT NULL UNIQUE,
-            discord_id VARCHAR(255) NULL,
-            discord_username VARCHAR(255) NULL,
-            discord_avatar VARCHAR(500) NULL,
-            verification_code VARCHAR(32) UNIQUE NOT NULL,
-            is_verified BOOLEAN DEFAULT FALSE,
-            verified_at TIMESTAMP NULL,
-            last_sync_at TIMESTAMP NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            INDEX idx_discord_id (discord_id),
-            INDEX idx_user_id (user_id),
-            INDEX idx_is_verified (is_verified),
-            INDEX idx_verification_code (verification_code)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
-    ],
-    [
-        'name' => 'discord_logs',
-        'sql' => "CREATE TABLE IF NOT EXISTS discord_logs (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT NOT NULL,
-            action VARCHAR(50) NOT NULL,
-            details JSON NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            INDEX idx_user_id (user_id),
-            INDEX idx_action (action),
-            INDEX idx_created_at (created_at)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
-    ],
-    [
-        'name' => 'xp_discord_settings',
-        'sql' => "INSERT INTO xp_settings (setting_key, setting_value, description)
-            VALUES
-                ('xp_discord_msg_amount', 1, 'XP concedido por mensagem no Discord (0 desativa)'),
-                ('xp_discord_msg_cooldown_minutes', 10, 'Cooldown em minutos entre premiações por mensagem'),
-                ('xp_discord_msg_daily_cap', 25, 'Limite diário de XP vindo de mensagens no Discord (0 desativa)')
-            ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
-    ],
-];
+// Detectar o tipo de banco de dados
+$db_driver = null;
+$db_type = 'unknown';
+
+// Tentar detectar através da classe Database
+try {
+    if (method_exists($connection, 'getAttribute')) {
+        $driver_name = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if (strpos($driver_name, 'pgsql') !== false) {
+            $db_driver = 'pgsql';
+            $db_type = 'PostgreSQL';
+        } elseif (strpos($driver_name, 'mysql') !== false) {
+            $db_driver = 'mysql';
+            $db_type = 'MySQL';
+        }
+    }
+} catch (Exception $e) {
+    // Fallback: tentar by hostname or config
+    $db_driver = 'pgsql'; // Padrão para Hostinger é PostgreSQL
+    $db_type = 'PostgreSQL (assumido)';
+}
+
+// Migrações a executar - versão PostgreSQL
+if ($db_driver === 'pgsql' || $db_driver === null) {
+    $migrations = [
+        [
+            'name' => 'discord_users (PostgreSQL)',
+            'sql' => "CREATE TABLE IF NOT EXISTS discord_users (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL UNIQUE,
+                discord_id VARCHAR(255) NULL,
+                discord_username VARCHAR(255) NULL,
+                discord_avatar VARCHAR(500) NULL,
+                verification_code VARCHAR(32) UNIQUE NOT NULL,
+                is_verified BOOLEAN DEFAULT FALSE,
+                verified_at TIMESTAMP NULL,
+                last_sync_at TIMESTAMP NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+            CREATE INDEX IF NOT EXISTS idx_discord_id ON discord_users(discord_id);
+            CREATE INDEX IF NOT EXISTS idx_user_id ON discord_users(user_id);
+            CREATE INDEX IF NOT EXISTS idx_is_verified ON discord_users(is_verified);
+            CREATE INDEX IF NOT EXISTS idx_verification_code ON discord_users(verification_code);"
+        ],
+        [
+            'name' => 'discord_logs (PostgreSQL)',
+            'sql' => "CREATE TABLE IF NOT EXISTS discord_logs (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                action VARCHAR(50) NOT NULL,
+                details JSONB NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+            CREATE INDEX IF NOT EXISTS idx_user_id_logs ON discord_logs(user_id);
+            CREATE INDEX IF NOT EXISTS idx_action ON discord_logs(action);
+            CREATE INDEX IF NOT EXISTS idx_created_at ON discord_logs(created_at);"
+        ],
+        [
+            'name' => 'xp_discord_settings (PostgreSQL)',
+            'sql' => "INSERT INTO xp_settings (setting_key, setting_value, description)
+                VALUES
+                    ('xp_discord_msg_amount', '1', 'XP concedido por mensagem no Discord (0 desativa)'),
+                    ('xp_discord_msg_cooldown_minutes', '10', 'Cooldown em minutos entre premiações por mensagem'),
+                    ('xp_discord_msg_daily_cap', '25', 'Limite diário de XP vindo de mensagens no Discord (0 desativa)')
+                ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value;"
+        ],
+    ];
+} else {
+    // Migrações MySQL
+    $migrations = [
+        [
+            'name' => 'discord_users (MySQL)',
+            'sql' => "CREATE TABLE IF NOT EXISTS discord_users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL UNIQUE,
+                discord_id VARCHAR(255) NULL,
+                discord_username VARCHAR(255) NULL,
+                discord_avatar VARCHAR(500) NULL,
+                verification_code VARCHAR(32) UNIQUE NOT NULL,
+                is_verified BOOLEAN DEFAULT FALSE,
+                verified_at TIMESTAMP NULL,
+                last_sync_at TIMESTAMP NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                INDEX idx_discord_id (discord_id),
+                INDEX idx_user_id (user_id),
+                INDEX idx_is_verified (is_verified),
+                INDEX idx_verification_code (verification_code)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        ],
+        [
+            'name' => 'discord_logs (MySQL)',
+            'sql' => "CREATE TABLE IF NOT EXISTS discord_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                action VARCHAR(50) NOT NULL,
+                details JSON NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                INDEX idx_user_id (user_id),
+                INDEX idx_action (action),
+                INDEX idx_created_at (created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        ],
+        [
+            'name' => 'xp_discord_settings (MySQL)',
+            'sql' => "INSERT INTO xp_settings (setting_key, setting_value, description)
+                VALUES
+                    ('xp_discord_msg_amount', '1', 'XP concedido por mensagem no Discord (0 desativa)'),
+                    ('xp_discord_msg_cooldown_minutes', '10', 'Cooldown em minutos entre premiações por mensagem'),
+                    ('xp_discord_msg_daily_cap', '25', 'Limite diário de XP vindo de mensagens no Discord (0 desativa)')
+                ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
+        ],
+    ];
+}
 
 // Executar migrações
 foreach ($migrations as $migration) {

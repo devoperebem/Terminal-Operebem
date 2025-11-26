@@ -39,15 +39,28 @@ class CommunityController extends BaseController
         if (!$discordData) {
             // Gerar código único
             $verificationCode = $this->generateVerificationCode();
-            
-            Database::query("
-                INSERT INTO discord_users (user_id, verification_code, discord_id)
-                VALUES (:user_id, :code, NULL)
-                ON DUPLICATE KEY UPDATE updated_at = NOW()
-            ", [
-                'user_id' => $userId,
-                'code' => $verificationCode
-            ]);
+
+            try {
+                // Tentar PostgreSQL primeiro (ON CONFLICT)
+                Database::query("
+                    INSERT INTO discord_users (user_id, verification_code, discord_id)
+                    VALUES (:user_id, :code, NULL)
+                    ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
+                ", [
+                    'user_id' => $userId,
+                    'code' => $verificationCode
+                ]);
+            } catch (Exception $e) {
+                // Fallback para MySQL (ON DUPLICATE KEY)
+                Database::query("
+                    INSERT INTO discord_users (user_id, verification_code, discord_id)
+                    VALUES (:user_id, :code, NULL)
+                    ON DUPLICATE KEY UPDATE updated_at = NOW()
+                ", [
+                    'user_id' => $userId,
+                    'code' => $verificationCode
+                ]);
+            }
             
             $discordData = [
                 'verification_code' => $verificationCode,
