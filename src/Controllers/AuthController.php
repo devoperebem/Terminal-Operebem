@@ -125,7 +125,7 @@ class AuthController extends BaseController
             unset($_SESSION['next_url']);
             $this->json([
                 'success' => true,
-                'message' => $result['message'],
+                'message' => $result['message'] ?? 'Login realizado com sucesso',
                 'redirect' => $redir
             ]);
         } else {
