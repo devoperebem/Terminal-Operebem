@@ -258,23 +258,58 @@
 
       // Apply Rio Tinto fix (match boot.js)
       const nx = s => (s || '').toString().toLowerCase();
+
+      console.log('🏁 FLAG DEBUG: Processing', dados.length, 'items from API');
+      console.log('🏁 First item sample:', dados[0]);
+
       dados.forEach(item => {
         const name = nx(item.apelido) || nx(item.nome);
         const code = (item.code || '').toString().toUpperCase();
 
+        console.log(`🏁 Processing: ${item.apelido || item.nome} (code: ${code}), has flag: ${item.icone_bandeira || 'NONE'}`);
+
         if ((name.includes('rio') && name.includes('tinto')) || code === 'RIO' || code === 'RIO.AX') {
           item.icone_bandeira = 'fi-au';
           item.bandeira = 'Sydney';
+          console.log('✅ Rio Tinto flag assigned');
         }
 
         // Manual flags for ADRs (ensure they show up)
-        if (name.includes('vale') || code === 'VALE') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
-        if (name.includes('petrobras') || code === 'PBR' || code === 'PBR.A') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
-        if (name.includes('itau') || code === 'ITUB') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
-        if (name.includes('bradesco') || code === 'BBD') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
-        if (name.includes('santander') || code === 'BSBR') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
-        if (name.includes('ambev') || code === 'ABEV') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
+        if (name.includes('vale') || code === 'VALE') {
+          item.icone_bandeira = 'fi-br';
+          item.bandeira = 'Brasil';
+          console.log('✅ Vale BR flag assigned');
+        }
+        if (name.includes('petrobras') || code === 'PBR' || code === 'PBR.A') {
+          item.icone_bandeira = 'fi-br';
+          item.bandeira = 'Brasil';
+          console.log('✅ Petrobras BR flag assigned');
+        }
+        if (name.includes('itau') || code === 'ITUB') {
+          item.icone_bandeira = 'fi-br';
+          item.bandeira = 'Brasil';
+          console.log('✅ Itau BR flag assigned');
+        }
+        if (name.includes('bradesco') || code === 'BBD') {
+          item.icone_bandeira = 'fi-br';
+          item.bandeira = 'Brasil';
+          console.log('✅ Bradesco BR flag assigned');
+        }
+        if (name.includes('santander') || code === 'BSBR') {
+          item.icone_bandeira = 'fi-br';
+          item.bandeira = 'Brasil';
+          console.log('✅ Santander BR flag assigned');
+        }
+        if (name.includes('ambev') || code === 'ABEV') {
+          item.icone_bandeira = 'fi-br';
+          item.bandeira = 'Brasil';
+          console.log('✅ Ambev BR flag assigned');
+        }
+
+        console.log(`🏁 After processing: ${item.apelido} now has flag: ${item.icone_bandeira || 'STILL NONE'}`);
       });
+
+      console.log('🏁 FLAG DEBUG: All items after processing:', dados);
 
       renderHomeTables(dados);
     } catch (e) {
