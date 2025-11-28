@@ -2,27 +2,7 @@
   const ENDPOINT = '/actions/quotes-public';
   const flashTimers = {};
   let displayedIds = new Set();
-  let __homeTooltipsTimer = null;
-
-  function initHomeTooltips(){
-    try {
-      const scope = document.querySelector('.home-preview-cards') || document;
-      const els = scope.querySelectorAll('[data-bs-toggle="tooltip"]:not([data-tooltip-init="1"])');
-      els.forEach(el => {
-        try {
-          if (window.bootstrap && window.bootstrap.Tooltip) {
-            new window.bootstrap.Tooltip(el, { container: 'body', boundary: 'viewport', placement: el.getAttribute('data-bs-placement') || 'top' });
-            el.setAttribute('data-tooltip-init','1');
-          }
-        } catch(_){ }
-      });
-    } catch(_){ }
-  }
-
-  function scheduleTooltipsRefresh(){
-    if (__homeTooltipsTimer) return;
-    __homeTooltipsTimer = setTimeout(function(){ __homeTooltipsTimer = null; initHomeTooltips(); }, 80);
-  }
+  // Removed Bootstrap tooltip initialization - using custom tooltip system from dashboard
 
   function toNumber(text){
     const sraw = (text ?? '').toString().trim().replace(/\u2212/g, '-'); // normaliza sinal unicode − para '-'
@@ -164,28 +144,26 @@
     const hora = tinfo.time;
     const flag = flagFromItem(item);
     const last = (item.last ?? '').toString().trim();
-    const high = (item.high ?? '').toString().trim();
-    const low  = (item.low ?? '').toString().trim();
-    const stHr = (item.status_hr ?? '').toString().trim();
-    const stMk = (item.status_mercado ?? '').toString().trim();
     const abs = (item.pc ?? '').toString().trim();
-    const ttAsset = [`Ativo: ${escapeAttr(apelido)}`, id ? `Código: ${escapeAttr(id)}` : ''].filter(Boolean).join(' \u2022 ');
-    const ttLast  = [`Último: ${escapeAttr(last)}`, abs ? `Variação abs: ${escapeAttr(abs)}` : '', high ? `Alta: ${escapeAttr(high)}` : '', low ? `Baixa: ${escapeAttr(low)}` : ''].filter(Boolean).join(' \u2022 ');
-    const ttPerc  = `Variação: ${escapeAttr(pcpClean)}`;
-    const ttTime  = [tinfo.full ? `Atualizado: ${escapeAttr(tinfo.full)}` : '', (stHr||stMk) ? `Status: ${escapeAttr([stMk, stHr].filter(Boolean).join(' / '))}` : ''].filter(Boolean).join(' \u2022 ');
-    const { desc: statusDesc, cls: statusCls } = statusBubble(stMk, stHr);
+    const stMk = (item.status_mercado ?? '').toString().trim();
+    const nome = (item.nome ?? '').toString().trim();
+    const { desc: statusDesc, cls: statusCls } = statusBubble(stMk, item.status_hr);
+    const flagHtml = item.icone_bandeira ? `<span class="fi ${escapeAttr(item.icone_bandeira)} tooltip-target text-lg me-2" style="font-size: 13px" data-tooltip="${escapeAttr(item.bandeira || '')}"></span>` : `<span class="fi fi-${escapeAttr(flag)} me-2" style="font-size: 13px" data-tooltip="${escapeAttr(flag.toUpperCase())}"></span>`;
+    const statusHtml = `<div class="status-bubble ms-1 me-3 status_${escapeAttr(id)} ${statusCls}" data-tooltip="${escapeAttr(statusDesc)}"></div>`;
+    const nameHtml = `<span class="tooltip-target" data-tooltip="${escapeAttr(nome)}">${escapeAttr(apelido)}</span>`;
+
     return `
-      <tr data-id="${id}" data-asset-code="${(item.code || '').replace(/[^a-zA-Z0-9]/g, '')}" style="font-weight:600 !important">
-        <td width="60%">
+      <tr order="${item.order_tabela ?? ''}" data-id="${id}" style="font-weight:600 !important">
+        <td width="50%">
           <div class="d-flex align-items-center">
-            <div class="status-bubble ms-1 me-3 status_${escapeAttr(id)} ${statusCls}" data-bs-toggle="tooltip" title="${escapeAttr(statusDesc)}"></div>
-            <img src="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/${escapeAttr(flag)}.svg" alt="${escapeAttr(flag.toUpperCase())}" width="20" height="15" class="me-2 rounded" data-bs-toggle="tooltip" title="${escapeAttr(flag.toUpperCase())}" onerror="this.style.display='none'; var s=document.createElement('span'); s.className='fi fi-${escapeAttr(flag)} me-2'; s.setAttribute('data-bs-toggle','tooltip'); s.setAttribute('title', this.alt); this.after(s);">
-            <span data-bs-toggle="tooltip" title="${escapeAttr(item.nome || apelido)}">${escapeAttr(apelido)}</span>
+            ${statusHtml}
+            ${flagHtml}
+            ${nameHtml}
           </div>
         </td>
-        <td class="text-end vlr_field vlr_${escapeAttr(id)}" last="${escapeAttr(last)}" data-bs-toggle="tooltip" title="${escapeAttr(abs || '')}"><span class="vlr-text">${escapeAttr(last)}</span></td>
-        <td class="text-end ${cls} perc_${escapeAttr(id)} perc" data-bs-toggle="tooltip" title="${escapeAttr(abs || '')}" style="font-weight:900 !important; ${color ? `color:${color} !important;` : ''}">${displayPerc}</td>
-        <td class="text-end text-muted hr_${escapeAttr(id)}" data-bs-toggle="tooltip" data-bs-placement="top" title="${escapeAttr(tinfo.full)}">${item.last ? escapeAttr(hora) : ''}</td>
+        <td class="text-right vlr_field vlr_${escapeAttr(id)}" last="${escapeAttr(last)}"><span class="vlr-text">${escapeAttr(last)}</span></td>
+        <td class="text-right ${cls} perc_${escapeAttr(id)} tooltip-target perc" data-tooltip="${escapeAttr(abs || '')}" data-tooltip-color="${color}" style="font-weight:900 !important; color:${color} !important;">${displayPerc}</td>
+        <td class="text-right text-muted hr_${escapeAttr(id)} tooltip-target-left" data-tooltip="${escapeAttr(tinfo.full)}">${item.last ? escapeAttr(hora) : ''}</td>
       </tr>`;
   }
 
@@ -206,8 +184,6 @@
 
     // Atualiza médias com tooltip com base no DOM renderizado (agendado p/ próximo frame)
     requestAnimationFrame(updateAveragesFromDom);
-    // Inicializa Bootstrap tooltips para esta página (container body)
-    scheduleTooltipsRefresh();
 
     displayedIds = new Set([ ...commodities, ...adrs ].map(i=> i.id_api || i.code).filter(Boolean));
   }
@@ -223,8 +199,6 @@
       const span = lastTd.querySelector('.vlr-text');
       if (span) span.textContent = newText; else lastTd.textContent = newText;
       lastTd.setAttribute('last', newText || '0');
-      lastTd.setAttribute('title', item.pc || '');
-      lastTd.setAttribute('data-bs-toggle','tooltip');
     }
 
     if (percTd){
@@ -233,22 +207,22 @@
       const nval = toNumber(tmpPerc);
       const displayPerc = (nval !== null) ? `${nval.toFixed(2)}%` : (tmpPerc || '0.00%');
       percTd.textContent = displayPerc;
-      percTd.setAttribute('title', item.pc || '');
-      percTd.setAttribute('data-bs-toggle','tooltip');
+      percTd.setAttribute('data-tooltip', item.pc || '');
       percTd.classList.remove('text-danger','text-success','text-neutral','text-success-alt');
       if (nval !== null){
         const { cls, color } = classFromPercent(nval);
         if (cls) percTd.classList.add(cls);
-        if (color) percTd.style.setProperty('color', color, 'important');
+        if (color) {
+          percTd.style.setProperty('color', color, 'important');
+          percTd.setAttribute('data-tooltip-color', color);
+        }
       }
     }
 
     if (timeTd){
       const info = formatTimeInfo(item.timestamp);
       timeTd.textContent = item.last ? info.time : '';
-      timeTd.setAttribute('title', info.full || '');
-      timeTd.setAttribute('data-bs-toggle','tooltip');
-      timeTd.setAttribute('data-bs-placement','top');
+      timeTd.setAttribute('data-tooltip', info.full || '');
     }
 
     // Atualiza status bubble
@@ -258,14 +232,12 @@
         const { desc, cls } = statusBubble(item.status_mercado, item.status_hr);
         bubble.classList.remove('active','close','after-hours','pre-market');
         if (cls) bubble.classList.add(cls);
-        bubble.setAttribute('title', desc);
-        bubble.setAttribute('data-bs-toggle','tooltip');
+        bubble.setAttribute('data-tooltip', desc);
       }
     }catch{}
 
     // suporte legado: preview-asset (se existir)
     updatePreviewAssetLegacy(item);
-    scheduleTooltipsRefresh();
   }
   function updatePreviewAssetLegacy(item){
     const id = item.id_api || item.code;
@@ -323,14 +295,12 @@
       el.classList.remove('positive','negative','trend-up','trend-down');
       el.classList.add('neutral');
       el.innerHTML = '<span>—</span>';
-      el.setAttribute('data-bs-toggle','tooltip');
-      el.setAttribute('title', 'Média: —');
+      el.setAttribute('data-tooltip', 'Média: —');
       return;
     }
     const avgFixed = Number.isFinite(avg) ? parseFloat(avg.toFixed(2)) : 0;
     const txt = `${avgFixed.toFixed(2)}%`;
-    el.setAttribute('data-bs-toggle','tooltip');
-    el.setAttribute('title', `Média: ${txt}`);
+    el.setAttribute('data-tooltip', `Média: ${txt}`);
     el.classList.remove('positive','negative','trend-up','trend-down','neutral');
     const isUp = avg >= 0;
     if (isUp) {
@@ -341,7 +311,6 @@
     // Ícone FA com animação
     const arrow = isUp ? '<i class="fas fa-arrow-up arrow-icon"></i>' : '<i class="fas fa-arrow-down arrow-icon"></i>';
     el.innerHTML = `${arrow}<span>${txt}</span>`;
-    scheduleTooltipsRefresh();
   }
 
   function updateAveragesFromDom(){
