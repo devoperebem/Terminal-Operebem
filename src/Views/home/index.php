@@ -334,32 +334,30 @@ html.all-black .hero-stat-icon {
                 <div class="hero-visual">
                     <div class="row g-3 home-preview-cards">
                         <div class="col-12">
-                            <div class="card w-100 card_indices mb-3">
+                            <div class="card w-100 card_indices mb-3 sw_metais">
                                 <div class="card-header title-card">
-                                    <i class="fas fa-list me-2 text-muted hide-icon-mobile"></i>
-                                    Principais Commodities
-                                    <span class="media-percentage tooltip-target" id="media-como-home" data-tooltip=""></span>
+                                    Commodities - Metais
+                                    <span class="media-percentage" id="media-metais"></span>
                                 </div>
                                 <div class="card-body p-0">
-                                    <div class="table-responsive">
+                                    <div class="w-100">
                                         <table class="table mb-0">
-                                            <tbody id="home_tbody_como"></tbody>
+                                            <tbody class="tbody_metais"></tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="card w-100 card_indices mb-3">
+                            <div class="card w-100 card_indices mb-3 sw_adrs">
                                 <div class="card-header title-card">
-                                    <i class="fas fa-list me-2 text-muted hide-icon-mobile"></i>
-                                    Principais ADRs
-                                    <span class="media-percentage tooltip-target" id="media-adrs-home" data-tooltip=""></span>
+                                    ADRs
+                                    <span class="media-percentage" id="media-adrs"></span>
                                 </div>
                                 <div class="card-body p-0">
-                                    <div class="table-responsive">
+                                    <div class="w-100">
                                         <table class="table mb-0">
-                                            <tbody id="home_tbody_adrs"></tbody>
+                                            <tbody class="tbody_adrs"></tbody>
                                         </table>
                                     </div>
                                 </div>
