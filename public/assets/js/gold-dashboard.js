@@ -372,10 +372,12 @@
         var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
         var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
+        var timeText = formatTime(fd.item);
         html += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
           + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
           + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
+          + '<td class="text-end text-muted small" style="width: 60px;">' + timeText + '</td>'
           + '</tr>';
       }
 
@@ -475,15 +477,17 @@
         var pctText = md.pct !== null ? formatPercent(md.pct) : '--';
         var cls = md.pct > 0 ? 'text-success' : (md.pct < 0 ? 'text-danger' : 'text-muted');
         var color = md.pct > 0 ? '#10b981' : (md.pct < 0 ? '#ef4444' : '');
+        var timeText = formatTime(md.item);
         html += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + md.nome + '" style="width: 60px; cursor: help;">' + md.code + '</td>'
           + '<td class="text-end" style="width: 90px;">' + md.price + '</td>'
           + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + md.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
+          + '<td class="text-end text-muted small" style="width: 60px;">' + timeText + '</td>'
           + '</tr>';
       }
 
       html += '</tbody></table>'
-        + '<div id="tv_gold_miners_widget" style="height: 200px;"></div>'
+        + '<div id="tv_gold_miners_widget" style="height: 300px;"></div>'
         + '</div>'
         + '</div>'
         + '</div>'
