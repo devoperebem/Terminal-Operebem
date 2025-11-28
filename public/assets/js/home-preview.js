@@ -1,8 +1,8 @@
-(function(){
+(function () {
   const ENDPOINT = '/actions/quotes-public';
   let displayedIds = new Set();
 
-  function toNumber(text){
+  function toNumber(text) {
     const sraw = (text ?? '').toString().trim().replace(/\u2212/g, '-');
     if (!sraw) return null;
     const s = sraw.replace(/\s+/g, '');
@@ -23,36 +23,55 @@
     return Number.isFinite(n) ? n : null;
   }
 
-  function classFromPercent(num){
+  function classFromPercent(num) {
     if (num > 0) return { cls: 'text-success', color: '#37ed00' };
     if (num < 0) return { cls: 'text-danger', color: '#FF0000' };
     return { cls: 'text-neutral', color: '#000000' };
   }
 
-  function escapeAttr(val){
+  function escapeAttr(val) {
     try {
-      return String(val).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
-    } catch(_) {
+      return String(val).replace(/[&<>"]/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[s]));
+    } catch (_) {
       return '';
     }
   }
 
-  function formatTimeFromTimestamp(ts){
-    if(!ts) return { time: '', full: '' };
-    try{
-      const d = new Date(parseInt(ts,10)*1000);
+  function exchangeCodeForItem(item) {
+    const b = item.bolsa || '';
+    if (b.includes('NYSE') || b.includes('NASDAQ') || b.includes('AMEX')) return 'XNYS';
+    if (b.includes('CME')) return 'XCME';
+    if (b.includes('COMEX')) return 'XCEC';
+    if (b.includes('NYMEX')) return 'XNYM';
+    if (b.includes('CBOT')) return 'XCBT';
+    if (b.includes('EUREX')) return 'XEUR';
+    if (b.includes('LSE') || b.includes('London')) return 'XLON';
+    if (b.includes('B3') || b.includes('BOVESPA')) return 'BVMF';
+    if (b.includes('Euronext')) return 'XPAR';
+    if (b.includes('Frankfurt') || b.includes('Xetra')) return 'XFRA';
+    if (b.includes('Tokyo') || b.includes('TSE')) return 'XTKS';
+    if (b.includes('Hong Kong') || b.includes('HKEX')) return 'XHKG';
+    if (b.includes('Shanghai') || b.includes('SSE')) return 'XSHG';
+    return '';
+  }
+
+  function formatTimeFromTimestamp(ts) {
+    if (!ts) return { time: '', full: '' };
+    try {
+      const d = new Date(parseInt(ts, 10) * 1000);
       const tz = (typeof window !== 'undefined' && window.USER_TIMEZONE) ? window.USER_TIMEZONE : 'America/Sao_Paulo';
-      const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12:false, timeZone: tz });
-      const full = d.toLocaleString('pt-BR', { hour12:false, timeZone: tz });
+      const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz });
+      const full = d.toLocaleString('pt-BR', { hour12: false, timeZone: tz });
       return { time, full };
-    }catch{
-      return { time:'', full:'' };
+    } catch {
+      return { time: '', full: '' };
     }
   }
 
   function buildRow(item, classPerc, colorPerc, timeInfo) {
     const itemKey = (item.id_api || item.code || '').toString();
-    const statusHtml = `<div class="status-bubble ms-1 me-3 status_${itemKey}"></div>`;
+    const ex = exchangeCodeForItem(item);
+    const statusHtml = `<div class="status-bubble ms-1 me-3 status_${itemKey}" data-exchange="${escapeAttr(ex)}" data-code="${escapeAttr(item.code || item.id_api || '')}"></div>`;
     const flagHtml = item.icone_bandeira ? `<span class="fi ${escapeAttr(item.icone_bandeira)} tooltip-target text-lg me-2" style="font-size: 13px" data-tooltip="${escapeAttr(item.bandeira || '')}"></span>` : '';
     const cleanApelido = (item.apelido || '').replace(/\s*\(CFD\)\s*/gi, '').trim();
     const cleanNome = (item.nome || '').replace(/\s*\(CFD\)\s*/gi, '').trim();
@@ -84,30 +103,30 @@
     `;
   }
 
-  async function fetchListar(){
+  async function fetchListar() {
     const resp = await fetch(ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'acao=listar'
     });
-    if(!resp.ok) throw new Error('Falha ao carregar cotações');
+    if (!resp.ok) throw new Error('Falha ao carregar cotações');
     return resp.json();
   }
 
-  function renderHomeTables(dados){
-    const byOrder = (a,b)=>{
-      const oa = parseInt(a.order_tabela||'9999',10);
-      const ob = parseInt(b.order_tabela||'9999',10);
+  function renderHomeTables(dados) {
+    const byOrder = (a, b) => {
+      const oa = parseInt(a.order_tabela || '9999', 10);
+      const ob = parseInt(b.order_tabela || '9999', 10);
       return oa - ob;
     };
-    const isCommodity = (g)=> (g||'').includes('metais') || (g||'').includes('energia') || (g||'').includes('agricola');
-    const commodities = dados.filter(d=>isCommodity(d.grupo)).sort(byOrder).slice(0,5);
-    const adrs = dados.filter(d=>(d.grupo||'').includes('adrs')).sort(byOrder).slice(0,5);
+    const isCommodity = (g) => (g || '').includes('metais') || (g || '').includes('energia') || (g || '').includes('agricola');
+    const commodities = dados.filter(d => isCommodity(d.grupo)).sort(byOrder).slice(0, 5);
+    const adrs = dados.filter(d => (d.grupo || '').includes('adrs')).sort(byOrder).slice(0, 5);
 
     const tbComo = document.getElementById('home_tbody_como');
     const tbAdrs = document.getElementById('home_tbody_adrs');
 
-    if (tbComo){
+    if (tbComo) {
       tbComo.innerHTML = commodities.map(item => {
         const { time, full } = formatTimeFromTimestamp(item.timestamp);
         const pcp = item.pcp ? item.pcp.toString().replace(/\s+/g, '').replace('%', '').replace(',', '.') : '0';
@@ -118,7 +137,7 @@
       }).join('');
     }
 
-    if (tbAdrs){
+    if (tbAdrs) {
       tbAdrs.innerHTML = adrs.map(item => {
         const { time, full } = formatTimeFromTimestamp(item.timestamp);
         const pcp = item.pcp ? item.pcp.toString().replace(/\s+/g, '').replace('%', '').replace(',', '.') : '0';
@@ -130,23 +149,23 @@
     }
 
     requestAnimationFrame(updateAveragesFromDom);
-    displayedIds = new Set([ ...commodities, ...adrs ].map(i=> i.id_api || i.code).filter(Boolean));
+    displayedIds = new Set([...commodities, ...adrs].map(i => i.id_api || i.code).filter(Boolean));
   }
 
-  function escapeSelector(selector){
+  function escapeSelector(selector) {
     return selector.replace(/[!"#$%&'()*+,./:;<=>?@[\]^`{|}~]/g, "\\$&");
   }
 
-  function updateHomeRow(item){
+  function updateHomeRow(item) {
     const id = item.id_api || item.code;
-    if(!id || !displayedIds.has(id)) return;
+    if (!id || !displayedIds.has(id)) return;
 
     const safeId = CSS.escape ? CSS.escape(id) : escapeSelector(id);
     const lastTd = document.querySelector(`.vlr_${safeId}`);
     const percTd = document.querySelector(`.perc_${safeId}`);
     const timeTd = document.querySelector(`.hr_${safeId}`);
 
-    if (lastTd){
+    if (lastTd) {
       const newText = (item.last ?? '').toString().trim();
       const span = lastTd.querySelector('.vlr-text');
       if (span) span.textContent = newText;
@@ -154,15 +173,15 @@
       lastTd.setAttribute('last', newText || '0');
     }
 
-    if (percTd){
+    if (percTd) {
       const pcp = item.pcp ? item.pcp.toString() : '';
       const tmpPerc = pcp ? (pcp.includes('%') ? pcp : pcp + '%') : '';
       const nval = toNumber(tmpPerc);
       const displayPerc = (nval !== null) ? `${nval.toFixed(2)}%` : (tmpPerc || '0.00%');
       percTd.textContent = displayPerc;
       percTd.setAttribute('data-tooltip', item.pc || '');
-      percTd.classList.remove('text-danger','text-success','text-neutral','text-success-alt');
-      if (nval !== null){
+      percTd.classList.remove('text-danger', 'text-success', 'text-neutral', 'text-success-alt');
+      if (nval !== null) {
         const { cls, color } = classFromPercent(nval);
         if (cls) percTd.classList.add(cls);
         if (color) {
@@ -172,29 +191,29 @@
       }
     }
 
-    if (timeTd){
+    if (timeTd) {
       const info = formatTimeFromTimestamp(item.timestamp);
       timeTd.textContent = item.last ? info.time : '';
       timeTd.setAttribute('data-tooltip', info.full || '');
     }
   }
 
-  function computeAvgFromDom(tbodyId){
+  function computeAvgFromDom(tbodyId) {
     const tbody = document.getElementById(tbodyId);
-    if(!tbody) return null;
+    if (!tbody) return null;
     const cells = tbody.querySelectorAll('td.perc');
     const vals = Array.from(cells)
       .map(td => toNumber(td.textContent))
       .filter(v => v !== null && Number.isFinite(v));
-    if(!vals.length) return null;
-    return vals.reduce((a,b)=>a+b,0) / vals.length;
+    if (!vals.length) return null;
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
   }
 
-  function setAvg(elId, avg){
+  function setAvg(elId, avg) {
     const el = document.getElementById(elId);
     if (!el) return;
-    if (avg === null){
-      el.classList.remove('positive','negative','trend-up','trend-down');
+    if (avg === null) {
+      el.classList.remove('positive', 'negative', 'trend-up', 'trend-down');
       el.classList.add('neutral');
       el.innerHTML = '<span>—</span>';
       el.setAttribute('data-tooltip', 'Média: —');
@@ -203,23 +222,23 @@
     const avgFixed = Number.isFinite(avg) ? parseFloat(avg.toFixed(2)) : 0;
     const txt = `${avgFixed.toFixed(2)}%`;
     el.setAttribute('data-tooltip', `Média: ${txt}`);
-    el.classList.remove('positive','negative','trend-up','trend-down','neutral');
+    el.classList.remove('positive', 'negative', 'trend-up', 'trend-down', 'neutral');
     const isUp = avg >= 0;
     if (isUp) {
-      el.classList.add('positive','trend-up');
+      el.classList.add('positive', 'trend-up');
     } else {
-      el.classList.add('negative','trend-down');
+      el.classList.add('negative', 'trend-down');
     }
     const arrow = isUp ? '<i class="fas fa-arrow-up arrow-icon"></i>' : '<i class="fas fa-arrow-down arrow-icon"></i>';
     el.innerHTML = `${arrow}<span>${txt}</span>`;
   }
 
-  function updateAveragesFromDom(){
+  function updateAveragesFromDom() {
     const avgComo = computeAvgFromDom('home_tbody_como');
     const avgAdrs = computeAvgFromDom('home_tbody_adrs');
     setAvg('media-como-home', avgComo);
     setAvg('media-adrs-home', avgAdrs);
-    if (avgComo === null || avgAdrs === null){
+    if (avgComo === null || avgAdrs === null) {
       setTimeout(() => {
         const a1 = computeAvgFromDom('home_tbody_como');
         const a2 = computeAvgFromDom('home_tbody_adrs');
@@ -229,27 +248,27 @@
     }
   }
 
-  async function firstLoad(){
+  async function firstLoad() {
     try {
       const res = await fetchListar();
       const dados = res.data || [];
       renderHomeTables(dados);
-    } catch(e) {
+    } catch (e) {
       console.error('Error loading home quotes:', e);
     }
   }
 
-  async function updateLoop(){
-    try{
+  async function updateLoop() {
+    try {
       if (window.__HOME_WS_OK) return;
       const res = await fetchListar();
       const dados = res.data || [];
       dados.forEach(updateHomeRow);
       requestAnimationFrame(updateAveragesFromDom);
-    }catch(e){ /* silenciar */ }
+    } catch (e) { /* silenciar */ }
   }
 
-  document.addEventListener('DOMContentLoaded', function(){
+  document.addEventListener('DOMContentLoaded', function () {
     firstLoad();
     setInterval(updateLoop, 5000);
   });
