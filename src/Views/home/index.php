@@ -541,26 +541,6 @@ html.all-black .hero-stat-icon {
                 <p class="reviews-subtitle">Confiança comprovada por investidores do mundo todo</p>
             </div>
         </div>
-        <div class="reviews-carousel-wrapper">
-            <div class="reviews-peek-container" id="reviewsContainer">
-                <!-- Skeleton loading -->
-                <div class="review-card">
-                    <div class="skeleton-avatar"></div>
-                    <div class="skeleton-text"></div>
-                    <div class="skeleton-text short"></div>
-                </div>
-            </div>
-            <button class="carousel-control-prev" type="button" id="reviewsPrev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Anterior</span>
-            </button>
-            <button class="carousel-control-next" type="button" id="reviewsNext">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Próximo</span>
-            </button>
-            <div class="reviews-dots" id="reviewsDots"></div>
-        </div>
-    </div>
     <style>
     .reviews-section{padding:80px 0;background:#f7f7f7}
     .reviews-title{font-size:2.2rem;font-weight:700;color:#1a1a1a;margin-bottom:10px}
