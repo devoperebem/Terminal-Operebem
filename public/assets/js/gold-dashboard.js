@@ -388,6 +388,14 @@
         + '<div class="row">'
         + '<div class="col-12">'
         + '<table class="table table-sm table-borderless mb-3 futures-table">'
+        + '<thead>'
+        + '<tr>'
+        + '<th class="text-muted small fw-normal" style="width: 60px;">Código</th>'
+        + '<th class="text-muted small fw-normal text-end" style="width: 90px;">Preço</th>'
+        + '<th class="text-muted small fw-normal text-end" style="width: 70px;">Var. %</th>'
+        + '<th class="text-muted small fw-normal text-end" style="width: 60px;">Hora</th>'
+        + '</tr>'
+        + '</thead>'
         + '<tbody>';
 
       // Adicionar linhas da tabela com tooltips
@@ -494,6 +502,14 @@
         + '<div class="row">'
         + '<div class="col-12">'
         + '<table class="table table-sm table-borderless mb-3 miners-table">'
+        + '<thead>'
+        + '<tr>'
+        + '<th class="text-muted small fw-normal" style="width: 60px;">Código</th>'
+        + '<th class="text-muted small fw-normal text-end" style="width: 90px;">Preço</th>'
+        + '<th class="text-muted small fw-normal text-end" style="width: 70px;">Var. %</th>'
+        + '<th class="text-muted small fw-normal text-end" style="width: 60px;">Hora</th>'
+        + '</tr>'
+        + '</thead>'
         + '<tbody>';
 
       // Adicionar linhas da tabela
