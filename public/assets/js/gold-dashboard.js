@@ -917,7 +917,7 @@
 
       var width = rect.width;
       var height = rect.height;
-      var padding = { top: 30, right: 30, bottom: 40, left: 55 };
+      var padding = { top: 10, right: 30, bottom: 40, left: 55 };
       var chartWidth = width - padding.left - padding.right;
       var chartHeight = height - padding.top - padding.bottom;
 
@@ -949,12 +949,6 @@
 
       // Limpar canvas
       ctx.clearRect(0, 0, width, height);
-
-      // Título
-      ctx.fillStyle = textColor;
-      ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Curva de Futuros (Term Structure)', width / 2, 18);
 
       // Desenhar grade horizontal
       ctx.strokeStyle = gridColor;
