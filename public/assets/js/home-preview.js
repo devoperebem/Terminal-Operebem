@@ -1,8 +1,12 @@
 (function(){
   const ENDPOINT = '/actions/quotes-public';
   let displayedIds = new Set();
+<<<<<<< HEAD
 
   // ========== FUNÇÕES COPIADAS DO BOOT.JS (DASHBOARD) ==========
+=======
+  // Removed Bootstrap tooltip initialization - using custom tooltip system from dashboard
+>>>>>>> e309dbefd2033b7e0f894e21fbc2c4069b23cfae
 
   function toNumber(text){
     const sraw = (text ?? '').toString().trim().replace(/\u2212/g, '-');
@@ -97,6 +101,44 @@
     return resp.json();
   }
 
+<<<<<<< HEAD
+=======
+  function buildRow(item){
+    const pcp = item.pcp ? item.pcp.toString() : '';
+    const pcpClean = pcp ? (pcp.includes('%') ? pcp : pcp + '%') : '';
+    const num = toNumber(pcpClean);
+    const displayPerc = (num !== null) ? `${num.toFixed(2)}%` : (pcpClean || '0.00%');
+    const { cls, color } = classFromPercent(num ?? 0);
+    const apelido = item.apelido || item.nome || item.code || '';
+    const id = item.id_api || item.code || '';
+    const tinfo = formatTimeInfo(item.timestamp);
+    const hora = tinfo.time;
+    const flag = flagFromItem(item);
+    const last = (item.last ?? '').toString().trim();
+    const abs = (item.pc ?? '').toString().trim();
+    const stMk = (item.status_mercado ?? '').toString().trim();
+    const nome = (item.nome ?? '').toString().trim();
+    const { desc: statusDesc, cls: statusCls } = statusBubble(stMk, item.status_hr);
+    const flagHtml = item.icone_bandeira ? `<span class="fi ${escapeAttr(item.icone_bandeira)} tooltip-target text-lg me-2" style="font-size: 13px" data-tooltip="${escapeAttr(item.bandeira || '')}"></span>` : `<span class="fi fi-${escapeAttr(flag)} me-2" style="font-size: 13px" data-tooltip="${escapeAttr(flag.toUpperCase())}"></span>`;
+    const statusHtml = `<div class="status-bubble ms-1 me-3 status_${escapeAttr(id)} ${statusCls}" data-tooltip="${escapeAttr(statusDesc)}"></div>`;
+    const nameHtml = `<span class="tooltip-target" data-tooltip="${escapeAttr(nome)}">${escapeAttr(apelido)}</span>`;
+
+    return `
+      <tr order="${item.order_tabela ?? ''}" data-id="${id}" style="font-weight:600 !important">
+        <td width="50%">
+          <div class="d-flex align-items-center">
+            ${statusHtml}
+            ${flagHtml}
+            ${nameHtml}
+          </div>
+        </td>
+        <td class="text-right vlr_field vlr_${escapeAttr(id)}" last="${escapeAttr(last)}"><span class="vlr-text">${escapeAttr(last)}</span></td>
+        <td class="text-right ${cls} perc_${escapeAttr(id)} tooltip-target perc" data-tooltip="${escapeAttr(abs || '')}" data-tooltip-color="${color}" style="font-weight:900 !important; color:${color} !important;">${displayPerc}</td>
+        <td class="text-right text-muted hr_${escapeAttr(id)} tooltip-target-left" data-tooltip="${escapeAttr(tinfo.full)}">${item.last ? escapeAttr(hora) : ''}</td>
+      </tr>`;
+  }
+
+>>>>>>> e309dbefd2033b7e0f894e21fbc2c4069b23cfae
   function renderHomeTables(dados){
     const byOrder = (a,b)=>{
       const oa = parseInt(a.order_tabela||'9999',10);
@@ -133,6 +175,10 @@
     }
 
     requestAnimationFrame(updateAveragesFromDom);
+<<<<<<< HEAD
+=======
+
+>>>>>>> e309dbefd2033b7e0f894e21fbc2c4069b23cfae
     displayedIds = new Set([ ...commodities, ...adrs ].map(i=> i.id_api || i.code).filter(Boolean));
   }
 
@@ -171,6 +217,51 @@
         if (color) {
           percTd.style.setProperty('color', color, 'important');
           percTd.setAttribute('data-tooltip-color', color);
+<<<<<<< HEAD
+=======
+        }
+      }
+    }
+
+    if (timeTd){
+      const info = formatTimeInfo(item.timestamp);
+      timeTd.textContent = item.last ? info.time : '';
+      timeTd.setAttribute('data-tooltip', info.full || '');
+    }
+
+    // Atualiza status bubble
+    try{
+      const bubble = document.querySelector(`.status_${CSS.escape ? CSS.escape(id) : escapeSelector(id)}`);
+      if (bubble){
+        const { desc, cls } = statusBubble(item.status_mercado, item.status_hr);
+        bubble.classList.remove('active','close','after-hours','pre-market');
+        if (cls) bubble.classList.add(cls);
+        bubble.setAttribute('data-tooltip', desc);
+      }
+    }catch{}
+
+    // suporte legado: preview-asset (se existir)
+    updatePreviewAssetLegacy(item);
+  }
+  function updatePreviewAssetLegacy(item){
+    const id = item.id_api || item.code;
+    if(!id) return;
+    const safeId = escapeSelector(id);
+    const el = document.querySelector(`.preview-asset[data-id="${CSS.escape ? CSS.escape(id) : safeId}"]`);
+    if(!el) return;
+    const lastEl = el.querySelector('.home-preview-last');
+    const percEl = el.querySelector('.home-preview-perc');
+
+    if (lastEl){
+      const oldText = (lastEl.textContent || '').trim();
+      const newText = (item.last ?? '').toString().trim();
+      if (oldText !== newText){
+        const prev = toNumber(oldText);
+        const next = toNumber(newText);
+        lastEl.textContent = newText;
+        if (prev !== null && next !== null && prev !== next){
+          flashNumber(lastEl, next > prev ? '#37ed00' : '#FF0000', 1500);
+>>>>>>> e309dbefd2033b7e0f894e21fbc2c4069b23cfae
         }
       }
     }
