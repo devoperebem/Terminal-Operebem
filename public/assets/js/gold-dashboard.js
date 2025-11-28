@@ -87,6 +87,30 @@
     } catch (_) { return '--'; }
   }
 
+  function formatFullDateTime(row) {
+    try {
+      var tz = getUserTimezone();
+      var date = null;
+      var tUtc = row && row.time_utc ? String(row.time_utc) : '';
+      var ts = row && row.timestamp ? row.timestamp : null;
+      if (tUtc) {
+        var norm = tUtc.replace(' UTC', 'Z');
+        var d1 = new Date(norm);
+        if (!isNaN(d1.getTime())) date = d1;
+      }
+      if (!date && (ts !== null && ts !== undefined && ts !== '')) {
+        var n = Number(ts);
+        if (!isNaN(n)) {
+          if (n < 1e12) n = n * 1000;
+          var d2 = new Date(n);
+          if (!isNaN(d2.getTime())) date = d2;
+        }
+      }
+      if (!date) return 'Data desconhecida';
+      return date.toLocaleString('pt-BR', { timeZone: tz });
+    } catch (_) { return 'Data desconhecida'; }
+  }
+
   function formatPercent(pct) {
     var num = toNumber(pct);
     if (num === null || isNaN(num)) return '--';
@@ -373,11 +397,12 @@
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
         var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
         var timeText = formatTime(fd.item);
+        var fullDate = formatFullDateTime(fd.item);
         html += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + fd.nome + '" style="width: 60px; cursor: help;">' + fd.code + '</td>'
           + '<td class="text-end" style="width: 90px;">' + fd.price + '</td>'
           + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + fd.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
-          + '<td class="text-end text-muted small" style="width: 60px;">' + timeText + '</td>'
+          + '<td class="text-end text-muted small has-tooltip" data-tooltip-text="' + fullDate + '" style="width: 60px; cursor: help;">' + timeText + '</td>'
           + '</tr>';
       }
 
@@ -478,11 +503,12 @@
         var cls = md.pct > 0 ? 'text-success' : (md.pct < 0 ? 'text-danger' : 'text-muted');
         var color = md.pct > 0 ? '#10b981' : (md.pct < 0 ? '#ef4444' : '');
         var timeText = formatTime(md.item);
+        var fullDate = formatFullDateTime(md.item);
         html += '<tr>'
           + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + md.nome + '" style="width: 60px; cursor: help;">' + md.code + '</td>'
           + '<td class="text-end" style="width: 90px;">' + md.price + '</td>'
           + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + md.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
-          + '<td class="text-end text-muted small" style="width: 60px;">' + timeText + '</td>'
+          + '<td class="text-end text-muted small has-tooltip" data-tooltip-text="' + fullDate + '" style="width: 60px; cursor: help;">' + timeText + '</td>'
           + '</tr>';
       }
 
