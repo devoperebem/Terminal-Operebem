@@ -1045,7 +1045,7 @@ $scripts = <<<'SCRIPTS'
 <script src="/sdk/captcha-sdk.js"></script>
 <script src="/assets/js/register-6steps.js"></script>
 <script src="/assets/js/index-interactive.js"></script>
-<script src="/assets/js/home-preview.js"></script>
+<script src="/assets/js/boot.js?v=<?= time() ?>"></script>
 <script src="/assets/js/home-websocket.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
