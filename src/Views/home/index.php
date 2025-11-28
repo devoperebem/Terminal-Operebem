@@ -337,12 +337,12 @@ html.all-black .hero-stat-icon {
                             <div class="card w-100 card_indices mb-3 sw_metais">
                                 <div class="card-header title-card">
                                     Commodities - Metais
-                                    <span class="media-percentage" id="media-metais"></span>
+                                    <span class="media-percentage" id="media-como-home"></span>
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="w-100">
                                         <table class="table mb-0">
-                                            <tbody class="tbody_metais"></tbody>
+                                            <tbody id="home_tbody_como"></tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -352,12 +352,12 @@ html.all-black .hero-stat-icon {
                             <div class="card w-100 card_indices mb-3 sw_adrs">
                                 <div class="card-header title-card">
                                     ADRs
-                                    <span class="media-percentage" id="media-adrs"></span>
+                                    <span class="media-percentage" id="media-adrs-home"></span>
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="w-100">
                                         <table class="table mb-0">
-                                            <tbody class="tbody_adrs"></tbody>
+                                            <tbody id="home_tbody_adrs"></tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -1043,7 +1043,7 @@ $scripts = <<<'SCRIPTS'
 <script src="/sdk/captcha-sdk.js"></script>
 <script src="/assets/js/register-6steps.js"></script>
 <script src="/assets/js/index-interactive.js"></script>
-<script src="/assets/js/boot.js?v=<?= time() ?>"></script>
+<script src="/assets/js/home-preview.js"></script>
 <script src="/assets/js/home-websocket.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){

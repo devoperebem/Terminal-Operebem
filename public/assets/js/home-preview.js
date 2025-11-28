@@ -268,6 +268,9 @@
     } catch (e) { /* silenciar */ }
   }
 
+  // Expose for home-websocket.js fallback
+  window.fetchSnapshotAndUpdate = firstLoad;
+
   document.addEventListener('DOMContentLoaded', function () {
     firstLoad();
     setInterval(updateLoop, 5000);
