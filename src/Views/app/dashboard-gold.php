@@ -81,15 +81,23 @@ html.all-black .correlation-info:hover {
   color: white;
 }
 
-/* Estilos para card de futuros */
-#gold_futures_grid .table td {
+/* Estilos para card de futuros e miners */
+#gold_futures_grid .table td,
+#gold_miners_grid .table td {
   padding: 0.4rem 0.5rem;
   vertical-align: middle;
 }
 
-#gold_futures_grid canvas {
+#gold_futures_grid canvas,
+#gold_miners_grid canvas {
   width: 100% !important;
   height: auto !important;
+}
+
+/* Garantir que os cards tenham a mesma altura */
+#gold_futures_grid .card,
+#gold_miners_grid .card {
+  height: 100%;
 }
 </style>
 
@@ -212,7 +220,10 @@ html.all-black .correlation-info:hover {
   </div>
 
   <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) -->
-  <div class="row g-3 px-2 px-md-3 mt-1" id="gold_futures_grid"></div>
+  <div class="row g-3 px-2 px-md-3 mt-1">
+    <div class="col-12 col-lg-6" id="gold_futures_grid"></div>
+    <div class="col-12 col-lg-6" id="gold_miners_grid"></div>
+  </div>
 
   <!-- Seção: Gráfico Principal do Ouro -->
   <div class="row g-3 px-2 px-md-3">

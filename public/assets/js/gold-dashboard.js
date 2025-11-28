@@ -257,6 +257,7 @@
       var data = json && json.data ? json.data : {};
       var futures = json && Array.isArray(json.futures) ? json.futures : [];
       var futuresAvg = json && json.futures_avg !== undefined ? json.futures_avg : null;
+      var goldMiners = json && Array.isArray(json.miners) ? json.miners : [];
 
       var gg = data.gold || null;
       var gg2 = data.gold2 || null;
@@ -283,6 +284,7 @@
       }
 
       renderFuturesGrid(futures, futuresAvg);
+      renderGoldMinersGrid(goldMiners);
     } catch (e) {
       // Manter valores anteriores
     }
@@ -345,12 +347,12 @@
 
       // Criar card único
       var card = document.createElement('div');
-      card.className = 'col-12';
+      card.className = '';
 
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
 
-      // HTML do card com tabela e gráficos lado a lado
-      var html = '<div class="card mb-4">'
+      // HTML do card com tabela e gráfico
+      var html = '<div class="card h-100">'
         + '<div class="card-body p-3">'
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
         + '<h6 class="mb-0 text-uppercase fw-bold">Futuros de Ouro</h6>'
@@ -360,8 +362,8 @@
         + '</div>'
         + '</div>'
         + '<div class="row">'
-        + '<div class="col-md-4">'
-        + '<table class="table table-sm table-borderless mb-0 futures-table">'
+        + '<div class="col-12">'
+        + '<table class="table table-sm table-borderless mb-3 futures-table">'
         + '<tbody>';
 
       // Adicionar linhas da tabela com tooltips
@@ -377,12 +379,8 @@
           + '</tr>';
       }
 
-      html += '</tbody></table></div>'
-        + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_chart" style="height: 450px;"></canvas>'
-        + '</div>'
-        + '<div class="col-md-4">'
-        + '<canvas id="gc_futures_curve" style="height: 450px;"></canvas>'
+      html += '</tbody></table>'
+        + '<canvas id="gc_futures_curve" style="height: 200px;"></canvas>'
         + '</div>'
         + '</div>'
         + '</div>'
@@ -396,14 +394,233 @@
         activateFuturesTooltips();
       }, 50);
 
-      // Renderizar gráficos após inserir no DOM
+      // Renderizar gráfico após inserir no DOM
       setTimeout(function () {
         window.__lastFuturesData = futuresData;
-        renderFuturesChart(futuresData);
         renderFuturesCurve(futuresData);
       }, 100);
 
     } catch (e) { console.error('renderFuturesGrid error:', e); }
+  }
+
+  // ============================================================================
+  // GRID GOLD MINERS - Card com gráfico TradingView
+  // ============================================================================
+  function renderGoldMinersGrid(items) {
+    try {
+      var wrap = document.getElementById('gold_miners_grid');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+
+      // Preparar dados
+      var minersData = [];
+      var totalPct = 0;
+      var countPct = 0;
+
+      (items || []).forEach(function (item) {
+        var pct = item ? toNumber(item.pcp ?? item.pc) : null;
+        var price = item ? (item.last ?? item.last_numeric ?? '--') : '--';
+        var code = item ? (item.code || item.Code || '--') : '--';
+        var nome = item ? (item.nome || item.Name || item.apelido || code) : code;
+
+        // Calcular variação nominal
+        var nominalChange = '--';
+        var lastNum = item ? toNumber(item.last ?? item.last_numeric) : null;
+        var closeNum = item ? toNumber(item.last_close) : null;
+        if (lastNum !== null && closeNum !== null) {
+          var change = lastNum - closeNum;
+          nominalChange = (change >= 0 ? '+' : '') + change.toFixed(2);
+        }
+
+        minersData.push({
+          code: code,
+          item: item,
+          pct: pct,
+          price: price,
+          nome: nome,
+          nominalChange: nominalChange
+        });
+
+        if (pct !== null) {
+          totalPct += pct;
+          countPct++;
+        }
+      });
+
+      // Calcular média de oscilação
+      var avgPct = countPct > 0 ? (totalPct / countPct) : null;
+      var avgPctText = avgPct !== null ? formatPercent(avgPct) : '--';
+
+      // Criar card único
+      var card = document.createElement('div');
+      card.className = '';
+
+      // HTML do card com tabela e gráfico TradingView
+      var html = '<div class="card h-100">'
+        + '<div class="card-body p-3">'
+        + '<div class="d-flex align-items-center justify-content-between mb-3">'
+        + '<h6 class="mb-0 text-uppercase fw-bold">Gold Miners</h6>'
+        + '<div class="d-flex gap-3">'
+        + '<div class="small text-muted">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="row">'
+        + '<div class="col-12">'
+        + '<table class="table table-sm table-borderless mb-3 miners-table">'
+        + '<tbody>';
+
+      // Adicionar linhas da tabela
+      for (var j = 0; j < minersData.length; j++) {
+        var md = minersData[j];
+        var pctText = md.pct !== null ? formatPercent(md.pct) : '--';
+        var cls = md.pct > 0 ? 'text-success' : (md.pct < 0 ? 'text-danger' : 'text-muted');
+        var color = md.pct > 0 ? '#10b981' : (md.pct < 0 ? '#ef4444' : '');
+        html += '<tr>'
+          + '<td class="fw-semibold has-tooltip" data-tooltip-text="' + md.nome + '" style="width: 60px; cursor: help;">' + md.code + '</td>'
+          + '<td class="text-end" style="width: 90px;">' + md.price + '</td>'
+          + '<td class="text-end fw-semibold ' + cls + ' has-tooltip" data-tooltip-text="' + md.nominalChange + '" style="width: 70px; cursor: help; color: ' + color + ' !important;">' + pctText + '</td>'
+          + '</tr>';
+      }
+
+      html += '</tbody></table>'
+        + '<div id="tv_gold_miners_widget" style="height: 200px;"></div>'
+        + '</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+
+      card.innerHTML = html;
+      wrap.appendChild(card);
+
+      // Ativar tooltips customizados
+      setTimeout(function () {
+        activateMinersTooltips();
+      }, 50);
+
+      // Renderizar gráfico TradingView após inserir no DOM
+      setTimeout(function () {
+        renderGoldMinersChart();
+      }, 100);
+
+    } catch (e) { console.error('renderGoldMinersGrid error:', e); }
+  }
+
+  // Ativar tooltips customizados para a tabela de gold miners
+  function activateMinersTooltips() {
+    try {
+      document.querySelectorAll('.miners-table .has-tooltip').forEach(function (el) {
+        var tooltipText = el.getAttribute('data-tooltip-text');
+        if (!tooltipText || tooltipText === '--' || tooltipText.trim() === '') return;
+
+        el.addEventListener('mouseenter', function (e) {
+          var existingTooltip = document.querySelector('.custom-tooltip');
+          if (existingTooltip) existingTooltip.remove();
+
+          var tooltip = document.createElement('div');
+          tooltip.className = 'custom-tooltip';
+          tooltip.textContent = tooltipText;
+          tooltip.style.cssText = 'position: fixed; background: rgba(0,0,0,0.9); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; z-index: 10000; pointer-events: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
+
+          document.body.appendChild(tooltip);
+
+          var rect = el.getBoundingClientRect();
+          var tooltipRect = tooltip.getBoundingClientRect();
+          var left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+          var windowWidth = window.innerWidth;
+          if (left < 10) left = 10;
+          if (left + tooltipRect.width > windowWidth - 10) {
+            left = windowWidth - tooltipRect.width - 10;
+          }
+
+          var top = rect.top - tooltipRect.height - 10;
+          if (top < 10) {
+            top = rect.bottom + 10;
+          }
+
+          tooltip.style.left = left + 'px';
+          tooltip.style.top = top + 'px';
+
+          el._customTooltip = tooltip;
+        });
+
+        el.addEventListener('mouseleave', function () {
+          if (el._customTooltip) {
+            el._customTooltip.remove();
+            el._customTooltip = null;
+          }
+        });
+      });
+    } catch (e) { console.error('activateMinersTooltips error:', e); }
+  }
+
+  // Renderizar gráfico TradingView do GDX
+  function renderGoldMinersChart() {
+    try {
+      var el = document.getElementById('tv_gold_miners_widget');
+      if (!el) return;
+      el.innerHTML = '';
+
+      var theme = getCurrentTheme();
+      var bgColor = theme === 'light' ? '#FFFFFF' : '#0F0F0F';
+
+      var wrapper = document.createElement('div');
+      wrapper.className = 'tradingview-widget-container';
+      wrapper.style.height = '100%';
+      wrapper.style.width = '100%';
+
+      var inner = document.createElement('div');
+      inner.className = 'tradingview-widget-container__widget';
+      inner.style.height = 'calc(100% - 32px)';
+      inner.style.width = '100%';
+      wrapper.appendChild(inner);
+
+      var copyright = document.createElement('div');
+      copyright.className = 'tradingview-widget-copyright';
+      copyright.innerHTML = '<a href="https://br.tradingview.com/symbols/AMEX-GDX/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a>';
+      wrapper.appendChild(copyright);
+
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+      script.async = true;
+
+      var config = {
+        allow_symbol_change: false,
+        calendar: false,
+        details: false,
+        hide_side_toolbar: true,
+        hide_top_toolbar: true,
+        hide_legend: false,
+        hide_volume: true,
+        hotlist: false,
+        interval: "15",
+        locale: "br",
+        save_image: false,
+        style: "3",
+        symbol: "AMEX:GDX",
+        theme: theme,
+        timezone: "Etc/UTC",
+        backgroundColor: bgColor,
+        gridColor: "rgba(242, 242, 242, 0)",
+        watchlist: [],
+        withdateranges: false,
+        compareSymbols: [
+          {
+            symbol: "TVC:GOLD",
+            position: "NewPriceScale"
+          }
+        ],
+        studies: [],
+        autosize: true
+      };
+
+      script.innerHTML = JSON.stringify(config);
+      wrapper.appendChild(script);
+      el.appendChild(wrapper);
+      incPending();
+      script.onload = function () { setTimeout(decPending, 800); };
+      script.onerror = function () { decPending(); };
+    } catch (e) { console.error('renderGoldMinersChart error:', e); }
   }
 
   // Ativar tooltips customizados para a tabela de futuros
