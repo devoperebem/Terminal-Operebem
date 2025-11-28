@@ -415,7 +415,10 @@
       }
 
       html += '</tbody></table>'
-        + '<canvas id="gc_futures_curve" style="height: 200px;"></canvas>'
+        + '<div class="mb-2">'
+        + '<div class="text-center text-muted small fw-semibold">Curva de Futuros (Term Structure)</div>'
+        + '</div>'
+        + '<canvas id="gc_futures_curve" style="height: 180px;"></canvas>'
         + '</div>'
         + '</div>'
         + '</div>'
@@ -482,9 +485,22 @@
         }
       });
 
-      // Calcular média de oscilação
+      // Calcular média de oscilação e preço
       var avgPct = countPct > 0 ? (totalPct / countPct) : null;
       var avgPctText = avgPct !== null ? formatPercent(avgPct) : '--';
+
+      // Calcular média de preço
+      var totalPrice = 0;
+      var countPrice = 0;
+      for (var i = 0; i < minersData.length; i++) {
+        var priceNum = toNumber(minersData[i].price);
+        if (priceNum !== null) {
+          totalPrice += priceNum;
+          countPrice++;
+        }
+      }
+      var avgPrice = countPrice > 0 ? (totalPrice / countPrice) : null;
+      var avgPriceText = avgPrice !== null ? avgPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
 
       // Criar card único
       var card = document.createElement('div');
@@ -496,6 +512,7 @@
         + '<div class="d-flex align-items-center justify-content-between mb-3">'
         + '<h6 class="mb-0 text-uppercase fw-bold">Gold Miners</h6>'
         + '<div class="d-flex gap-3">'
+        + '<div class="small text-muted">Média Preço: <span class="fw-semibold">' + avgPriceText + '</span></div>'
         + '<div class="small text-muted">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></div>'
         + '</div>'
         + '</div>'
@@ -529,7 +546,10 @@
       }
 
       html += '</tbody></table>'
-        + '<div id="tv_gold_miners_widget" style="height: 300px;"></div>'
+        + '<div class="mb-2">'
+        + '<div class="text-center text-muted small fw-semibold">GDX vs GOLD</div>'
+        + '</div>'
+        + '<div id="tv_gold_miners_widget" style="height: 280px;"></div>'
         + '</div>'
         + '</div>'
         + '</div>'
