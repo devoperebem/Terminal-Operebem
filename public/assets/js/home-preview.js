@@ -76,6 +76,9 @@
     const ex = exchangeCodeForItem(item);
     const statusHtml = `<div class="status-bubble ms-1 me-3 status_${itemKey}" data-exchange="${escapeAttr(ex)}" data-code="${escapeAttr(item.code || item.id_api || '')}"></div>`;
     const flagHtml = item.icone_bandeira ? `<span class="fi ${escapeAttr(item.icone_bandeira)} tooltip-target text-lg me-2" style="font-size: 13px" data-tooltip="${escapeAttr(item.bandeira || '')}"></span>` : '';
+
+    console.log(`🚩 FLAG HTML for ${item.apelido}: icone_bandeira="${item.icone_bandeira}" → HTML: ${flagHtml}`);
+
     const cleanApelido = (item.apelido || '').replace(/\s*\(CFD\)\s*/gi, '').trim();
     const cleanNome = (item.nome || '').replace(/\s*\(CFD\)\s*/gi, '').trim();
     const nameHtml = `<span class="tooltip-target" data-tooltip="${escapeAttr(cleanNome)}">${escapeAttr(cleanApelido)}</span>`;
