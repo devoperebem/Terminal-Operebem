@@ -327,48 +327,6 @@ html.all-black .hero-stat-icon {
                                 <div class="hero-stat-label">Sem cartão de crédito</div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="hero-visual">
-                    <div class="row g-3 home-preview-cards">
-                        <div class="col-12">
-                            <div class="card w-100 card_indices mb-3 sw_metais">
-                                <div class="card-header title-card">
-                                    Commodities - Metais
-                                    <span class="media-percentage" id="media-metais"></span>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="w-100">
-                                        <table class="table mb-0">
-                                            <tbody class="tbody_metais"></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="card w-100 card_indices mb-3 sw_adrs">
-                                <div class="card-header title-card">
-                                    ADRs
-                                    <span class="media-percentage" id="media-adrs"></span>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="w-100">
-                                        <table class="table mb-0">
-                                            <tbody class="tbody_adrs"></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Features Section -->
 <section id="features" class="features-section">
@@ -1036,20 +994,6 @@ html.all-black .hero-stat-icon {
         </div>
     </div>
 </div>
-
-<?php
-$content = ob_get_clean();
-$scripts = <<<'SCRIPTS'
-<script src="/sdk/captcha-sdk.js"></script>
-<script src="/assets/js/register-6steps.js"></script>
-<script src="/assets/js/index-interactive.js"></script>
-<script src="/assets/js/boot.js?v=<?= time() ?>"></script>
-<script src="/assets/js/home-websocket.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    var iso = document.getElementById('iso27001Stat');
-    if (iso) {
-        iso.style.cursor = 'pointer';
         iso.addEventListener('click', function(){
             try {
                 var m = new bootstrap.Modal(document.getElementById('iso27001Modal'));
