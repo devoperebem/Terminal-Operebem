@@ -219,12 +219,6 @@ html.all-black .correlation-info:hover {
     </div>
   </div>
 
-  <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) -->
-  <div class="row g-3 px-2 px-md-3 mt-1">
-    <div class="col-12 col-lg-6" id="gold_futures_grid"></div>
-    <div class="col-12 col-lg-6" id="gold_miners_grid"></div>
-  </div>
-
   <!-- Seção: Gráfico Principal do Ouro -->
   <div class="row g-3 px-2 px-md-3">
     <div class="col-12">
@@ -234,6 +228,12 @@ html.all-black .correlation-info:hover {
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
+  <div class="row g-3 px-2 px-md-3 mt-3">
+    <div class="col-12 col-lg-6" id="gold_futures_grid"></div>
+    <div class="col-12 col-lg-6" id="gold_miners_grid"></div>
   </div>
 
   <!-- Seção: Comparações e Razões -->
