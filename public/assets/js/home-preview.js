@@ -23,10 +23,13 @@
     return Number.isFinite(n) ? n : null;
   }
 
-  function classFromPercent(num) {
-    if (num > 0) return { cls: 'text-success', color: '#37ed00' };
-    if (num < 0) return { cls: 'text-danger', color: '#FF0000' };
-    return { cls: 'text-neutral', color: '#000000' };
+  function classFromPercent(numPerc) {
+    if (numPerc > 0) return { cls: 'text-success', color: '#37ed00' };
+    if (numPerc < 0) return { cls: 'text-danger', color: '#FF0000' };
+    // Zero: cor depende do tema
+    var html = document.documentElement;
+    var isDark = !!(html && html.classList && (html.classList.contains('dark-blue') || html.classList.contains('all-black')));
+    return { cls: 'text-neutral', color: isDark ? '#ffffff' : '#000000' };
   }
 
   function escapeAttr(val) {
@@ -60,7 +63,7 @@
     try {
       const d = new Date(parseInt(ts, 10) * 1000);
       const tz = (typeof window !== 'undefined' && window.USER_TIMEZONE) ? window.USER_TIMEZONE : 'America/Sao_Paulo';
-      const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz });
+      const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: tz });
       const full = d.toLocaleString('pt-BR', { hour12: false, timeZone: tz });
       return { time, full };
     } catch {
@@ -252,6 +255,18 @@
     try {
       const res = await fetchListar();
       const dados = res.data || [];
+
+      // Apply Rio Tinto fix (match boot.js)
+      const nx = s => (s || '').toString().toLowerCase();
+      dados.forEach(item => {
+        const name = nx(item.apelido) || nx(item.nome);
+        const code = (item.code || '').toString().toUpperCase();
+        if ((name.includes('rio') && name.includes('tinto')) || code === 'RIO' || code === 'RIO.AX') {
+          item.icone_bandeira = 'fi-au';
+          item.bandeira = 'Sydney';
+        }
+      });
+
       renderHomeTables(dados);
     } catch (e) {
       console.error('Error loading home quotes:', e);
