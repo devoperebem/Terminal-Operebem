@@ -3133,3 +3133,53 @@ html.all-black .password-strength-meter {
     display: none;
   }
 }
+
+/* Fix for homepage status tooltips */
+.market-status-tip .tooltip-inner {
+    background-color: #fff;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 0;
+    max-width: 320px;
+    text-align: left;
+    border-radius: 8px;
+}
+.market-status-tip .tooltip-arrow::before {
+    border-top-color: #fff;
+}
+.snap-tip {
+    padding: 12px;
+}
+.snap-head {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #888;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.snap-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 8px;
+}
+.snap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+.snap-grid .lbl {
+    display: block;
+    font-size: 0.7rem;
+    color: #888;
+}
+.snap-grid .val {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+}

@@ -261,10 +261,19 @@
       dados.forEach(item => {
         const name = nx(item.apelido) || nx(item.nome);
         const code = (item.code || '').toString().toUpperCase();
+
         if ((name.includes('rio') && name.includes('tinto')) || code === 'RIO' || code === 'RIO.AX') {
           item.icone_bandeira = 'fi-au';
           item.bandeira = 'Sydney';
         }
+
+        // Manual flags for ADRs (ensure they show up)
+        if (name.includes('vale') || code === 'VALE') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
+        if (name.includes('petrobras') || code === 'PBR' || code === 'PBR.A') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
+        if (name.includes('itau') || code === 'ITUB') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
+        if (name.includes('bradesco') || code === 'BBD') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
+        if (name.includes('santander') || code === 'BSBR') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
+        if (name.includes('ambev') || code === 'ABEV') { item.icone_bandeira = 'fi-br'; item.bandeira = 'Brasil'; }
       });
 
       renderHomeTables(dados);
