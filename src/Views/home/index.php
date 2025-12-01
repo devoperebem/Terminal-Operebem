@@ -4,6 +4,18 @@ ob_start();
 ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
 <style>
+/* Garantir que tooltips tenham background (fix para transparência nas tabelas home) */
+html.light .tooltip .tooltip-inner {
+    background: rgba(22, 27, 34, 0.92) !important;
+    color: #fff !important;
+}
+html.dark-blue .tooltip .tooltip-inner,
+html.all-black .tooltip .tooltip-inner {
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #0b1220 !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Esconder copyright do TradingView */
 .tradingview-widget-copyright { display: none !important; }
 
