@@ -7,26 +7,26 @@ ob_start();
 /* Fix para tooltips customizadas (::after) na homepage - GARANTIR OPACIDADE */
 /* Tooltips da % e do horário */
 
-/* Tema CLARO - tooltip ESCURA (fundo escuro, texto branco) */
+/* Tema CLARO - tooltip CLARA (fundo claro, texto escuro) */
 html.light .home-preview-cards .tooltip-target:hover::after,
 html.light .home-preview-cards .tooltip-target-left:hover::after,
 .home-preview-cards .tooltip-target:hover::after,
 .home-preview-cards .tooltip-target-left:hover::after {
-    background-color: rgba(22, 27, 34, 0.95) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    color: #0b1220 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
     opacity: 1 !important;
 }
 
-/* Temas ESCUROS - tooltip CLARA (fundo claro, texto escuro) */
+/* Temas ESCUROS - tooltip ESCURA (fundo escuro, texto claro) */
 html.dark-blue .home-preview-cards .tooltip-target:hover::after,
 html.dark-blue .home-preview-cards .tooltip-target-left:hover::after,
 html.all-black .home-preview-cards .tooltip-target:hover::after,
 html.all-black .home-preview-cards .tooltip-target-left:hover::after {
-    background-color: rgba(255, 255, 255, 0.98) !important;
-    color: #0b1220 !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background-color: rgba(22, 27, 34, 0.95) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
     opacity: 1 !important;
 }
