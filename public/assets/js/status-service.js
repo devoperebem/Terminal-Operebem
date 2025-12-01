@@ -110,10 +110,16 @@
   function applyEl(el){
     try{
       var code=(el.getAttribute('data-exchange')||'').toUpperCase();
-      if(!code)return;
+      console.log('[status-service] applyEl - code:', code);
+      if(!code){
+        console.warn('[status-service] No code found');
+        return;
+      }
       var ex=byCode[code];
       var st=(code==='CRYPTO')?'open':(ex&&ex.calculated_status)||'closed';
+      console.log('[status-service] code:', code, 'ex:', ex, 'status:', st);
       var m=mapClsDesc(st);
+      console.log('[status-service] Applying class:', m.c, 'desc:', m.d);
       el.classList.remove('active','pre-market','after-hours','close');
       el.classList.add(m.c);
       el.style.cursor='pointer';
@@ -352,29 +358,43 @@
       }
     }catch(e){}
   }
-  function refreshAll(){document.querySelectorAll('.status-bubble[data-exchange]').forEach(applyEl)}
+  function refreshAll(){
+    var bubbles = document.querySelectorAll('.status-bubble[data-exchange]');
+    console.log('[status-service] refreshAll - found', bubbles.length, 'bubbles');
+    bubbles.forEach(applyEl);
+  }
 
   // Expose functions for external calls (e.g., from home-preview.js)
   window.__statusServiceRefresh = function() {
+    console.log('[status-service] __statusServiceRefresh called, byCode keys:', Object.keys(byCode).length);
     // If we already have data (byCode), just refresh the UI
     if (Object.keys(byCode).length > 0) {
+      console.log('[status-service] Using cached data');
       refreshAll();
     } else {
       // Otherwise, pull data first then refresh
+      console.log('[status-service] Pulling data from API');
       pull();
     }
   };
 
   async function pull(){
     try{
+      console.log('[status-service] Fetching /api/market-clock/all');
       var r=await fetch('/api/market-clock/all');
       if(r && r.ok){
         var j=await r.json();
+        console.log('[status-service] API response:', j);
         var arr=(j&&j.data)||[];var m={};
         for(var i=0;i<arr.length;i++){var ex=arr[i];if(ex&&ex.exchange_code){m[(ex.exchange_code||'').toUpperCase()]=ex}}
         byCode=m;
+        console.log('[status-service] Loaded', Object.keys(byCode).length, 'exchanges:', Object.keys(byCode));
+      } else {
+        console.error('[status-service] API returned', r.status);
       }
-    }catch(e){}
+    }catch(e){
+      console.error('[status-service] Error fetching API:', e);
+    }
     try{ refreshAll(); }catch(_){ }
   }
   function align(){try{var n=new Date();var ms=((5-(n.getMinutes()%5))%5)*60000 - n.getSeconds()*1000 - n.getMilliseconds();var d=ms<=0?0:ms;setTimeout(function(){pull();setInterval(pull,300000)},d)}catch(e){}

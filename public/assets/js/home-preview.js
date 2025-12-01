@@ -168,8 +168,17 @@
 
     // Notify status-service.js to refresh status bubbles
     setTimeout(() => {
+      console.log('[home-preview] Checking for status bubbles...');
+      var bubbles = document.querySelectorAll('.status-bubble[data-exchange]');
+      console.log('[home-preview] Found', bubbles.length, 'status bubbles');
+      bubbles.forEach(function(b) {
+        console.log('[home-preview] Bubble:', b, 'exchange:', b.getAttribute('data-exchange'));
+      });
       if (window.__statusServiceRefresh) {
+        console.log('[home-preview] Calling __statusServiceRefresh');
         window.__statusServiceRefresh();
+      } else {
+        console.warn('[home-preview] __statusServiceRefresh not available!');
       }
     }, 100);
   }
