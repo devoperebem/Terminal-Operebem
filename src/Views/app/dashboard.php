@@ -17,6 +17,8 @@ ob_start();
 
 <meta name="user-advanced-snapshot" content="<?= $advanced_snapshot ? '1' : '0' ?>">
 
+<?php include __DIR__ . '/../partials/market-status-tooltip-styles.php'; ?>
+
 <style>
 /* Esconder copyright do TradingView */
 .tradingview-widget-copyright { display: none !important; }

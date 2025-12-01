@@ -2,6 +2,7 @@
 ob_start();
 // $csrf_token é fornecido pelo BaseController->view(); não regenerar aqui para evitar inconsistências de CSRF durante o fluxo multi-step
 ?>
+<?php include __DIR__ . '/../partials/market-status-tooltip-styles.php'; ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
 <style>
 /* Fix para tooltips customizadas (::after) na homepage - GARANTIR OPACIDADE */
