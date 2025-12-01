@@ -168,21 +168,19 @@
     displayedIds = new Set([...commodities, ...adrs].map(i => i.id_api || i.code).filter(Boolean));
 
     // Notify status-service.js to refresh status bubbles
-    // IMPORTANTE: Aguardar mais tempo para garantir que AMBOS os cards (Commodities E ADRs) sejam renderizados
-    setTimeout(() => {
-      console.log('[home-preview] Checking for status bubbles...');
-      var bubbles = document.querySelectorAll('.status-bubble[data-exchange]');
-      console.log('[home-preview] Found', bubbles.length, 'status bubbles');
-      bubbles.forEach(function (b) {
-        console.log('[home-preview] Bubble:', b, 'exchange:', b.getAttribute('data-exchange'));
-      });
-      if (window.__statusServiceRefresh) {
-        console.log('[home-preview] Calling __statusServiceRefresh');
-        window.__statusServiceRefresh();
-      } else {
-        console.warn('[home-preview] __statusServiceRefresh not available!');
-      }
-    }, 300); // Aumentado de 100ms para 300ms para garantir renderização completa
+    // IMPORTANTE: Chamar múltiplas vezes para garantir que AMBOS os cards sejam processados
+    // Alguns navegadores podem renderizar os cards em momentos diferentes
+    const refreshAttempts = [100, 300, 500]; // Tentar em 100ms, 300ms e 500ms
+    refreshAttempts.forEach(delay => {
+      setTimeout(() => {
+        console.log(`[home-preview] Refresh attempt at ${delay}ms`);
+        var bubbles = document.querySelectorAll('.status-bubble[data-exchange]');
+        console.log('[home-preview] Found', bubbles.length, 'status bubbles');
+        if (window.__statusServiceRefresh) {
+          window.__statusServiceRefresh();
+        }
+      }, delay);
+    });
   }
 
   function escapeSelector(selector) {
