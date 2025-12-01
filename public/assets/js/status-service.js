@@ -353,6 +353,18 @@
     }catch(e){}
   }
   function refreshAll(){document.querySelectorAll('.status-bubble[data-exchange]').forEach(applyEl)}
+
+  // Expose functions for external calls (e.g., from home-preview.js)
+  window.__statusServiceRefresh = function() {
+    // If we already have data (byCode), just refresh the UI
+    if (Object.keys(byCode).length > 0) {
+      refreshAll();
+    } else {
+      // Otherwise, pull data first then refresh
+      pull();
+    }
+  };
+
   async function pull(){
     try{
       var r=await fetch('/api/market-clock/all');

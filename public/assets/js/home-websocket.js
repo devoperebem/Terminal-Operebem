@@ -129,6 +129,13 @@
                 timeTd.classList.add('tooltip-target-left');
                 timeTd.setAttribute('data-tooltip', info.full || '');
             }
+
+            // Notify status-service.js that this row was updated (same as boot.js)
+            try {
+                window.dispatchEvent(new CustomEvent('dashboardRowUpdated', {
+                    detail: { id: key }
+                }));
+            } catch(_) {}
         }
     }
 

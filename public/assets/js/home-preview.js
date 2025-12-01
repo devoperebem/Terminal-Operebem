@@ -165,6 +165,13 @@
 
     requestAnimationFrame(updateAveragesFromDom);
     displayedIds = new Set([...commodities, ...adrs].map(i => i.id_api || i.code).filter(Boolean));
+
+    // Notify status-service.js to refresh status bubbles
+    setTimeout(() => {
+      if (window.__statusServiceRefresh) {
+        window.__statusServiceRefresh();
+      }
+    }, 100);
   }
 
   function escapeSelector(selector) {
