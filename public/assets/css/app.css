@@ -209,8 +209,9 @@ html.all-black .tooltip.bs-tooltip-end .tooltip-arrow::before {
 }
 
 /* Home preview: garantir que não haja fundo no TD (somente o texto muda de cor) */
+/* EXCETO elementos .fi (flag-icons) que precisam do background-image para mostrar bandeiras */
 .home-preview-cards td,
-.home-preview-cards td * {
+.home-preview-cards td *:not(.fi) {
     background-color: transparent !important;
     background-image: none !important;
     box-shadow: none !important;
