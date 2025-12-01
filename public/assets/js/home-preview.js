@@ -48,6 +48,7 @@
     if (b.includes('NYMEX')) return 'XNYM';
     if (b.includes('CBOT')) return 'XCBT';
     if (b.includes('EUREX')) return 'XEUR';
+    if (b.includes('ICE')) return 'IFUS'; // ICE Futures US (Coffee, Brent Oil, etc.)
     if (b.includes('LSE') || b.includes('London')) return 'XLON';
     if (b.includes('B3') || b.includes('BOVESPA')) return 'BVMF';
     if (b.includes('Euronext')) return 'XPAR';
@@ -171,7 +172,7 @@
       console.log('[home-preview] Checking for status bubbles...');
       var bubbles = document.querySelectorAll('.status-bubble[data-exchange]');
       console.log('[home-preview] Found', bubbles.length, 'status bubbles');
-      bubbles.forEach(function(b) {
+      bubbles.forEach(function (b) {
         console.log('[home-preview] Bubble:', b, 'exchange:', b.getAttribute('data-exchange'));
       });
       if (window.__statusServiceRefresh) {

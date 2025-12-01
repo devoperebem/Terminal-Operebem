@@ -118,6 +118,7 @@ function cryptoSlugFrom(item) {
     if (s.includes('mexico') || s.includes('bmv')) return 'XMEX';
     if (s.includes('johannesburg') || s.includes('jse')) return 'XJSE';
     if (s.includes('milan') || s.includes('borsa italiana') || s.includes('mib')) return 'XMIL';
+    if (s.includes('ice')) return 'IFUS'; // ICE Futures US (Coffee, Brent Oil, etc.)
     return null;
   }
 
