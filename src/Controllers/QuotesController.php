@@ -157,8 +157,8 @@ class QuotesController
             }
             $avg = $cnt > 0 ? round($sum / $cnt, 2) : null;
 
-            // Gold Miners: AEM, Barrick (B), NEM, WPM
-            $minersIds = ['13930', '13928', '8150', '8111'];
+            // Gold Miners: AEM, Barrick (B), NEM, WPM + GDX variants (ASX, LSE, NYSE)
+            $minersIds = ['13930', '13928', '8150', '8111', '962168', '956297', '40681'];
             $miners = [];
             try {
                 $mn = $this->quotesService->getByIdsOrCodes($minersIds);
