@@ -285,7 +285,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!el.hasAttribute('title')) el.setAttribute('title', text);
                 el.setAttribute('data-bs-toggle', 'tooltip');
                 if (!el.hasAttribute('data-bs-placement')) {
-                    el.setAttribute('data-bs-placement', el.classList.contains('tooltip-target-left') ? 'left' : 'top');
+                    // Sempre usar placement 'top' para consistência visual
+                    el.setAttribute('data-bs-placement', 'top');
                 }
             }
         });
