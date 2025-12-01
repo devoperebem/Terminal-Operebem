@@ -4,22 +4,27 @@ ob_start();
 ?>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
 <style>
-/* Garantir que tooltips tenham background (fix para transparência nas tabelas home) */
-/* Especificidade aumentada para sobrepor qualquer outro CSS */
-body html.light .tooltip .tooltip-inner,
-html.light body .tooltip .tooltip-inner {
-    background: rgba(22, 27, 34, 0.92) !important;
-    color: #fff !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+/* Fix para tooltips customizadas (::after) na homepage - GARANTIR OPACIDADE */
+/* Tooltips da % e do horário */
+.home-preview-cards .tooltip-target:hover::after,
+.home-preview-cards .tooltip-target-left:hover::after {
+    background-color: rgba(22, 27, 34, 0.95) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+    opacity: 1 !important;
 }
-body html.dark-blue .tooltip .tooltip-inner,
-body html.all-black .tooltip .tooltip-inner,
-html.dark-blue body .tooltip .tooltip-inner,
-html.all-black body .tooltip .tooltip-inner {
-    background: rgba(255, 255, 255, 0.96) !important;
+
+/* Temas escuros - tooltips customizadas */
+html.dark-blue .home-preview-cards .tooltip-target:hover::after,
+html.dark-blue .home-preview-cards .tooltip-target-left:hover::after,
+html.all-black .home-preview-cards .tooltip-target:hover::after,
+html.all-black .home-preview-cards .tooltip-target-left:hover::after {
+    background-color: rgba(255, 255, 255, 0.98) !important;
     color: #0b1220 !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+    opacity: 1 !important;
 }
 
 /* Esconder copyright do TradingView */
