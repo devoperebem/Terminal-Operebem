@@ -5,15 +5,21 @@ ob_start();
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
 <style>
 /* Garantir que tooltips tenham background (fix para transparência nas tabelas home) */
-html.light .tooltip .tooltip-inner {
+/* Especificidade aumentada para sobrepor qualquer outro CSS */
+body html.light .tooltip .tooltip-inner,
+html.light body .tooltip .tooltip-inner {
     background: rgba(22, 27, 34, 0.92) !important;
     color: #fff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
-html.dark-blue .tooltip .tooltip-inner,
-html.all-black .tooltip .tooltip-inner {
+body html.dark-blue .tooltip .tooltip-inner,
+body html.all-black .tooltip .tooltip-inner,
+html.dark-blue body .tooltip .tooltip-inner,
+html.all-black body .tooltip .tooltip-inner {
     background: rgba(255, 255, 255, 0.96) !important;
     color: #0b1220 !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Esconder copyright do TradingView */
