@@ -101,7 +101,7 @@ function cryptoSlugFrom(item) {
     const s = (b || '').toString().toLowerCase();
     if (!s) return null;
     if (s.includes('b3') || s.includes('sao paulo') || s.includes('são paulo')) return 'XBSP';
-    if (s.includes('nyse')) return 'XNYS';
+    if (s.includes('nyse') || s.includes('xnys')) return 'XNYS';
     if (s.includes('nasdaq')) return 'XNAS';
     if (s.includes('london') || s.includes('lse')) return 'XLON';
     if (s.includes('xetra') || s.includes('frankfurt') || s.includes('fwb')) return 'XETR';
@@ -118,6 +118,7 @@ function cryptoSlugFrom(item) {
     if (s.includes('mexico') || s.includes('bmv')) return 'XMEX';
     if (s.includes('johannesburg') || s.includes('jse')) return 'XJSE';
     if (s.includes('milan') || s.includes('borsa italiana') || s.includes('mib')) return 'XMIL';
+    if (s.includes('xcbt') || s.includes('cbot')) return 'XCBT'; // Chicago Board of Trade
     if (s.includes('ice')) return 'IFUS'; // ICE Futures US (Coffee, Brent Oil, etc.)
     return null;
   }

@@ -46,7 +46,7 @@
     if (b.includes('CME')) return 'XCME';
     if (b.includes('COMEX')) return 'XCEC';
     if (b.includes('NYMEX')) return 'XNYM';
-    if (b.includes('CBOT')) return 'XCBT';
+    if (b.includes('CBOT') || b.includes('XCBT')) return 'XCBT'; // Chicago Board of Trade
     if (b.includes('EUREX')) return 'XEUR';
     if (b.includes('ICE')) return 'IFUS'; // ICE Futures US (Coffee, Brent Oil, etc.)
     if (b.includes('LSE') || b.includes('London')) return 'XLON';
