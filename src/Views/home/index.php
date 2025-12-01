@@ -6,6 +6,10 @@ ob_start();
 <style>
 /* Fix para tooltips customizadas (::after) na homepage - GARANTIR OPACIDADE */
 /* Tooltips da % e do horário */
+
+/* Tema CLARO - tooltip ESCURA (fundo escuro, texto branco) */
+html.light .home-preview-cards .tooltip-target:hover::after,
+html.light .home-preview-cards .tooltip-target-left:hover::after,
 .home-preview-cards .tooltip-target:hover::after,
 .home-preview-cards .tooltip-target-left:hover::after {
     background-color: rgba(22, 27, 34, 0.95) !important;
@@ -15,7 +19,7 @@ ob_start();
     opacity: 1 !important;
 }
 
-/* Temas escuros - tooltips customizadas */
+/* Temas ESCUROS - tooltip CLARA (fundo claro, texto escuro) */
 html.dark-blue .home-preview-cards .tooltip-target:hover::after,
 html.dark-blue .home-preview-cards .tooltip-target-left:hover::after,
 html.all-black .home-preview-cards .tooltip-target:hover::after,
