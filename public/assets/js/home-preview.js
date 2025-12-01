@@ -168,6 +168,7 @@
     displayedIds = new Set([...commodities, ...adrs].map(i => i.id_api || i.code).filter(Boolean));
 
     // Notify status-service.js to refresh status bubbles
+    // IMPORTANTE: Aguardar mais tempo para garantir que AMBOS os cards (Commodities E ADRs) sejam renderizados
     setTimeout(() => {
       console.log('[home-preview] Checking for status bubbles...');
       var bubbles = document.querySelectorAll('.status-bubble[data-exchange]');
@@ -181,7 +182,7 @@
       } else {
         console.warn('[home-preview] __statusServiceRefresh not available!');
       }
-    }, 100);
+    }, 300); // Aumentado de 100ms para 300ms para garantir renderização completa
   }
 
   function escapeSelector(selector) {
