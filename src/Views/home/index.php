@@ -2,7 +2,7 @@
 ob_start();
 // $csrf_token é fornecido pelo BaseController->view(); não regenerar aqui para evitar inconsistências de CSRF durante o fluxo multi-step
 ?>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
 <style>
 /* Esconder copyright do TradingView */
 .tradingview-widget-copyright { display: none !important; }
