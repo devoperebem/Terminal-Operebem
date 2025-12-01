@@ -107,7 +107,8 @@ class SecurityHeadersMiddleware
             
             // style-src: fontes permitidas para CSS
             // 'unsafe-inline' = necessário para Bootstrap e estilos inline
-            "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net https://cdn.jsdelivr.net fonts.googleapis.com",
+            // data: = necessário para flag-icons SVG inline
+            "style-src 'self' 'unsafe-inline' data: cdn.jsdelivr.net https://cdn.jsdelivr.net fonts.googleapis.com",
             
             // font-src: fontes permitidas para web fonts
             "font-src 'self' cdn.jsdelivr.net https://cdn.jsdelivr.net fonts.gstatic.com data:",

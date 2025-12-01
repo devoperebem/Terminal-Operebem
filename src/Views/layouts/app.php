@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://cdn.sheetjs.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
+
     <script src="/assets/js/app-head.js"></script>
 
     <!-- Bootstrap 5 -->
