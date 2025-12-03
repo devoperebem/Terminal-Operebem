@@ -428,13 +428,16 @@
               }
             },
             y: {
+              beginAtZero: false,
+              grace: '10%',
               grid: {
-                color: 'rgba(200, 200, 200, 0.2)'
+                color: 'rgba(200, 200, 200, 0.2)',
+                borderDash: [5, 5]
               },
               ticks: {
-                font: { size: 11 },
+                font: { size: 10 },
                 callback: function (value) {
-                  return value.toFixed(2);
+                  return '$' + value.toFixed(2);
                 }
               }
             }
