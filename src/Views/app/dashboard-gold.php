@@ -232,8 +232,37 @@ html.all-black .correlation-info:hover {
 
   <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
   <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-lg-6" id="gold_futures_grid"></div>
-    <div class="col-12 col-lg-6" id="gold_miners_grid"></div>
+    <div class="col-12 col-lg-6">
+      <div class="card w-100 card_indices mb-3">
+        <div class="card-header title-card">
+          Futuros de Ouro
+          <span class="media-percentage" id="media-futuros-ouro"></span>
+        </div>
+        <div class="card-body p-0">
+          <div class="w-100">
+            <table class="table mb-0">
+              <tbody class="tbody_futuros_ouro"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-lg-6">
+      <div class="card w-100 card_indices mb-3">
+        <div class="card-header title-card">
+          Gold Miners
+          <span class="media-percentage" id="media-gold-miners"></span>
+        </div>
+        <div class="card-body p-0">
+          <div class="w-100">
+            <table class="table mb-0">
+              <tbody class="tbody_gold_miners"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Seção: Comparações e Razões -->

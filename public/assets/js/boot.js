@@ -421,7 +421,9 @@ function cryptoSlugFrom(item) {
       'mundo': dados.filter(i => i.grupo?.includes('mundo')),
       'emergentes': dados.filter(i => i.grupo?.includes('emergentes')),
       'vola': dados.filter(i => i.grupo?.includes('vola')),
-      'outros': dados.filter(i => i.grupo?.includes('outros'))
+      'outros': dados.filter(i => i.grupo?.includes('outros')),
+      'futuros-ouro': dados.filter(i => i.grupo?.includes('futuros_ouro')),
+      'gold-miners': dados.filter(i => i.grupo?.includes('gold_miners'))
     };
 
     Object.entries(grupos).forEach(([key, items]) => {
@@ -571,7 +573,9 @@ function cryptoSlugFrom(item) {
         vola: '',
         mineradoras: '',
         petroleiras: '',
-        outros: ''
+        outros: '',
+        futuros_ouro: '',
+        gold_miners: ''
       };
 
       dados.forEach(item => {
@@ -622,6 +626,10 @@ function cryptoSlugFrom(item) {
           html.mineradoras += buildRow(item, cls, color, timeInfo);
         } else if ((item.grupo || '').includes('petroleiras')) {
           html.petroleiras += buildRow(item, cls, color, timeInfo);
+        } else if ((item.grupo || '').includes('futuros_ouro')) {
+          html.futuros_ouro += buildRow(item, cls, color, timeInfo);
+        } else if ((item.grupo || '').includes('gold_miners')) {
+          html.gold_miners += buildRow(item, cls, color, timeInfo);
         }
       });
 
@@ -649,6 +657,9 @@ function cryptoSlugFrom(item) {
 
       $(".tbody_mineradoras").html(html.mineradoras);
       $(".tbody_petroleiras").html(html.petroleiras);
+
+      $(".tbody_futuros_ouro").html(html.futuros_ouro);
+      $(".tbody_gold_miners").html(html.gold_miners);
 
       updateMediaPercentages(dados);
     } catch (err) {

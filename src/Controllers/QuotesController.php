@@ -23,6 +23,31 @@ class QuotesController
             if ($action === 'listar') {
                 $quotes = $this->quotesService->getAllQuotes();
                 $san = array_map([$this, 'sanitizeRow'], is_array($quotes) ? $quotes : []);
+                
+                // Adicionar Futuros de Ouro (GC1! - GC7!) com grupo futuros_ouro
+                $futuresIds = ['1178340','1178341','1178342','1193189','1193190','1213656','1213657'];
+                try {
+                    $futures = $this->quotesService->getByIdsOrCodes($futuresIds);
+                    if (is_array($futures)) {
+                        foreach ($futures as $future) {
+                            $future['grupo'] = 'futuros_ouro';
+                            $san[] = $this->sanitizeRow($future);
+                        }
+                    }
+                } catch (\Throwable $t) {}
+                
+                // Adicionar Gold Miners com grupo gold_miners
+                $minersIds = ['13930', '13928', '8150', '8111', '962168', '956297', '40681'];
+                try {
+                    $miners = $this->quotesService->getByIdsOrCodes($minersIds);
+                    if (is_array($miners)) {
+                        foreach ($miners as $miner) {
+                            $miner['grupo'] = 'gold_miners';
+                            $san[] = $this->sanitizeRow($miner);
+                        }
+                    }
+                } catch (\Throwable $t) {}
+                
                 try { $app->logger()->info('[QUOTES] listar', ['count' => is_array($quotes) ? count($quotes) : 0, 'ip' => $_SERVER['REMOTE_ADDR'] ?? '']); } catch (\Throwable $t) {}
                 echo json_encode(['data' => $san, 'error' => '']);
                 return;

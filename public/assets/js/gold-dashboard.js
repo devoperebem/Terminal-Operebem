@@ -307,8 +307,7 @@
         updateCard('gvz', findByCandidates(arr, TARGETS.gvz));
       }
 
-      renderFuturesGrid(futures, futuresAvg);
-      renderGoldMinersGrid(goldMiners);
+      // Futuros e Miners agora são populados automaticamente pelo boot.js
     } catch (e) {
       // Manter valores anteriores
     }
