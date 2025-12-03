@@ -232,8 +232,44 @@ html.all-black .correlation-info:hover {
 
   <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
   <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-lg-6" id="gold_futures_grid"></div>
-    <div class="col-12 col-lg-6" id="gold_miners_grid"></div>
+    <div class="col-12 col-lg-6">
+      <div class="card w-100 card_indices">
+        <div class="card-header title-card">
+          Futuros de Ouro
+          <span class="media-percentage" id="media-futuros-ouro"></span>
+        </div>
+        <div class="card-body p-0">
+          <div class="w-100">
+            <table class="table mb-0">
+              <tbody class="tbody_futuros_ouro"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-lg-6">
+      <div class="card w-100 card_indices">
+        <div class="card-header title-card">
+          Gold Miners
+          <span class="media-percentage" id="media-gold-miners"></span>
+        </div>
+        <div class="card-body p-0">
+          <div class="w-100">
+            <table class="table mb-0">
+              <tbody class="tbody_gold_miners"></tbody>
+            </table>
+            <!-- Gráfico TradingView GDX vs GOLD -->
+            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
+              <div style="width: 550px; height: 250px;">
+                <div class="text-center text-muted small fw-semibold mb-2">GDX vs GOLD</div>
+                <div id="tv_gold_miners_widget" style="width: 550px; height: 220px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Seção: Comparações e Razões -->
@@ -306,6 +342,7 @@ html.all-black .correlation-info:hover {
 $content = ob_get_clean();
 $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
+  . '<script src="/assets/js/boot.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/gold-dashboard.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
   . '<script>'
