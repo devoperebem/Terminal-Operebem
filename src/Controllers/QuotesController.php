@@ -30,8 +30,9 @@ class QuotesController
                     $futures = $this->quotesService->getByIdsOrCodes($futuresIds);
                     if (is_array($futures)) {
                         foreach ($futures as $future) {
-                            $future['grupo'] = 'futuros_ouro';
-                            $san[] = $this->sanitizeRow($future);
+                            $futureWithGroup = $future;
+                            $futureWithGroup['grupo'] = 'futuros_ouro';
+                            $san[] = $this->sanitizeRow($futureWithGroup);
                         }
                     }
                 } catch (\Throwable $t) {}
@@ -42,8 +43,9 @@ class QuotesController
                     $miners = $this->quotesService->getByIdsOrCodes($minersIds);
                     if (is_array($miners)) {
                         foreach ($miners as $miner) {
-                            $miner['grupo'] = 'gold_miners';
-                            $san[] = $this->sanitizeRow($miner);
+                            $minerWithGroup = $miner;
+                            $minerWithGroup['grupo'] = 'gold_miners';
+                            $san[] = $this->sanitizeRow($minerWithGroup);
                         }
                     }
                 } catch (\Throwable $t) {}
