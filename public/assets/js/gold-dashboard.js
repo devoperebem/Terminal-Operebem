@@ -308,8 +308,56 @@
       }
 
       // Futuros e Miners agora são populados automaticamente pelo boot.js
+      // Renderizar gráficos após boot.js carregar os dados
+      setTimeout(function () {
+        renderChartsFromBootData();
+      }, 500);
     } catch (e) {
       // Manter valores anteriores
+    }
+  }
+
+  // ============================================================================
+  // Renderizar gráficos com dados do boot.js
+  // ============================================================================
+  function renderChartsFromBootData() {
+    try {
+      // Verificar se há dados de futuros no DOM
+      var futuresRows = document.querySelectorAll('.tbody_futuros_ouro tr');
+      if (futuresRows.length > 0) {
+        // Extrair dados dos futuros das linhas do tbody
+        var futuresData = [];
+        futuresRows.forEach(function (row) {
+          var cells = row.querySelectorAll('td');
+          if (cells.length >= 3) {
+            var code = cells[0].textContent.trim();
+            var priceText = cells[1].textContent.trim();
+            var pctText = cells[2].textContent.trim();
+
+            var price = parseFloat(priceText.replace(/,/g, ''));
+            var pct = parseFloat(pctText.replace(/%/g, '').replace(/,/g, '.'));
+
+            if (!isNaN(price)) {
+              futuresData.push({
+                code: code,
+                price: price,
+                pct: isNaN(pct) ? null : pct
+              });
+            }
+          }
+        });
+
+        if (futuresData.length > 0) {
+          renderFuturesCurve(futuresData);
+        }
+      }
+
+      // Renderizar gráfico TradingView dos Gold Miners
+      if (document.getElementById('tv_gold_miners_widget')) {
+        renderGoldMinersChart();
+      }
+    } catch (e) {
+      console.error('renderChartsFromBootData error:', e);
     }
   }
 
