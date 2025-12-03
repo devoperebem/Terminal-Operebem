@@ -512,8 +512,8 @@
 
       // HTML do card com tabela e gráfico
       var html = '<div class="card w-100 card_indices h-100">'
-        + '<div class="card-header title-card">'
-        + 'Futuros de Ouro'
+        + '<div class="card-header title-card py-2 px-3">'
+        + '<span class="fs-6 fw-bold">Futuros de Ouro</span>'
         + '<div class="d-inline-block ms-3">'
         + '<span class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></span>'
         + '<span class="small text-muted ms-3">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></span>'
@@ -620,6 +620,28 @@
         }
       });
 
+      // Ordenação Personalizada: GDX (NYSE) -> Outros GDX -> Restante
+      minersData.sort(function (a, b) {
+        var nA = String(a.nome || '').toUpperCase();
+        var nB = String(b.nome || '').toUpperCase();
+        var cA = String(a.code || '').toUpperCase();
+        var cB = String(b.code || '').toUpperCase();
+
+        // GDX (NYSE) prioridade máxima
+        var isGdxNyseA = nA.indexOf('GDX') >= 0 && nA.indexOf('NYSE') >= 0;
+        var isGdxNyseB = nB.indexOf('GDX') >= 0 && nB.indexOf('NYSE') >= 0;
+        if (isGdxNyseA && !isGdxNyseB) return -1;
+        if (!isGdxNyseA && isGdxNyseB) return 1;
+
+        // Outros GDX prioridade secundária
+        var isGdxA = cA.indexOf('GDX') >= 0 || nA.indexOf('GDX') >= 0;
+        var isGdxB = cB.indexOf('GDX') >= 0 || nB.indexOf('GDX') >= 0;
+        if (isGdxA && !isGdxB) return -1;
+        if (!isGdxA && isGdxB) return 1;
+
+        return 0;
+      });
+
       // Calcular média de oscilação e preço
       var avgPct = countPct > 0 ? (totalPct / countPct) : null;
       var avgPctText = avgPct !== null ? formatPercent(avgPct) : '--';
@@ -643,8 +665,8 @@
 
       // HTML do card com tabela e gráfico TradingView
       var html = '<div class="card w-100 card_indices h-100">'
-        + '<div class="card-header title-card">'
-        + 'Gold Miners'
+        + '<div class="card-header title-card py-2 px-3">'
+        + '<span class="fs-6 fw-bold">Gold Miners</span>'
         + '<div class="d-inline-block ms-3">'
         + '<span class="small text-muted">Média Preço: <span class="fw-semibold">' + avgPriceText + '</span></span>'
         + '<span class="small text-muted ms-3">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></span>'
