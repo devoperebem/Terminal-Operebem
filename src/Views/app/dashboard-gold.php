@@ -232,14 +232,11 @@ html.all-black .correlation-info:hover {
 
   <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
   <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-lg-6">
-      <div class="card w-100 card_indices">
-        <div class="card-header title-card">
-          Futuros de Ouro
-          <span class="media-percentage" id="media-futuros-ouro"></span>
-        <div class="card-header title-card">
-          Gold Miners
-          <span class="media-percentage" id="media-gold-miners"></span>
+    <div class="col-12 col-lg-6" id="gold_futures_grid"></div>
+    <div class="col-12 col-lg-6" id="gold_miners_grid"></div>
+  </div>
+
+  <!-- Seção: Comparações e Razões -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-lg-6">
       <div class="card h-100">
@@ -309,8 +306,6 @@ html.all-black .correlation-info:hover {
 $content = ob_get_clean();
 $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
-  . '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>'
-  . '<script src="/assets/js/boot.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/gold-dashboard.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
   . '<script>'
