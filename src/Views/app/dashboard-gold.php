@@ -245,9 +245,9 @@ html.all-black .correlation-info:hover {
             </table>
             <!-- Gráfico de Curva de Futuros -->
             <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
-              <div style="width: 550px; height: 250px;">
+              <div style="position: relative; width: 550px; height: 250px; overflow: hidden;">
                 <div class="text-center text-muted small fw-semibold mb-2">Curva de Futuros (Term Structure)</div>
-                <canvas id="gc_futures_curve" width="550" height="220"></canvas>
+                <canvas id="gc_futures_curve" style="width: 550px !important; height: 220px !important; display: block;"></canvas>
               </div>
             </div>
           </div>
