@@ -1261,7 +1261,7 @@
       incPending();
       new TradingView.widget({
         autosize: true,
-        symbol: 'OANDA:XAUUSD',
+        symbol: 'TVC:GOLD',
         interval: '60',
         timezone: tz,
         theme: theme,
