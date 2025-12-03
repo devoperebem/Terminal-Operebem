@@ -510,10 +510,22 @@
 
       var avgTxt = (avg !== null && avg !== undefined) ? avg.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--';
 
+      // Forçar ordenação correta dos dados para exibição
+      var sortedFuturesData = [];
+      var orderMap = {};
+      futuresData.forEach(function (d) { orderMap[d.code] = d; });
+      ['GC1!', 'GC2!', 'GC3!', 'GC4!', 'GC5!', 'GC6!', 'GC7!'].forEach(function (code) {
+        if (orderMap[code]) sortedFuturesData.push(orderMap[code]);
+      });
+      // Se faltar algum (improvável), adicionar no final
+      futuresData.forEach(function (d) {
+        if (!sortedFuturesData.includes(d)) sortedFuturesData.push(d);
+      });
+
       // HTML do card com tabela e gráfico
       var html = '<div class="card w-100 card_indices h-100">'
         + '<div class="card-header title-card py-2 px-3">'
-        + '<span class="fs-6 fw-bold">Futuros de Ouro</span>'
+        + '<span style="font-size: 18px !important; font-weight: 700 !important;">Futuros de Ouro *</span>'
         + '<div class="d-inline-block ms-3">'
         + '<span class="small text-muted">Média Preço: <span class="fw-semibold">' + avgTxt + '</span></span>'
         + '<span class="small text-muted ms-3">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></span>'
@@ -533,9 +545,9 @@
         + '</thead>'
         + '<tbody>';
 
-      // Adicionar linhas da tabela com tooltips
-      for (var j = 0; j < futuresData.length; j++) {
-        var fd = futuresData[j];
+      // Adicionar linhas da tabela com tooltips (usando sortedFuturesData)
+      for (var j = 0; j < sortedFuturesData.length; j++) {
+        var fd = sortedFuturesData[j];
         var pctText = fd.pct !== null ? formatPercent(fd.pct) : '--';
         var cls = fd.pct > 0 ? 'text-success' : (fd.pct < 0 ? 'text-danger' : 'text-muted');
         var color = fd.pct > 0 ? '#10b981' : (fd.pct < 0 ? '#ef4444' : '');
@@ -666,7 +678,7 @@
       // HTML do card com tabela e gráfico TradingView
       var html = '<div class="card w-100 card_indices h-100">'
         + '<div class="card-header title-card py-2 px-3">'
-        + '<span class="fs-6 fw-bold">Gold Miners</span>'
+        + '<span style="font-size: 18px !important; font-weight: 700 !important;">Gold Miners *</span>'
         + '<div class="d-inline-block ms-3">'
         + '<span class="small text-muted">Média Preço: <span class="fw-semibold">' + avgPriceText + '</span></span>'
         + '<span class="small text-muted ms-3">Média Osc.: <span class="fw-semibold">' + avgPctText + '</span></span>'
