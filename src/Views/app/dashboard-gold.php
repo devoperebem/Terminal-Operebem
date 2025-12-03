@@ -349,6 +349,7 @@ html.all-black .correlation-info:hover {
 $content = ob_get_clean();
 $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
+  . '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>'
   . '<script src="/assets/js/boot.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/gold-dashboard.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
