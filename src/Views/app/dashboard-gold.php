@@ -112,7 +112,7 @@ html.all-black .correlation-info:hover {
   <div class="row g-3 px-2 px-md-3 mb-3">
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card">
+        <div class="card-header title-card py-1 px-2">
           Ouro
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Ouro à vista (XAU/USD): Principal referência mundial para o preço do ouro, negociado 24h no mercado spot.">?</span>
@@ -130,7 +130,7 @@ html.all-black .correlation-info:hover {
 
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card">
+        <div class="card-header title-card py-1 px-2">
           Ouro 2!
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Fonte alternativa de cotação do ouro à vista, útil para comparação e validação de preços.">?</span>
@@ -148,7 +148,7 @@ html.all-black .correlation-info:hover {
 
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card">
+        <div class="card-header title-card py-1 px-2">
           DXY
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Índice do Dólar (DXY): Correlação inversa forte com o ouro. Dólar forte = ouro mais caro internacionalmente = menor demanda.">?</span>
@@ -166,7 +166,7 @@ html.all-black .correlation-info:hover {
 
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card">
+        <div class="card-header title-card py-1 px-2">
           US10Y
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Títulos de 10 anos (US10Y): Correlação inversa. Juros altos reduzem atratividade do ouro, que não paga rendimentos.">?</span>
@@ -184,7 +184,7 @@ html.all-black .correlation-info:hover {
 
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card">
+        <div class="card-header title-card py-1 px-2">
           VIX
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Índice de Volatilidade (VIX): Correlação positiva. Medo e incerteza impulsionam investidores a buscar o ouro como porto seguro.">?</span>
@@ -202,7 +202,7 @@ html.all-black .correlation-info:hover {
 
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card">
+        <div class="card-header title-card py-1 px-2">
           Gold Vol
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Volatilidade do Ouro (GVZ): Mede expectativa de flutuação de preço do ouro. Valores altos indicam maior incerteza no mercado.">?</span>
