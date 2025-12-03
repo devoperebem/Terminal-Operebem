@@ -37,15 +37,20 @@ class QuotesController
                     }
                 } catch (\Throwable $t) {}
                 
-                // Adicionar Gold Miners com grupo gold_miners
+                // Adicionar Gold Miners com grupo gold_miners (evitando duplicatas)
                 $minersIds = ['13930', '13928', '8150', '8111', '962168', '956297', '40681'];
+                $addedMiners = []; // Track para evitar duplicatas
                 try {
                     $miners = $this->quotesService->getByIdsOrCodes($minersIds);
                     if (is_array($miners)) {
                         foreach ($miners as $miner) {
-                            $minerWithGroup = $miner;
-                            $minerWithGroup['grupo'] = 'gold_miners';
-                            $san[] = $this->sanitizeRow($minerWithGroup);
+                            $minerId = $miner['id_api'] ?? $miner['code'] ?? '';
+                            if ($minerId && !in_array($minerId, $addedMiners)) {
+                                $minerWithGroup = $miner;
+                                $minerWithGroup['grupo'] = 'gold_miners';
+                                $san[] = $this->sanitizeRow($minerWithGroup);
+                                $addedMiners[] = $minerId;
+                            }
                         }
                     }
                 } catch (\Throwable $t) {}
