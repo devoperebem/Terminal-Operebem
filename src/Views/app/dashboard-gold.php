@@ -233,7 +233,7 @@ html.all-black .correlation-info:hover {
   <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-lg-6">
-      <div class="card w-100 card_indices mb-3">
+      <div class="card w-100 card_indices">
         <div class="card-header title-card">
           Futuros de Ouro
           <span class="media-percentage" id="media-futuros-ouro"></span>
@@ -256,7 +256,7 @@ html.all-black .correlation-info:hover {
     </div>
     
     <div class="col-12 col-lg-6">
-      <div class="card w-100 card_indices mb-3">
+      <div class="card w-100 card_indices">
         <div class="card-header title-card">
           Gold Miners
           <span class="media-percentage" id="media-gold-miners"></span>
