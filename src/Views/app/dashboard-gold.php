@@ -5,6 +5,8 @@ $csrf_token = $_SESSION['csrf_token'] ?? '';
 ob_start();
 ?>
 
+<?php include __DIR__ . '/../partials/market-status-tooltip-styles.php'; ?>
+
 <style>
 /* Esconder copyright do TradingView */
 .tradingview-widget-copyright { display: none !important; }
