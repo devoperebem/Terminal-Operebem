@@ -42,7 +42,6 @@ body.all-black #gold_ticker_tape {
 }
 
 /* Widgets ocupando 100% dos cards e sem scroll */
-.card .card-body { overflow: hidden; }
 .card .tradingview-widget-container { height: 100% !important; width: 100% !important; }
 .card .tradingview-widget-container__widget { height: 100% !important; width: 100% !important; }
 .card .tradingview-widget-container iframe { height: 100% !important; width: 100% !important; border: 0 !important; }
