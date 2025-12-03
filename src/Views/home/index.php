@@ -309,7 +309,7 @@ html.all-black .hero-stat-icon {
                     </div>
                     <h1 class="hero-title animate-fade-in-up animate-delay-200">
                         Terminal Operebem
-                        <span class="text-gradient">Alpha 1.4</span>
+                        <span class="text-gradient">Alpha 1.3</span>
                     </h1>
                     <p class="hero-subtitle animate-fade-in-up animate-delay-300">
                         O melhor farol para Traders. Pare de operar no escuro. Tenha acesso a mais contexto e seja movido por dados!
