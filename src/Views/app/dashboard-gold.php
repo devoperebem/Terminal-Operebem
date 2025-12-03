@@ -282,29 +282,33 @@ html.all-black .correlation-info:hover {
   <!-- Seção: Comparações e Razões -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 420px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Ouro vs DXY</div>
+        <div class="card-body p-0" style="height: 480px;">
           <div id="tv_compare_gold_dxy" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
     </div>
     <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 420px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Ouro vs Bitcoin</div>
+        <div class="card-body p-0" style="height: 480px;">
           <div id="tv_compare_gold_btc" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
     </div>
     <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 420px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Razão Ouro / Miners (GDX)</div>
+        <div class="card-body p-0" style="height: 480px;">
           <div id="tv_ratio_gold_miners" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
     </div>
     <div class="col-12 col-lg-6">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 420px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Razão Ouro / Bitcoin</div>
+        <div class="card-body p-0" style="height: 480px;">
           <div id="tv_ratio_gold_btc" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
@@ -314,29 +318,33 @@ html.all-black .correlation-info:hover {
   <!-- Seção: Indicadores Técnicos -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-xl-3">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Análise Técnica: Ouro</div>
+        <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_gold" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
     </div>
     <div class="col-12 col-xl-3">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Análise Técnica: DXY</div>
+        <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_dxy" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
     </div>
     <div class="col-12 col-xl-3">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Análise Técnica: US10Y</div>
+        <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_us10y" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
     </div>
     <div class="col-12 col-xl-3">
-      <div class="card h-100">
-        <div class="card-body p-0" style="height: 400px;">
+      <div class="card h-100 card_indices">
+        <div class="card-header title-card py-1 px-2">Análise Técnica: VIX</div>
+        <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_vix" style="height: 100%; width: 100%;"></div>
         </div>
       </div>
