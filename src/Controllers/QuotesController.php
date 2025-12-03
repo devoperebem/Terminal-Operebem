@@ -22,42 +22,29 @@ class QuotesController
 
             if ($action === 'listar') {
                 $quotes = $this->quotesService->getAllQuotes();
-                $san = array_map([$this, 'sanitizeRow'], is_array($quotes) ? $quotes : []);
                 
-                // Adicionar Futuros de Ouro (GC1! - GC7!) com grupo futuros_ouro
+                // IDs dos ativos especiais
                 $futuresIds = ['1178340','1178341','1178342','1193189','1193190','1213656','1213657'];
-                try {
-                    $futures = $this->quotesService->getByIdsOrCodes($futuresIds);
-                    if (is_array($futures)) {
-                        foreach ($futures as $future) {
-                            $futureWithGroup = $future;
-                            $futureWithGroup['grupo'] = 'futuros_ouro';
-                            $san[] = $this->sanitizeRow($futureWithGroup);
-                        }
-                    }
-                } catch (\Throwable $t) {}
-                
-                // Adicionar Gold Miners com grupo gold_miners (evitando duplicatas)
                 $minersIds = ['13930', '13928', '8150', '8111', '962168', '956297', '40681'];
-                try {
-                    $miners = $this->quotesService->getByIdsOrCodes($minersIds);
-                    if (is_array($miners)) {
-                        // Usar array associativo para evitar duplicatas
-                        $uniqueMiners = [];
-                        foreach ($miners as $miner) {
-                            $minerId = $miner['id_api'] ?? $miner['code'] ?? '';
-                            if ($minerId && !isset($uniqueMiners[$minerId])) {
-                                $uniqueMiners[$minerId] = $miner;
-                            }
+                
+                // Processar quotes e adicionar grupos aos ativos especiais
+                $san = [];
+                if (is_array($quotes)) {
+                    foreach ($quotes as $quote) {
+                        $idApi = $quote['id_api'] ?? '';
+                        
+                        // Se for Future de Ouro, adicionar grupo
+                        if (in_array($idApi, $futuresIds)) {
+                            $quote['grupo'] = 'futuros_ouro';
                         }
-                        // Adicionar ao array final
-                        foreach ($uniqueMiners as $miner) {
-                            $minerWithGroup = $miner;
-                            $minerWithGroup['grupo'] = 'gold_miners';
-                            $san[] = $this->sanitizeRow($minerWithGroup);
+                        // Se for Gold Miner, adicionar grupo
+                        elseif (in_array($idApi, $minersIds)) {
+                            $quote['grupo'] = 'gold_miners';
                         }
+                        
+                        $san[] = $this->sanitizeRow($quote);
                     }
-                } catch (\Throwable $t) {}
+                }
                 
                 try { $app->logger()->info('[QUOTES] listar', ['count' => is_array($quotes) ? count($quotes) : 0, 'ip' => $_SERVER['REMOTE_ADDR'] ?? '']); } catch (\Throwable $t) {}
                 echo json_encode(['data' => $san, 'error' => '']);
