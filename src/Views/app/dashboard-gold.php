@@ -236,7 +236,7 @@ html.all-black .correlation-info:hover {
     <div class="col-12 col-lg-6">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
-          Futuros de Ouro
+          <span style="font-size: 18px !important; font-weight: 700 !important;">Futuros de Ouro</span>
           <span class="media-percentage" id="media-futuros-ouro"></span>
         </div>
         <div class="card-body p-0">
@@ -259,7 +259,7 @@ html.all-black .correlation-info:hover {
     <div class="col-12 col-lg-6">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
-          Gold Miners
+          <span style="font-size: 18px !important; font-weight: 700 !important;">Gold Miners</span>
           <span class="media-percentage" id="media-gold-miners"></span>
         </div>
         <div class="card-body p-0">

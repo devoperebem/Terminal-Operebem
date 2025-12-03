@@ -627,11 +627,62 @@ function cryptoSlugFrom(item) {
         } else if ((item.grupo || '').includes('petroleiras')) {
           html.petroleiras += buildRow(item, cls, color, timeInfo);
         } else if ((item.grupo || '').includes('futuros_ouro')) {
-          html.futuros_ouro += buildRow(item, cls, color, timeInfo);
+          // Coletar em array para ordenação posterior
+          if (!window.__futuresArr) window.__futuresArr = [];
+          window.__futuresArr.push({ item, cls, color, timeInfo });
         } else if ((item.grupo || '').includes('gold_miners')) {
-          html.gold_miners += buildRow(item, cls, color, timeInfo);
+          // Coletar em array para ordenação posterior
+          if (!window.__minersArr) window.__minersArr = [];
+          window.__minersArr.push({ item, cls, color, timeInfo });
         }
       });
+
+      // Ordenar e renderizar futuros de ouro: GC1!, GC2!, ..., GC7!
+      if (window.__futuresArr && window.__futuresArr.length > 0) {
+        const gcOrder = ['GC1!', 'GC2!', 'GC3!', 'GC4!', 'GC5!', 'GC6!', 'GC7!'];
+        window.__futuresArr.sort((a, b) => {
+          const codeA = (a.item.code || '').toUpperCase();
+          const codeB = (b.item.code || '').toUpperCase();
+          const idxA = gcOrder.indexOf(codeA);
+          const idxB = gcOrder.indexOf(codeB);
+          if (idxA === -1 && idxB === -1) return 0;
+          if (idxA === -1) return 1;
+          if (idxB === -1) return -1;
+          return idxA - idxB;
+        });
+        window.__futuresArr.forEach(({ item, cls, color, timeInfo }) => {
+          html.futuros_ouro += buildRow(item, cls, color, timeInfo);
+        });
+        window.__futuresArr = [];
+      }
+
+      // Ordenar e renderizar gold miners: GDX (NYSE) primeiro, depois outros GDX, depois resto
+      if (window.__minersArr && window.__minersArr.length > 0) {
+        window.__minersArr.sort((a, b) => {
+          const nameA = ((a.item.nome || a.item.apelido || '').toUpperCase());
+          const nameB = ((b.item.nome || b.item.apelido || '').toUpperCase());
+          const codeA = (a.item.code || '').toUpperCase();
+          const codeB = (b.item.code || '').toUpperCase();
+
+          // GDX (NYSE) prioridade máxima
+          const isGdxNyseA = nameA.includes('GDX') && nameA.includes('NYSE');
+          const isGdxNyseB = nameB.includes('GDX') && nameB.includes('NYSE');
+          if (isGdxNyseA && !isGdxNyseB) return -1;
+          if (!isGdxNyseA && isGdxNyseB) return 1;
+
+          // Outros GDX prioridade secundária
+          const isGdxA = codeA.includes('GDX') || nameA.includes('GDX');
+          const isGdxB = codeB.includes('GDX') || nameB.includes('GDX');
+          if (isGdxA && !isGdxB) return -1;
+          if (!isGdxA && isGdxB) return 1;
+
+          return 0;
+        });
+        window.__minersArr.forEach(({ item, cls, color, timeInfo }) => {
+          html.gold_miners += buildRow(item, cls, color, timeInfo);
+        });
+        window.__minersArr = [];
+      }
 
       $(".tbody_indices_futuros").html(html.futuros);
       $(".tbody_indices_norte_americanos").html(html.norte);
