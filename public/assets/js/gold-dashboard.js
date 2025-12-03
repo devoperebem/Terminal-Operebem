@@ -362,6 +362,91 @@
   }
 
   // ============================================================================
+  // Renderizar gráfico de curva de futuros com Chart.js
+  // ============================================================================
+  function renderFuturesCurve(futuresData) {
+    try {
+      var canvas = document.getElementById('gc_futures_curve');
+      if (!canvas) return;
+
+      // Destruir gráfico anterior se existir
+      if (window.__futuresCurveChart) {
+        window.__futuresCurveChart.destroy();
+      }
+
+      var ctx = canvas.getContext('2d');
+
+      // Extrair labels e valores
+      var labels = futuresData.map(function (d) { return d.code; });
+      var prices = futuresData.map(function (d) { return d.price; });
+
+      // Configuração do gráfico
+      window.__futuresCurveChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Preço',
+            data: prices,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#3b82f6',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: { size: 14 },
+              bodyFont: { size: 13 },
+              callbacks: {
+                label: function (context) {
+                  return 'Preço: ' + context.parsed.y.toFixed(2);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                font: { size: 11 }
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(200, 200, 200, 0.2)'
+              },
+              ticks: {
+                font: { size: 11 },
+                callback: function (value) {
+                  return value.toFixed(2);
+                }
+              }
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.error('renderFuturesCurve error:', e);
+    }
+  }
+
+  // ============================================================================
   // GRID FUTUROS (GC1! .. GC7!) + MÉDIA - Card único com gráficos interativos
   // ============================================================================
   function renderFuturesGrid(items, avg) {
