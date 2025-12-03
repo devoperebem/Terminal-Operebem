@@ -246,7 +246,7 @@ html.all-black .correlation-info:hover {
             <!-- Gráfico de Curva de Futuros -->
             <div class="px-3 pb-3 mt-3">
               <div class="text-center text-muted small fw-semibold mb-2">Curva de Futuros (Term Structure)</div>
-              <canvas id="gc_futures_curve" style="height: 250px;"></canvas>
+              <canvas id="gc_futures_curve" style="width: 550px; height: 250px;"></canvas>
             </div>
           </div>
         </div>
@@ -267,7 +267,7 @@ html.all-black .correlation-info:hover {
             <!-- Gráfico TradingView GDX vs GOLD -->
             <div class="px-3 pb-3 mt-3">
               <div class="text-center text-muted small fw-semibold mb-2">GDX vs GOLD</div>
-              <div id="tv_gold_miners_widget" style="height: 250px;"></div>
+              <div id="tv_gold_miners_widget" style="height: 287px;"></div>
             </div>
           </div>
         </div>
