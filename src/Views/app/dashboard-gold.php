@@ -243,6 +243,13 @@ html.all-black .correlation-info:hover {
             <table class="table mb-0">
               <tbody class="tbody_futuros_ouro"></tbody>
             </table>
+            <!-- Gráfico de Curva de Futuros -->
+            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
+              <div style="width: 550px; height: 250px;">
+                <div class="text-center text-muted small fw-semibold mb-2">Curva de Futuros (Term Structure)</div>
+                <canvas id="gc_futures_curve" width="550" height="220"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -342,6 +349,7 @@ html.all-black .correlation-info:hover {
 $content = ob_get_clean();
 $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
+  . '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>'
   . '<script src="/assets/js/boot.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/gold-dashboard.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
