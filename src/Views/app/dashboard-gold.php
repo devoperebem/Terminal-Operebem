@@ -102,6 +102,53 @@ html.all-black .correlation-info:hover {
 #gold_miners_grid .card {
   height: 100%;
 }
+
+/* Estilo para os títulos dos cards de Futuros e Miners igual ao dashboard principal */
+.card_indices .card-header.title-card {
+  position: relative;
+  padding: 0.75rem 0.75rem 0.75rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+.card_indices .card-header.title-card > span:first-child {
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+}
+
+/* Média das variações com mesmo tamanho */
+.card_indices .card-header.title-card .media-percentage {
+  font-size: 1em;
+  padding: 2px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: transparent;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.media-percentage.positive {
+  color: #37ed00;
+  border-color: rgba(55, 237, 0, 0.3);
+}
+
+.media-percentage.negative {
+  color: #FF0000;
+  border-color: rgba(255, 0, 0, 0.3);
+}
+
+.media-percentage.neutral {
+  color: #666;
+  border-color: rgba(102, 102, 102, 0.3);
+}
+
+/* Tema escuro: cor neutra para média zero */
+html.dark-blue .media-percentage.neutral,
+html.all-black .media-percentage.neutral {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
 </style>
 
 <!-- Ticker Tape TradingView -->
@@ -238,7 +285,7 @@ html.all-black .correlation-info:hover {
     <div class="col-12 col-lg-6">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
-          <span style="font-size: 18px !important; font-weight: 700 !important;">Futuros de Ouro</span>
+          <span>Futuros de Ouro</span>
           <span class="media-percentage" id="media-futuros-ouro"></span>
         </div>
         <div class="card-body p-0">
@@ -261,7 +308,7 @@ html.all-black .correlation-info:hover {
     <div class="col-12 col-lg-6">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
-          <span style="font-size: 18px !important; font-weight: 700 !important;">Gold Miners</span>
+          <span>Gold Miners</span>
           <span class="media-percentage" id="media-gold-miners"></span>
         </div>
         <div class="card-body p-0">
