@@ -606,7 +606,7 @@
         var pct = item ? toNumber(item.pcp ?? item.pc) : null;
         var price = item ? (item.last ?? item.last_numeric ?? '--') : '--';
         var code = item ? (item.code || item.Code || '--') : '--';
-        var nome = item ? (item.nome || item.Name || item.apelido || code) : code;
+        var nome = item ? (item.apelido || item.nome || item.Name || code) : code;
 
         // Calcular variação nominal
         var nominalChange = '--';
