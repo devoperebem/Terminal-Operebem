@@ -349,7 +349,7 @@ html.all-black .media-percentage.neutral {
     </div>
     <div class="col-12 col-lg-6">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Raz├úo Ouro / Miners (GDX)</div>
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Razão Ouro / Miners (GDX)</div>
         <div class="card-body p-0" style="height: 480px;">
           <div id="tv_ratio_gold_miners" style="height: 100%; width: 100%;"></div>
         </div>
@@ -357,7 +357,7 @@ html.all-black .media-percentage.neutral {
     </div>
     <div class="col-12 col-lg-6">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Raz├úo Ouro / Bitcoin</div>
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Razão Ouro / Bitcoin</div>
         <div class="card-body p-0" style="height: 480px;">
           <div id="tv_ratio_gold_btc" style="height: 100%; width: 100%;"></div>
         </div>
@@ -369,7 +369,7 @@ html.all-black .media-percentage.neutral {
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-xl-3">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">An├ílise T├⌐cnica: Ouro</div>
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Análise Técnica: Ouro</div>
         <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_gold" style="height: 100%; width: 100%;"></div>
         </div>
@@ -377,7 +377,7 @@ html.all-black .media-percentage.neutral {
     </div>
     <div class="col-12 col-xl-3">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">An├ílise T├⌐cnica: DXY</div>
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Análise Técnica: DXY</div>
         <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_dxy" style="height: 100%; width: 100%;"></div>
         </div>
@@ -385,7 +385,7 @@ html.all-black .media-percentage.neutral {
     </div>
     <div class="col-12 col-xl-3">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">An├ílise T├⌐cnica: US10Y</div>
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Análise Técnica: US10Y</div>
         <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_us10y" style="height: 100%; width: 100%;"></div>
         </div>
@@ -393,7 +393,7 @@ html.all-black .media-percentage.neutral {
     </div>
     <div class="col-12 col-xl-3">
       <div class="card h-100 card_indices">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">An├ílise T├⌐cnica: VIX</div>
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Análise Técnica: VIX</div>
         <div class="card-body p-0" style="height: 460px;">
           <div id="tv_tech_vix" style="height: 100%; width: 100%;"></div>
         </div>
