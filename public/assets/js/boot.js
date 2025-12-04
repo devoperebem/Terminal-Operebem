@@ -578,6 +578,10 @@ function cryptoSlugFrom(item) {
         gold_miners: ''
       };
 
+      // Limpar arrays temporários para evitar acúmulo entre atualizações
+      window.__futuresArr = [];
+      window.__minersArr = [];
+
       dados.forEach(item => {
         const { time, full } = formatTimeFromTimestamp(item.timestamp);
         const pcp = item.pcp ? item.pcp.toString().replace(/\s+/g, '').replace('%', '').replace(',', '.') : '0';
@@ -628,11 +632,9 @@ function cryptoSlugFrom(item) {
           html.petroleiras += buildRow(item, cls, color, timeInfo);
         } else if ((item.grupo || '').includes('futuros_ouro')) {
           // Coletar em array para ordenação posterior
-          if (!window.__futuresArr) window.__futuresArr = [];
           window.__futuresArr.push({ item, cls, color, timeInfo });
         } else if ((item.grupo || '').includes('gold_miners')) {
           // Coletar em array para ordenação posterior
-          if (!window.__minersArr) window.__minersArr = [];
           window.__minersArr.push({ item, cls, color, timeInfo });
         }
       });
