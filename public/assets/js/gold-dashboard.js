@@ -632,26 +632,24 @@
         }
       });
 
-      // Ordenação Personalizada: GDX (NYSE) -> Outros GDX -> Restante
+      // Ordenação Personalizada: GDX (NYSE) -> GDX (LSE) -> GDX (ASX) -> Restante
       minersData.sort(function (a, b) {
         var nA = String(a.nome || '').toUpperCase();
         var nB = String(b.nome || '').toUpperCase();
-        var cA = String(a.code || '').toUpperCase();
-        var cB = String(b.code || '').toUpperCase();
 
-        // GDX (NYSE) prioridade máxima
-        var isGdxNyseA = nA.indexOf('GDX') >= 0 && nA.indexOf('NYSE') >= 0;
-        var isGdxNyseB = nB.indexOf('GDX') >= 0 && nB.indexOf('NYSE') >= 0;
-        if (isGdxNyseA && !isGdxNyseB) return -1;
-        if (!isGdxNyseA && isGdxNyseB) return 1;
+        // Função para determinar prioridade de ordenação
+        function getPriority(nome) {
+          if (nome.indexOf('GDX') >= 0 && nome.indexOf('NYSE') >= 0) return 1; // Primeiro
+          if (nome.indexOf('GDX') >= 0 && nome.indexOf('LSE') >= 0) return 2;  // Segundo
+          if (nome.indexOf('GDX') >= 0 && nome.indexOf('ASX') >= 0) return 3;  // Terceiro
+          if (nome.indexOf('GDX') >= 0) return 4; // Outros GDX
+          return 5; // Restante
+        }
 
-        // Outros GDX prioridade secundária
-        var isGdxA = cA.indexOf('GDX') >= 0 || nA.indexOf('GDX') >= 0;
-        var isGdxB = cB.indexOf('GDX') >= 0 || nB.indexOf('GDX') >= 0;
-        if (isGdxA && !isGdxB) return -1;
-        if (!isGdxA && isGdxB) return 1;
+        var prioA = getPriority(nA);
+        var prioB = getPriority(nB);
 
-        return 0;
+        return prioA - prioB;
       });
 
       // Calcular média de oscilação e preço
