@@ -623,6 +623,8 @@ html.all-black .hero-stat-icon {
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     @media(max-width:992px){.reviews-peek-container{gap:0;overflow:hidden}.review-card{min-width:85%;max-width:85%}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.7);opacity:0;pointer-events:none}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{display:flex}}
     @media(max-width:768px){.reviews-section{padding:60px 0}.reviews-peek-container{min-height:350px}.review-card{min-width:90%;max-width:90%;padding:24px}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.6)}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{width:40px;height:40px}}
+    html.light .reviews-carousel-wrapper .carousel-control-prev-icon,
+    html.light .reviews-carousel-wrapper .carousel-control-next-icon{filter:invert(1)}
     html.dark-blue .reviews-carousel-wrapper .carousel-control-prev,
     html.dark-blue .reviews-carousel-wrapper .carousel-control-next{background:rgba(13,132,255,.85);border-color:rgba(13,132,255,.3);box-shadow:0 2px 8px rgba(0,0,0,.3)}
     html.dark-blue .reviews-carousel-wrapper .carousel-control-prev:hover,
