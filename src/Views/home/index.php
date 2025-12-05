@@ -595,7 +595,7 @@ html.all-black .hero-stat-icon {
     .reviews-subtitle{color:#6b7280}
     .reviews-carousel-wrapper{position:relative;overflow:visible;padding:20px 0}
     .reviews-carousel-wrapper .carousel-control-prev,
-    .reviews-carousel-wrapper .carousel-control-next{width:48px;height:48px;opacity:1;background:rgba(0,0,0,.6);border-radius:50%;top:50%;transform:translateY(-50%)}
+    .reviews-carousel-wrapper .carousel-control-next{display:none;width:48px;height:48px;opacity:1;background:rgba(0,0,0,.6);border-radius:50%;top:50%;transform:translateY(-50%);z-index:100}
     .reviews-carousel-wrapper .carousel-control-prev:hover,
     .reviews-carousel-wrapper .carousel-control-next:hover{background:rgba(0,0,0,.8)}
     .reviews-carousel-wrapper .carousel-control-prev{left:-70px}
@@ -621,7 +621,7 @@ html.all-black .hero-stat-icon {
     .skeleton-text{height:16px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:12px}
     .skeleton-text.short{width:60%}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    @media(max-width:992px){.reviews-peek-container{gap:0;overflow:hidden}.review-card{min-width:85%;max-width:85%}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.7);opacity:0;pointer-events:none}.reviews-carousel-wrapper .carousel-control-prev{left:10px}.reviews-carousel-wrapper .carousel-control-next{right:10px}}
+    @media(max-width:992px){.reviews-peek-container{gap:0;overflow:hidden}.review-card{min-width:85%;max-width:85%}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.7);opacity:0;pointer-events:none}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{display:flex;left:10px}.reviews-carousel-wrapper .carousel-control-next{right:10px}}
     @media(max-width:768px){.reviews-section{padding:60px 0}.reviews-peek-container{min-height:350px}.review-card{min-width:90%;max-width:90%;padding:24px}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.6)}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{width:40px;height:40px}}
     html.dark-blue .reviews-section{background:#001233}
     html.dark-blue .reviews-title{color:#fff}
