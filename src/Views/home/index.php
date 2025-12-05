@@ -601,7 +601,7 @@ html.all-black .hero-stat-icon {
     .reviews-carousel-wrapper .carousel-control-prev{left:10px}
     .reviews-carousel-wrapper .carousel-control-next{right:10px}
     .reviews-carousel-wrapper .carousel-control-prev-icon,
-    .reviews-carousel-wrapper .carousel-control-next-icon{width:20px;height:20px;background-size:100% 100%;filter:invert(0)}
+    .reviews-carousel-wrapper .carousel-control-next-icon{width:20px;height:20px;background-size:100% 100%}
     .reviews-peek-container{display:flex;justify-content:center;align-items:center;gap:30px;min-height:400px;position:relative}
     .review-card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:28px;border:1px solid rgba(0,0,0,.08);min-width:320px;max-width:420px;flex-shrink:0;transition:all .6s cubic-bezier(0.4, 0, 0.2, 1);position:absolute;left:50%;transform:translateX(-50%) scale(0.85);filter:blur(3px);opacity:0.5;z-index:1;pointer-events:none}
     .review-card.active{transform:translateX(-50%) scale(1);filter:blur(0);opacity:1;z-index:3;pointer-events:auto}
