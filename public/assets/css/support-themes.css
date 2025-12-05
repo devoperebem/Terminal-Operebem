@@ -304,3 +304,50 @@
 .all-black .valid-feedback {
     color: #81c784;
 }
+
+/* Auth buttons - navbar */
+.dark-blue .btn-light {
+    background: #3a3b3c;
+    border-color: #4e4f50;
+    color: #e4e6eb;
+}
+
+.dark-blue .btn-light:hover {
+    background: #4e4f50;
+    border-color: #5e5f60;
+    color: #ffffff;
+}
+
+.dark-blue .btn-outline-light {
+    color: #e4e6eb;
+    border-color: #4e4f50;
+}
+
+.dark-blue .btn-outline-light:hover {
+    background: #3a3b3c;
+    border-color: #4e4f50;
+    color: #ffffff;
+}
+
+.all-black .btn-light {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+    color: #ffffff;
+}
+
+.all-black .btn-light:hover {
+    background: #2a2a2a;
+    border-color: #3a3a3a;
+    color: #ffffff;
+}
+
+.all-black .btn-outline-light {
+    color: #ffffff;
+    border-color: #2a2a2a;
+}
+
+.all-black .btn-outline-light:hover {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+    color: #ffffff;
+}
