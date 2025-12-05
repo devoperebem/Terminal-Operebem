@@ -560,78 +560,92 @@ html.all-black .hero-stat-icon {
     </div>
 </section>
 
-<!-- Reviews Section (custom carousel with peek effect) -->
+<!-- Reviews Section (redesigned) -->
 <section class="reviews-section" id="reviews">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-4">
-                <h2 class="reviews-title">O que dizem nossos <span class="highlight">traders</span></h2>
-                <p class="reviews-subtitle">Confiança comprovada por investidores do mundo todo</p>
+    <div class="container position-relative">
+        <div id="reviewsCarousel" class="carousel slide" data-bs-ride="false">
+            <div class="carousel-inner" id="reviewsCarouselInner">
+                <div class="carousel-item active">
+                    <div class="review-content-wrapper">
+                        <div class="review-main-quote">
+                            <div class="skeleton-text-large"></div>
+                            <div class="skeleton-text-large short"></div>
+                        </div>
+                        <div class="review-description">
+                            <div class="skeleton-text-medium"></div>
+                            <div class="skeleton-text-medium"></div>
+                            <div class="skeleton-text-medium short"></div>
+                        </div>
+                        <div class="review-author-section">
+                            <div class="skeleton-avatar"></div>
+                            <div class="author-details">
+                                <div class="skeleton-text-small"></div>
+                                <div class="skeleton-text-small short"></div>
+                            </div>
+                            <div class="review-rating-wrapper">
+                                <div class="skeleton-stars"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <button class="carousel-control-prev review-nav-btn" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
+                <i class="fas fa-chevron-left"></i>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next review-nav-btn" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="next">
+                <i class="fas fa-chevron-right"></i>
+                <span class="visually-hidden">Próximo</span>
+            </button>
         </div>
+    </div>
     <style>
-    .reviews-section{padding:80px 0;background:#f7f7f7}
-    .reviews-title{font-size:2.2rem;font-weight:700;color:#1a1a1a;margin-bottom:10px}
-    .reviews-title .highlight{color:#3b82f6}
-    .reviews-subtitle{color:#6b7280}
-    .reviews-carousel-wrapper{position:relative;overflow:visible;padding:20px 0}
-    .reviews-carousel-wrapper .carousel-control-prev,
-    .reviews-carousel-wrapper .carousel-control-next{display:none}
-    .reviews-peek-container{display:flex;justify-content:center;align-items:center;gap:30px;min-height:400px;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
-    .review-card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:28px;border:1px solid rgba(0,0,0,.08);min-width:320px;max-width:420px;flex-shrink:0;transition:all .6s cubic-bezier(0.4, 0, 0.2, 1);position:absolute;left:50%;transform:translateX(-50%) scale(0.85);filter:blur(3px);opacity:0.5;z-index:1;pointer-events:none}
-    .review-card.active{transform:translateX(-50%) scale(1);filter:blur(0);opacity:1;z-index:3;pointer-events:auto}
-    .review-card.prev{transform:translateX(calc(-50% - 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2;pointer-events:auto;cursor:pointer}
-    .review-card.next{transform:translateX(calc(-50% + 380px)) scale(0.85);filter:blur(3px);opacity:0.5;z-index:2;pointer-events:auto;cursor:pointer}
-    .review-card.prev:hover,.review-card.next:hover{opacity:0.7;transform:translateX(calc(-50% - 380px)) scale(0.9)}
-    .review-card.next:hover{transform:translateX(calc(-50% + 380px)) scale(0.9)}
-    .review-card.hidden{opacity:0;pointer-events:none;z-index:0;transform:translateX(-50%) scale(0.7)}
-    .review-text{font-size:1rem;line-height:1.7;color:#4b5563;margin-bottom:20px;font-style:italic}
-    .review-author{display:flex;align-items:center;gap:14px}
-    .review-avatar{width:56px;height:56px;border-radius:50%;overflow:hidden;border:3px solid #e5e7eb}
+    .reviews-section{padding:100px 0;background:#fafafa;position:relative}
+    .review-content-wrapper{max-width:900px;margin:0 auto;padding:0 60px;text-align:center}
+    .review-main-quote{font-size:2rem;font-weight:700;color:#1a1a1a;margin-bottom:30px;line-height:1.4}
+    .review-description{font-size:1.1rem;line-height:1.8;color:#4b5563;margin-bottom:50px;max-width:700px;margin-left:auto;margin-right:auto}
+    .review-author-section{display:flex;align-items:center;justify-content:center;gap:20px;padding-top:30px;border-top:1px solid rgba(0,0,0,.1)}
+    .review-avatar{width:64px;height:64px;border-radius:50%;overflow:hidden;border:3px solid #e5e7eb;flex-shrink:0}
     .review-avatar img{width:100%;height:100%;object-fit:cover}
-    .review-name{font-weight:600;color:#1f2937;margin:0}
-    .review-country{font-size:.875rem;color:#9ca3af}
-    .review-rating{color:#fbbf24}
-    .skeleton-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;margin-bottom:16px}
-    .skeleton-text{height:16px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:12px}
-    .skeleton-text.short{width:60%}
+    .author-details{text-align:left;flex-shrink:0}
+    .review-name{font-weight:700;color:#1f2937;margin:0;font-size:1.1rem}
+    .review-country{font-size:.95rem;color:#6b7280;display:flex;align-items:center;gap:6px;margin-top:4px}
+    .review-country i{color:#9ca3af}
+    .review-rating-wrapper{margin-left:auto;flex-shrink:0}
+    .review-rating{color:#fbbf24;font-size:1.3rem;display:flex;gap:4px}
+    .review-rating i{color:#fbbf24}
+    .review-nav-btn{width:56px;height:56px;border-radius:50%;background:#ff8c42;border:none;opacity:1;display:flex;align-items:center;justify-content:center;transition:all .3s ease;box-shadow:0 4px 12px rgba(255,140,66,.3)}
+    .review-nav-btn:hover{background:#ff7a28;transform:scale(1.05);box-shadow:0 6px 16px rgba(255,140,66,.4)}
+    .review-nav-btn i{color:#fff;font-size:1.2rem}
+    .carousel-control-prev{left:-80px}
+    .carousel-control-next{right:-80px}
+    .skeleton-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+    .skeleton-text-large{height:32px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;margin-bottom:16px;max-width:800px;margin-left:auto;margin-right:auto}
+    .skeleton-text-large.short{width:60%}
+    .skeleton-text-medium{height:20px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:12px;max-width:700px;margin-left:auto;margin-right:auto}
+    .skeleton-text-medium.short{width:70%}
+    .skeleton-text-small{height:16px;width:100px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:8px}
+    .skeleton-text-small.short{width:80px}
+    .skeleton-stars{height:20px;width:120px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    .reviews-dots{display:none;justify-content:center;align-items:center;gap:8px;margin-top:24px}
-    .reviews-dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,.25);transition:all .3s ease;cursor:pointer}
-    .reviews-dot.active{background:#3b82f6;transform:scale(1.3)}
-    html.dark-blue .reviews-dot{background:rgba(255,255,255,.25)}
-    html.dark-blue .reviews-dot.active{background:#0d84ff}
-    html.all-black .reviews-dot{background:rgba(255,255,255,.25)}
-    html.all-black .reviews-dot.active{background:#0d84ff}
-    @media(max-width:992px){.reviews-dots{display:flex}.reviews-peek-container{gap:0;overflow:hidden;touch-action:pan-y;cursor:grab}.reviews-peek-container:active{cursor:grabbing}.review-card{min-width:85%;max-width:85%}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.7);opacity:0;pointer-events:none}.review-card.active{pointer-events:none}.reviews-carousel-wrapper .carousel-control-prev,.reviews-carousel-wrapper .carousel-control-next{display:flex;width:44px;height:44px;opacity:0.85;background:rgba(0,0,0,.65);border-radius:50%;top:50%;transform:translateY(-50%);z-index:10}.reviews-carousel-wrapper .carousel-control-prev:active,.reviews-carousel-wrapper .carousel-control-next:active{background:rgba(0,0,0,.85)}.reviews-carousel-wrapper .carousel-control-prev{left:8px}.reviews-carousel-wrapper .carousel-control-next{right:8px}.reviews-carousel-wrapper .carousel-control-prev-icon,.reviews-carousel-wrapper .carousel-control-next-icon{filter:invert(1);width:20px;height:20px}}
-    @media(max-width:768px){.reviews-section{padding:60px 0}.reviews-peek-container{min-height:350px}.review-card{min-width:90%;max-width:90%;padding:24px}.review-card.prev,.review-card.next{transform:translateX(-200%) scale(0.6)}}
+    @media(max-width:992px){.review-content-wrapper{padding:0 20px}.carousel-control-prev{left:-20px}.carousel-control-next{right:-20px}.review-nav-btn{width:48px;height:48px}.review-main-quote{font-size:1.6rem}}
+    @media(max-width:768px){.reviews-section{padding:60px 0}.review-main-quote{font-size:1.4rem}.review-description{font-size:1rem}.review-author-section{flex-direction:column;text-align:center;gap:16px}.author-details{text-align:center}.review-rating-wrapper{margin-left:0}}
     html.dark-blue .reviews-section{background:#001233}
-    html.dark-blue .reviews-title{color:#fff}
-    html.dark-blue .reviews-subtitle{color:#9ca3af}
-    html.dark-blue .review-card{background:#002855;border-color:#003d7a}
-    html.dark-blue .review-text{color:#d1d5db}
+    html.dark-blue .review-main-quote{color:#fff}
+    html.dark-blue .review-description{color:#d1d5db}
+    html.dark-blue .review-name{color:#fff}
+    html.dark-blue .review-country{color:#9ca3af}
+    html.dark-blue .review-author-section{border-top-color:rgba(255,255,255,.1)}
     html.all-black .reviews-section{background:#0a0a0a}
-    html.all-black .reviews-title{color:#fff}
-    html.all-black .reviews-subtitle{color:#9ca3af}
-    html.all-black .review-card{background:#1a1a1a;border-color:#2a2a2a}
-    html.all-black .review-text{color:#d1d5db}
+    html.all-black .review-main-quote{color:#fff}
+    html.all-black .review-description{color:#d1d5db}
+    html.all-black .review-name{color:#fff}
+    html.all-black .review-country{color:#9ca3af}
+    html.all-black .review-author-section{border-top-color:rgba(255,255,255,.1)}
     /* FAQ theme backgrounds */
     html.light .faq-section{background:#f8fafc}
     html.dark-blue .faq-section{background:#001233}
     html.all-black .faq-section{background:#0a0a0a}
-    /* FAQ text visibility */
-    .faq-section .title_login{color:#1a1a1a}
-    .faq-section .accordion-button{color:#1a1a1a;background-color:#fff}
-    .faq-section .accordion-button:not(.collapsed){color:#0d6efd;background-color:#e7f1ff}
-    .faq-section .accordion-body{color:#4b5563}
-    html.dark-blue .faq-section .title_login{color:#fff}
-    html.dark-blue .faq-section .accordion-button{color:#fff;background-color:#002855}
-    html.dark-blue .faq-section .accordion-button:not(.collapsed){color:#0d84ff;background-color:#003d7a}
-    html.dark-blue .faq-section .accordion-body{color:#d1d5db}
-    html.all-black .faq-section .title_login{color:#fff}
-    html.all-black .faq-section .accordion-button{color:#fff;background-color:#1a1a1a}
-    html.all-black .faq-section .accordion-button:not(.collapsed){color:#0d84ff;background-color:#2a2a2a}
-    html.all-black .faq-section .accordion-body{color:#d1d5db}
     /* Captcha: hide scrollbars */
     #captcha-login-container,#captcha-forgot-container{overflow:hidden}
     #captcha-login-container::-webkit-scrollbar,#captcha-forgot-container::-webkit-scrollbar{width:0;height:0}
@@ -640,157 +654,41 @@ html.all-black .hero-stat-icon {
     </style>
     <script nonce="<?= $_SERVER['CSP_NONCE'] ?? '' ?>">
     (function(){
-      var reviews = [];
-      var currentIndex = 0;
-
       function escapeHtml(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
       function stars(r){var f=Math.floor(r||0),h=((r||0)%1)>=.5,e=5-f-(h?1:0),s='';for(var i=0;i<f;i++)s+='<i class="fas fa-star"></i>';if(h)s+='<i class="fas fa-star-half-alt"></i>';for(var j=0;j<e;j++)s+='<i class="far fa-star"></i>';return s}
-
-      function buildCard(rv){
-        return '<div class="review-card">\
-          <p class="review-text">'+escapeHtml(rv.review_text||'')+'</p>\
-          <div class="review-author">\
-            <div class="review-avatar"><img src="'+escapeHtml(rv.author_avatar||('https://i.pravatar.cc/150?img='+(Math.floor(Math.random()*70)+1)))+'" alt="'+escapeHtml(rv.author_name||'')+'" onerror="this.src=\'https://i.pravatar.cc/150?img=1\'"></div>\
-            <div class="review-info">\
-              <h3 class="review-name">'+escapeHtml(rv.author_name||'')+'</h3>\
-              '+(rv.author_country?('<small class="review-country">'+escapeHtml(rv.author_country)+'</small>'):'')+'\
-              <div class="review-rating">'+stars(rv.rating||0)+'</div>\
-            </div>\
-          </div>\
-        </div>';
-      }
-
-      function updateCards(){
-        var container = document.getElementById('reviewsContainer');
-        if(!container) return;
-        var cards = container.querySelectorAll('.review-card');
-        var total = cards.length;
-        if(total === 0) return;
-
-        cards.forEach(function(card, idx){
-          card.classList.remove('active','prev','next','hidden');
-          card.onclick = null; // Remove handler anterior
-
-          if(idx === currentIndex){
-            card.classList.add('active');
-          } else if(idx === (currentIndex - 1 + total) % total){
-            card.classList.add('prev');
-            card.onclick = function(){ prev(); };
-          } else if(idx === (currentIndex + 1) % total){
-            card.classList.add('next');
-            card.onclick = function(){ next(); };
-          } else {
-            card.classList.add('hidden');
-          }
-        });
-
-        // Update dots
-        var dotsContainer = document.getElementById('reviewsDots');
-        if(dotsContainer){
-          var dots = dotsContainer.querySelectorAll('.reviews-dot');
-          dots.forEach(function(dot, idx){
-            if(idx === currentIndex){
-              dot.classList.add('active');
-            } else {
-              dot.classList.remove('active');
-            }
-          });
-        }
-      }
-
-      function renderDots(){
-        var dotsContainer = document.getElementById('reviewsDots');
-        if(!dotsContainer || reviews.length === 0) return;
-
-        dotsContainer.innerHTML = '';
-        reviews.forEach(function(_, idx){
-          var dot = document.createElement('div');
-          dot.className = 'reviews-dot' + (idx === 0 ? ' active' : '');
-          dot.onclick = function(){
-            currentIndex = idx;
-            updateCards();
-          };
-          dotsContainer.appendChild(dot);
-        });
-      }
-
-      function next(){
-        if(reviews.length === 0) return;
-        currentIndex = (currentIndex + 1) % reviews.length;
-        updateCards();
-      }
-
-      function prev(){
-        if(reviews.length === 0) return;
-        currentIndex = (currentIndex - 1 + reviews.length) % reviews.length;
-        updateCards();
-      }
-
-      // Swipe functionality
-      var touchStartX = 0;
-      var touchEndX = 0;
-      var touchStartY = 0;
-      var isSwiping = false;
-
-      function handleSwipeEnd(){
-        var deltaX = touchEndX - touchStartX;
-        var deltaY = touchStartY - touchStartY;
-
-        // Check if horizontal swipe (threshold: 30px)
-        if(Math.abs(deltaX) > 30 && isSwiping){
-          if(deltaX > 0){
-            prev(); // Swipe right -> previous
-          } else {
-            next(); // Swipe left -> next
-          }
-        }
-        isSwiping = false;
-      }
-
       async function load(){
-        try{
-          var res=await fetch('/api/reviews');
-          var j=await res.json();
-          if(!j.success||!j.data||!j.data.length) return;
-
-          reviews = j.data;
-          var container=document.getElementById('reviewsContainer');
-          if(!container) return;
-          container.innerHTML = reviews.map(buildCard).join('');
-
-          currentIndex = 0;
-          updateCards();
-          renderDots();
-
-          var prevBtn = document.getElementById('reviewsPrev');
-          var nextBtn = document.getElementById('reviewsNext');
-          if(prevBtn) prevBtn.addEventListener('click', prev);
-          if(nextBtn) nextBtn.addEventListener('click', next);
-
-          // Add swipe support - attach to container
-          container.addEventListener('touchstart', function(e){
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            isSwiping = true;
-          }, {passive: true});
-
-          container.addEventListener('touchmove', function(e){
-            if(!isSwiping) return;
-            touchEndX = e.touches[0].clientX;
-          }, {passive: true});
-
-          container.addEventListener('touchend', function(e){
-            if(!isSwiping) return;
-            touchEndX = e.changedTouches[0].clientX;
-            handleSwipeEnd();
-          }, {passive: true});
-
-          container.addEventListener('touchcancel', function(){
-            isSwiping = false;
-          }, {passive: true});
+        try{var res=await fetch('/api/reviews');var j=await res.json();if(!j.success||!j.data||!j.data.length) return;
+          var inner=document.getElementById('reviewsCarouselInner');if(!inner) return; inner.innerHTML='';
+          j.data.forEach(function(rv,idx){
+            var item=document.createElement('div'); item.className='carousel-item'+(idx===0?' active':'');
+            var mainQuote = rv.main_quote || rv.review_text || '';
+            var description = rv.description || '';
+            if (!rv.main_quote && rv.review_text) {
+              var parts = rv.review_text.split('.');
+              if (parts.length > 1) {
+                mainQuote = parts[0] + '.';
+                description = parts.slice(1).join('.').trim();
+              }
+            }
+            item.innerHTML='\
+            <div class="review-content-wrapper">\
+              <div class="review-main-quote">'+escapeHtml(mainQuote)+'</div>\
+              '+(description?'<div class="review-description">'+escapeHtml(description)+'</div>':'')+'\
+              <div class="review-author-section">\
+                <div class="review-avatar"><img src="'+escapeHtml(rv.author_avatar||('https://i.pravatar.cc/150?img='+(Math.floor(Math.random()*70)+1)))+'" alt="'+escapeHtml(rv.author_name||'')+'" onerror="this.src=\'https://i.pravatar.cc/150?img=1\'"></div>\
+                <div class="author-details">\
+                  <h3 class="review-name">'+escapeHtml(rv.author_name||'')+'</h3>\
+                  '+(rv.author_country?('<div class="review-country"><i class="fas fa-map-marker-alt"></i>'+escapeHtml(rv.author_country)+'</div>'):'')+'\
+                </div>\
+                <div class="review-rating-wrapper">\
+                  <div class="review-rating">'+stars(rv.rating||5)+'</div>\
+                </div>\
+              </div>\
+            </div>';
+            inner.appendChild(item);
+          });
         }catch(e){/* noop */}
       }
-
       if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',load);} else {load();}
     })();
     </script>
