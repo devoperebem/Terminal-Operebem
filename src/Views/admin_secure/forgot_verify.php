@@ -50,7 +50,7 @@ ob_start();
                 </div>
                 <div class="form-text">Digite o código de 6 dígitos recebido por email</div>
               </div>
-              <div class="alert alert-info">
+              <div class="alert alert-info alert-permanent">
                 <small>
                   <strong>ℹ️ Importante:</strong> Após verificar o código, uma nova senha será gerada automaticamente e enviada para o seu email.
                 </small>
