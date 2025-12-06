@@ -1,0 +1,30 @@
+/**
+ * Alert Theme Optimizations
+ * Terminal Operebem
+ */
+
+/* ==================== DARK BLUE THEME - ALERTS ==================== */
+.dark-blue .alert-info {
+    background: rgba(33, 150, 243, 0.15);
+    border-color: rgba(33, 150, 243, 0.4);
+    color: #90caf9;
+}
+
+.dark-blue .alert-success {
+    background: rgba(76, 175, 80, 0.15) !important;
+    border-color: rgba(76, 175, 80, 0.4) !important;
+    color: #a5d6a7 !important;
+}
+
+/* ==================== ALL BLACK THEME - ALERTS ==================== */
+.all-black .alert-info {
+    background: rgba(33, 150, 243, 0.2);
+    border-color: rgba(33, 150, 243, 0.5);
+    color: #90caf9;
+}
+
+.all-black .alert-success {
+    background: rgba(76, 175, 80, 0.2) !important;
+    border-color: rgba(76, 175, 80, 0.5) !important;
+    color: #a5d6a7 !important;
+}

@@ -43,6 +43,8 @@
     <link rel="stylesheet" href="/assets/css/theme-dark.css?v=<?= time() ?>">
     <!-- Support Page Themes -->
     <link rel="stylesheet" href="/assets/css/support-themes.css?v=<?= time() ?>">
+    <!-- Alert Theme Optimizations -->
+    <link rel="stylesheet" href="/assets/css/alert-themes.css?v=<?= time() ?>">
     
     <!-- reCAPTCHA v3 (async load) -->
     <?php $SITE_KEY_V3 = $_ENV['RECAPTCHA_V3_SITE_KEY'] ?? ''; ?>
