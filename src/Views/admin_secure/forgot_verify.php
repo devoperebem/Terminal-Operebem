@@ -12,10 +12,16 @@ ob_start();
         </div>
         <div class="card shadow-lg border-0 rounded-4">
           <div class="card-body p-4 p-md-5">
-            <?php if (!empty($ok)): ?>
+            <?php 
+            // Verifica se há uma sessão de recuperação de senha ativa
+            $hasPendingRecovery = !empty($_SESSION['adm_fp']) && !empty($_SESSION['adm_fp']['username']);
+            ?>
+            <?php if (!empty($ok) || $hasPendingRecovery): ?>
               <div class="alert alert-success">
                 <?php if ($ok === 'sent'): ?>
                   Código enviado com sucesso! Verifique seu email e insira o código abaixo.
+                <?php elseif ($hasPendingRecovery): ?>
+                  Um código de verificação foi enviado para o seu email. Insira o código abaixo para continuar.
                 <?php endif; ?>
               </div>
             <?php endif; ?>
@@ -56,7 +62,6 @@ ob_start();
 
             <div class="text-center mt-3">
               <a href="/secure/adm/forgot" class="btn btn-link">Solicitar novo código</a>
-              <span class="text-muted mx-2">|</span>
               <a href="/secure/adm/login" class="btn btn-link">Voltar ao login</a>
             </div>
           </div>
