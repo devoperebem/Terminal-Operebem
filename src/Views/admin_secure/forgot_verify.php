@@ -17,7 +17,7 @@ ob_start();
             $hasPendingRecovery = !empty($_SESSION['adm_fp']) && !empty($_SESSION['adm_fp']['username']);
             ?>
             <?php if (!empty($ok) || $hasPendingRecovery): ?>
-              <div class="alert alert-success">
+              <div class="alert alert-success alert-permanent">
                 <?php if ($ok === 'sent'): ?>
                   Código enviado com sucesso! Verifique seu email e insira o código abaixo.
                 <?php elseif ($hasPendingRecovery): ?>
