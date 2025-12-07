@@ -13,7 +13,21 @@ ob_start();
         <div class="card shadow-lg border-0 rounded-4">
           <div class="card-body p-4 p-md-5">
             <?php if (!empty($error)): ?>
-              <div class="alert alert-danger">Falha no login (<?= htmlspecialchars($error) ?>)</div>
+              <?php
+              $errorMessages = [
+                'csrf' => 'Token CSRF inválido. Por favor, recarregue a página e tente novamente.',
+                'captcha' => 'Falha na validação do CAPTCHA. Por favor, complete o desafio novamente.',
+                'bot' => 'Comportamento suspeito detectado. Se você é humano, tente novamente.',
+                'ratelimit' => 'Muitas tentativas de login falhadas. Aguarde 15 minutos antes de tentar novamente.',
+                'rc' => 'Falha na validação do reCAPTCHA v3. Verifique sua conexão com a internet e tente novamente.',
+                'auth' => 'Usuário ou senha incorretos. Verifique suas credenciais e tente novamente.<br><small class="text-muted">Se o problema persistir, pode haver um problema de conexão com o banco de dados.</small>',
+              ];
+              $message = $errorMessages[$error] ?? 'Erro desconhecido (' . htmlspecialchars($error) . '). Entre em contato com o suporte.';
+              ?>
+              <div class="alert alert-danger">
+                <strong><i class="fas fa-exclamation-triangle me-2"></i>Erro no Login</strong><br>
+                <?= $message ?>
+              </div>
             <?php endif; ?>
             <form method="POST" action="/secure/adm/login" class="needs-validation" novalidate>
               <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
