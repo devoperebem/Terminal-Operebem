@@ -346,6 +346,25 @@
             .app-footer .container { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
             .app-footer .footer-links .nav { flex-wrap: wrap; gap: 4px 8px; }
             .app-footer .footer-actions { width: 100%; display: flex; justify-content: space-between; }
+            .app-footer .footer-actions .btn { flex: 1; font-size: 0.875rem; padding: 0.5rem 0.75rem; }
+            .app-footer .footer-brand { flex-wrap: wrap; }
+            .app-footer .social { margin-top: 0.5rem !important; }
+            .app-footer .social a { font-size: 1.25rem; margin-right: 0.75rem; }
+            .app-footer .recaptcha-legal { font-size: 0.75rem; line-height: 1.4; }
+        }
+        
+        /* Footer tablet adjustments */
+        @media (min-width: 577px) and (max-width: 768px) {
+            .app-footer .footer-links .nav { flex-wrap: wrap; justify-content: center; }
+            .app-footer .footer-links .nav-link { padding: 0.25rem 0.4rem; font-size: 0.9rem; }
+            .app-footer .footer-actions .btn { font-size: 0.9rem; }
+        }
+        
+        /* Footer extra small mobile */
+        @media (max-width: 360px) {
+            .app-footer .footer-brand span { font-size: 0.9rem; }
+            .app-footer .footer-actions .btn { font-size: 0.8rem; padding: 0.4rem 0.6rem; }
+            .app-footer .footer-links .nav-link { font-size: 0.85rem; padding: 0.2rem 0.3rem; }
         }
         
         /* Offcanvas Mobile Menu - Tema adaptativo */
