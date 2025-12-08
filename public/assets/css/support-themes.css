@@ -352,7 +352,8 @@
     color: #ffffff;
 }
 
-/* Navbar mobile collapse */
+/* Navbar mobile collapse - apenas mobile */
+@media (max-width: 991px) {
 .dark-blue .navbar-collapse {
     background: #1a1b1e;
 }
@@ -371,6 +372,8 @@
     background: #000000;
     padding: 1rem;
     border-top: 1px solid #1a1a1a;
+}
+
 }
 
 /* Navbar toggler icon */
