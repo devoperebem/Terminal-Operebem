@@ -213,6 +213,21 @@ html.all-black .hero-stat-icon {
     justify-content: center;
     width: 100%;
 }
+
+/* Fix navbar collapse animation */
+.navbar-collapse {
+    transition: height 0.35s ease;
+}
+
+.navbar-collapse:not(.show) {
+    height: 0 !important;
+    overflow: hidden;
+}
+
+.navbar-collapse.collapsing {
+    overflow: hidden;
+    transition: height 0.35s ease;
+}
 </style>
 
 <!-- Header/Navigation -->
