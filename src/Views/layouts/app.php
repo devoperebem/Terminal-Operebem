@@ -367,6 +367,12 @@
             .app-footer .footer-links .nav-link { font-size: 0.85rem; padding: 0.2rem 0.3rem; }
         }
         
+        /* Footer desktop - garantir visibilidade dos botões */
+        @media (min-width: 769px) {
+            .app-footer .footer-actions { display: flex !important; visibility: visible !important; opacity: 1 !important; }
+            .app-footer .footer-actions .btn { display: inline-block !important; visibility: visible !important; }
+        }
+        
         /* Offcanvas Mobile Menu - Tema adaptativo */
         .offcanvas { max-width: 320px; }
         html.light .offcanvas { background-color: #ffffff; color: #000; }
