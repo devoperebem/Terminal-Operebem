@@ -228,6 +228,19 @@ html.all-black .hero-stat-icon {
     overflow: hidden;
     transition: height 0.35s ease;
 }
+
+/* Mostrar navbar-collapse em desktop */
+@media (min-width: 992px) {
+    .modern-header .navbar-collapse {
+        display: flex !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    
+    .modern-header .navbar-auth {
+        display: flex !important;
+    }
+}
 </style>
 
 <!-- Header/Navigation -->
