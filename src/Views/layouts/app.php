@@ -369,8 +369,22 @@
         
         /* Footer desktop - garantir visibilidade dos botões */
         @media (min-width: 769px) {
-            .app-footer .footer-actions { display: flex !important; visibility: visible !important; opacity: 1 !important; }
-            .app-footer .footer-actions .btn { display: inline-block !important; visibility: visible !important; }
+            .app-footer .col-md-3 { display: block !important; }
+            .app-footer .footer-actions { 
+                display: flex !important; 
+                visibility: visible !important; 
+                opacity: 1 !important;
+                position: relative !important;
+                z-index: 10 !important;
+            }
+            .app-footer .footer-actions .btn { 
+                display: inline-block !important; 
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: auto !important;
+                height: auto !important;
+                position: relative !important;
+            }
         }
         
         /* Offcanvas Mobile Menu - Tema adaptativo */
