@@ -368,7 +368,7 @@
         }
         
         /* Footer desktop - garantir visibilidade dos botões */
-        @media (min-width: 769px) {
+        @media (min-width: 768px) {
             .app-footer .col-md-3 { display: block !important; }
             .app-footer .footer-actions { 
                 display: flex !important; 
