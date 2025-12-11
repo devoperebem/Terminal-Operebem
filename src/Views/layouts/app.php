@@ -449,7 +449,7 @@
         ];
         foreach ($cands as $c) { if (is_file($c)) { $mtime = @filemtime($c) ?: time(); $avatarHeaderUrl = '/uploads/avatars/' . basename($c) . '?v=' . $mtime; break; } }
       }
-      $avatarFallbackSvg = 'data:image/svg+xml;utf8,' . rawurlencode("<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><rect width='64' height='64' rx='32' fill='%23e2e8f0'/><circle cx='32' cy='24' r='12' fill='%2394a3b8'/><path d='M12 56c0-11.046 8.954-20 20-20s20 8.954 20 20' fill='%2394a3b8'/></svg>");
+      $avatarFallbackSvg = '/assets/images/user_image.png';
     ?>
     <nav class="navbar navbar-expand-lg navbar-light navbar-auth">
         <div class="container">

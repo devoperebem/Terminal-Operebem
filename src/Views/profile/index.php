@@ -27,7 +27,7 @@ ob_start();
                         <div class="profile-avatar-wrapper position-relative d-inline-block">
                             <?php $avatarSrc = isset($avatar_url) && $avatar_url ? $avatar_url : ''; ?>
                             <?php if ($avatarSrc): ?>
-                                <?php $fallbackSvg = 'data:image/svg+xml;utf8,' . rawurlencode("<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\' viewBox=\'0 0 64 64\'><rect width=\'64\' height=\'64\' rx=\'32\' fill=\'%23e2e8f0\'/><circle cx=\'32\' cy=\'24\' r=\'12\' fill=\'%2394a3b8\'/><path d=\'M12 56c0-11.046 8.954-20 20-20s20 8.954 20 20\' fill=\'%2394a3b8\'/></svg>"); ?>
+                                <?php $fallbackSvg = '/assets/images/user_image.png'; ?>
                                 <img id="profileAvatarImg" src="<?= htmlspecialchars($avatarSrc, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar" class="rounded-circle" style="width: 96px; height: 96px; object-fit: cover; border: 2px solid var(--border-color);" onerror="this.onerror=null; this.src='<?= $fallbackSvg ?>';"/>
                             <?php else: ?>
                                 <div id="profileAvatarPlaceholder" class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 96px; height: 96px;">
