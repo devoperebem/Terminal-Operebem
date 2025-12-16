@@ -1519,7 +1519,7 @@
     // Seção de Indicadores Técnicos
     renderTechnical('tv_tech_gold', 'OANDA:XAUUSD');
     renderTechnical('tv_tech_dxy', 'TVC:DXY');
-    renderTechnical('tv_tech_us10y', 'TVC:US10Y');
+    renderTechnical('tv_tech_us10y', 'TVC:US10');
     renderTechnical('tv_tech_vix', 'CBOE:VIX');
   }
 
