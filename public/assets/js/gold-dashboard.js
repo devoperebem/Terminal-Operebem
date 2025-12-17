@@ -1294,7 +1294,7 @@
       new TradingView.widget({
         autosize: true,
         symbol: 'TVC:GOLD',
-        interval: '60',
+        interval: '1',
         timezone: tz,
         theme: theme,
         style: '1',
@@ -1356,7 +1356,7 @@
     var config = {
       autosize: true,
       symbol: baseSymbol,
-      interval: 'D',
+      interval: '1',
       timezone: tz,
       theme: theme,
       style: '2',
@@ -1423,7 +1423,7 @@
     var config = {
       autosize: true,
       symbol: ratioSymbol,
-      interval: '60',
+      interval: '1',
       timezone: tz,
       theme: theme,
       style: '2',
@@ -1483,7 +1483,7 @@
     script.async = true;
 
     var config = {
-      interval: '15m',
+      interval: '1m',
       width: '100%',
       height: '100%',
       isTransparent: false,
