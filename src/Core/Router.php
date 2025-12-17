@@ -6,7 +6,6 @@ class Router
 {
     private array $routes = [];
     private array $middleware = [];
-    private array $globalMiddleware = [];
 
     public function get(string $path, $handler, array $middleware = []): void
     {
@@ -33,15 +32,6 @@ class Router
         $this->addRoute('PATCH', $path, $handler, $middleware);
     }
 
-    /**
-     * Adiciona um middleware global que será executado em todas as rotas
-     * @param string $middlewareClass
-     */
-    public function addGlobalMiddleware(string $middlewareClass): void
-    {
-        $this->globalMiddleware[] = $middlewareClass;
-    }
-
     private function addRoute(string $method, string $path, $handler, array $middleware): void
     {
         $this->routes[] = [
@@ -54,14 +44,6 @@ class Router
 
     public function resolve(): void
     {
-        // Executar middlewares globais primeiro
-        foreach ($this->globalMiddleware as $middlewareClass) {
-            $middleware = new $middlewareClass();
-            if (!$middleware->handle()) {
-                return;
-            }
-        }
-
         $method = $_SERVER['REQUEST_METHOD'];
         $path = $this->getCurrentPath();
 

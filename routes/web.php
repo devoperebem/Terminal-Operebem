@@ -41,12 +41,8 @@ use App\Middleware\AdminMiddleware;
 use App\Middleware\SecureAdminMiddleware;
 use App\Middleware\DebugOnlyMiddleware;
 use App\Middleware\SameOriginAjaxMiddleware;
-use App\Middleware\DevEnvironmentMiddleware;
 
 $router = new Router();
-
-// Aplicar middleware global de detecção de ambiente /dev/
-$router->addGlobalMiddleware(DevEnvironmentMiddleware::class);
 
 // Rotas públicas (apenas para usuários não logados)
 $router->get('/', [HomeController::class, 'index'], [GuestMiddleware::class]);
