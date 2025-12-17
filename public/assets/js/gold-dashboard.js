@@ -1509,7 +1509,7 @@
     renderGoldChart();
 
     // Seção de Comparações
-    renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'ICEUS:DXY');
+    renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'CAPITALCOM:DXY');
     renderComparison('tv_compare_gold_btc', 'OANDA:XAUUSD', 'BITSTAMP:BTCUSD');
 
     // Seção de Razões
@@ -1518,8 +1518,8 @@
 
     // Seção de Indicadores Técnicos
     renderTechnical('tv_tech_gold', 'OANDA:XAUUSD');
-    renderTechnical('tv_tech_dxy', 'ICEUS:DXY');
-    renderTechnical('tv_tech_us10y', 'TVC:US10');
+    renderTechnical('tv_tech_dxy', 'TVC:DXY');
+    renderTechnical('tv_tech_us10y', 'TVC:US10Y');
     renderTechnical('tv_tech_vix', 'CBOE:VIX');
   }
 
