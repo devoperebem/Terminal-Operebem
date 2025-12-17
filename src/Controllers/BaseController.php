@@ -31,7 +31,13 @@ abstract class BaseController
         // Extrair variáveis para o escopo da view
         extract($data);
         
-        $viewPath = dirname(__DIR__, 2) . "/src/Views/{$view}.php";
+        // Tentar obter caminho da view com fallback automático (dev -> prod)
+        $viewPath = get_dev_view_path($view);
+        
+        // Fallback para caminho tradicional se helper não encontrar
+        if ($viewPath === null) {
+            $viewPath = dirname(__DIR__, 2) . "/src/Views/{$view}.php";
+        }
         
         if (!file_exists($viewPath)) {
             throw new \Exception("View '{$view}' não encontrada");

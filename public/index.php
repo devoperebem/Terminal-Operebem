@@ -44,8 +44,32 @@ if (!headers_sent()) {
     }
 }
 
+// ============================================================================
+// DETECÇÃO DE AMBIENTE /dev/ (Ambiente de Teste)
+// ============================================================================
+// Detectar se a URL começa com /dev/ para habilitar ambiente de teste
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$path = parse_url($requestUri, PHP_URL_PATH);
+
+if (str_starts_with($path, '/dev/')) {
+    // Define constante global indicando ambiente de desenvolvimento
+    define('IS_DEV_ENVIRONMENT', true);
+    
+    // Remove o prefixo /dev/ da URI para o roteamento funcionar normalmente
+    $cleanPath = substr($path, 4); // Remove '/dev'
+    $queryString = $_SERVER['QUERY_STRING'] ?? '';
+    $_SERVER['REQUEST_URI'] = $cleanPath . ($queryString !== '' ? '?' . $queryString : '');
+    
+    // Header para debug
+    header('X-Dev-Environment: true');
+} else {
+    // Ambiente de produção
+    define('IS_DEV_ENVIRONMENT', false);
+}
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../src/Helpers/html_helpers.php';
+require_once __DIR__ . '/../src/Helpers/dev_helpers.php';
 
 use App\Core\Application;
 use App\Core\Database;
