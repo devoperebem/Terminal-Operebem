@@ -1,0 +1,9 @@
+# Force correct MIME types for JavaScript files
+<FilesMatch "\.(js)$">
+    Header set Content-Type "application/javascript; charset=utf-8"
+</FilesMatch>
+
+# Add cache headers for better performance
+<FilesMatch "\.(js|css)$">
+    Header set Cache-Control "public, max-age=3600"
+</FilesMatch>
