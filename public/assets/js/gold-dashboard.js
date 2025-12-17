@@ -166,7 +166,7 @@
       var cfg = {
         symbols: [
           { proName: "OANDA:XAUUSD", title: "OURO" },
-          { proName: "TVC:DXY", title: "DXY" },
+          { proName: "CAPITALCOM:DXY", title: "DXY" },
           { proName: "VANTAGE:SP500", title: "SP500 Cash Vanguard" },
           { proName: "INDEX:BTCUSD", title: "Bitcoin" },
           { proName: "TVC:SILVER", title: "Silver" }
