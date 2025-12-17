@@ -1356,7 +1356,7 @@
     var config = {
       autosize: true,
       symbol: baseSymbol,
-      interval: '60',
+      interval: 'D',
       timezone: tz,
       theme: theme,
       style: '2',
@@ -1509,7 +1509,7 @@
     renderGoldChart();
 
     // Seção de Comparações
-    renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'INDEX:DXY');
+    renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'ICEUS:DXY');
     renderComparison('tv_compare_gold_btc', 'OANDA:XAUUSD', 'BITSTAMP:BTCUSD');
 
     // Seção de Razões
