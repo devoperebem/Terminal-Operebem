@@ -1509,7 +1509,7 @@
     renderGoldChart();
 
     // Seção de Comparações
-    renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'FX:USDOLLAR');
+    renderComparison('tv_compare_gold_dxy', 'OANDA:XAUUSD', 'TVC:DXY');
     renderComparison('tv_compare_gold_btc', 'OANDA:XAUUSD', 'BITSTAMP:BTCUSD');
 
     // Seção de Razões
