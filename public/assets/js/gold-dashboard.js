@@ -199,7 +199,7 @@
   var TARGETS = {
     gold: { codes: ['68', 'XAUUSD', 'XAU/USD'], names: ['OURO', 'GOLD'], keywords: [] },
     gold2: { codes: ['8830', 'GOLD'], names: ['OURO 2!', 'GOLD 2!'], keywords: [] },
-    dxy: { codes: ['DXY', 'ICEUS:DXY', 'DX-Y.NYB'], names: ['DXY', 'DOLLAR INDEX'], keywords: ['DOLLAR', 'DÓLAR', 'INDEX'] },
+    dxy: { codes: ['DXY', 'CAPITALCOM:DXY', 'DX-Y.NYB'], names: ['DXY', 'DOLLAR INDEX'], keywords: ['DOLLAR', 'DÓLAR', 'INDEX'] },
     us10y: { codes: ['US10Y', '^TNX', 'UST10Y', 'US10Y.Y'], names: ['10Y', '10-Y', 'TREASURY'], keywords: ['10Y', 'UST', 'TREASURY'] },
     vix: { codes: ['VIX', '^VIX'], names: ['VIX', 'VOLATILITY'], keywords: ['VIX', 'VOLATILITY'] },
     gvz: { codes: ['GVZ', '^GVZ', 'GVOL'], names: ['GVZ', 'GOLD VOLATILITY'], keywords: ['GOLD', 'VOLATILITY', 'GVZ'] }
@@ -1518,7 +1518,7 @@
 
     // Seção de Indicadores Técnicos
     renderTechnical('tv_tech_gold', 'OANDA:XAUUSD');
-    renderTechnical('tv_tech_dxy', 'TVC:DXY');
+    renderTechnical('tv_tech_dxy', 'CAPITALCOM:DXY');
     renderTechnical('tv_tech_us10y', 'TVC:US10Y');
     renderTechnical('tv_tech_vix', 'CBOE:VIX');
   }
