@@ -747,7 +747,7 @@
       if (!tbody) return;
 
       // Buscar dados de criptomoedas do boot.js (via API principal)
-      fetch('/api/quotes', {
+      fetch('/actions/boot.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'acao=listar'
