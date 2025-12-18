@@ -17,9 +17,9 @@ ob_start();
   </div>
 </div>
 
-<?php include __DIR__ . '/../partials/market-status-tooltip-styles.php'; ?>
+<?php include __DIR__ . '/../../partials/market-status-tooltip-styles.php'; ?>
 
-<?php include __DIR__ . '/../partials/market-status-tooltip-styles.php'; ?>
+<?php include __DIR__ . '/../../partials/market-status-tooltip-styles.php'; ?>
 
 <style>
 /* Esconder copyright do TradingView */
@@ -432,5 +432,5 @@ $scripts = ''
   . '    });'
   . '  });'
   . '</script>';
-include __DIR__ . '/../layouts/app.php';
+include __DIR__ . '/../../layouts/app.php';
 ?>
