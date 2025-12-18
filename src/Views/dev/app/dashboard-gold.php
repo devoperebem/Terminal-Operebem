@@ -294,7 +294,7 @@ html.all-black .media-percentage.neutral {
 
   <!-- Se├º├úo: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
   <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-md-6 col-lg-4">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Futuros de Ouro</span>
@@ -305,19 +305,13 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="tbody_futuros_ouro"></tbody>
             </table>
-            <!-- Gr├ífico de Curva de Futuros -->
-            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
-              <div style="position: relative; width: 550px; height: 250px; overflow: hidden;">
-                <div class="text-center text-muted small fw-semibold mb-2">Curva de Futuros (Term Structure)</div>
-                <canvas id="gc_futures_curve" style="width: 550px !important; height: 220px !important; display: block;"></canvas>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
     </div>
     
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-md-6 col-lg-4">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Gold Miners</span>
@@ -328,20 +322,14 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="tbody_gold_miners"></tbody>
             </table>
-            <!-- Gr├ífico TradingView GDX vs GOLD -->
-            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
-              <div style="width: 550px; height: 250px;">
-                <div class="text-center text-muted small fw-semibold mb-2">GDX vs GOLD</div>
-                <div id="tv_gold_miners_widget" style="width: 550px; height: 220px;"></div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
     </div>
 
     <!-- Card de Criptomoedas (Top 7) -->
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-md-6 col-lg-4">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Criptomoedas</span>
@@ -352,6 +340,31 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="text-xl" id="table_criptomoedas_gold"></tbody>
             </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção: Gráficos Detalhados (Curva de Futuros e GDX vs GOLD) -->
+  <div class="row g-3 px-2 px-md-3 mt-3">
+    <div class="col-12 col-lg-6">
+      <div class="card w-100 card_indices h-100">
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Curva de Futuros (Term Structure)</div>
+        <div class="card-body p-3 d-flex justify-content-center align-items-center">
+          <div style="position: relative; width: 100%; max-width: 550px; height: 250px; overflow: hidden;">
+            <canvas id="gc_futures_curve" style="width: 100% !important; height: 220px !important; display: block;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-lg-6">
+      <div class="card w-100 card_indices h-100">
+        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">GDX vs GOLD</div>
+        <div class="card-body p-3 d-flex justify-content-center align-items-center">
+          <div style="width: 100%; max-width: 550px; height: 250px;">
+            <div id="tv_gold_miners_widget" style="width: 100%; height: 220px;"></div>
           </div>
         </div>
       </div>
