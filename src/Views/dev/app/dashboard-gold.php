@@ -339,6 +339,23 @@ html.all-black .media-percentage.neutral {
         </div>
       </div>
     </div>
+
+    <!-- Card de Criptomoedas (Top 7) -->
+    <div class="col-12 col-lg-6">
+      <div class="card w-100 card_indices">
+        <div class="card-header title-card">
+          <span>Criptomoedas</span>
+          <span class="media-percentage" id="media-cripto-gold"></span>
+        </div>
+        <div class="card-body p-0">
+          <div class="w-100">
+            <table class="table mb-0">
+              <tbody class="text-xl" id="table_criptomoedas_gold"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Se├º├úo: Compara├º├╡es e Raz├╡es -->

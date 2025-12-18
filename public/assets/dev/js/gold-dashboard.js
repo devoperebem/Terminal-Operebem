@@ -738,6 +738,101 @@
     } catch (e) { console.error('renderGoldMinersGrid error:', e); }
   }
 
+  // ============================================================================
+  // GRID CRIPTOMOEDAS (Top 7) - Para o Dashboard de Ouro
+  // ============================================================================
+  function renderCryptosGold() {
+    try {
+      var tbody = document.getElementById('table_criptomoedas_gold');
+      if (!tbody) return;
+
+      // Buscar dados de criptomoedas do boot.js (via API principal)
+      fetch('/api/quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'acao=listar'
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (json) {
+          var dados = json.data || [];
+
+          // Filtrar apenas criptomoedas
+          var cryptos = dados.filter(function (item) {
+            return (item.grupo || '').indexOf('cripto') >= 0;
+          });
+
+          // Pegar apenas os primeiros 7
+          cryptos = cryptos.slice(0, 7);
+
+          if (cryptos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Carregando...</td></tr>';
+            return;
+          }
+
+          var html = '';
+          var totalPct = 0;
+          var countPct = 0;
+
+          cryptos.forEach(function (item) {
+            var pct = toNumber(item.pcp);
+            var pctText = pct !== null ? formatPercent(pct) : '--';
+            var cls = pct > 0 ? 'text-success' : (pct < 0 ? 'text-danger' : 'text-muted');
+            var color = pct > 0 ? '#10b981' : (pct < 0 ? '#ef4444' : '');
+            var timeText = formatTime(item);
+
+            if (pct !== null && !isNaN(pct)) {
+              totalPct += pct;
+              countPct++;
+            }
+
+            // Montar nome limpo
+            var apelido = (item.apelido || item.nome || '').replace(/\\s*\\(CFD\\)\\s*/gi, '').trim();
+            var nome = (item.nome || '').replace(/\\s*\\(CFD\\)\\s*/gi, '').trim();
+
+            // Ícone da cripto (usar função global se disponível, senão ícone genérico)
+            var iconHtml = '';
+            if (typeof window.cryptoSlugFrom === 'function') {
+              var slug = window.cryptoSlugFrom(item);
+              if (slug) {
+                iconHtml = '<img src="/assets/images/crypto-dashboard-flags/' + slug + '.png" alt="' + slug + '" width="18" height="18" class="me-2" style="user-select:none;pointer-events:none;">';
+              }
+            }
+            if (!iconHtml) {
+              iconHtml = '<i class="fas fa-coins me-2"></i>';
+            }
+
+            html += '<tr style="font-weight: 600 !important">'
+              + '<td width="50%">'
+              + '<div class="d-flex align-items-center">'
+              + iconHtml
+              + '<span class="tooltip-target" data-tooltip="' + nome + '">' + apelido + '</span>'
+              + '</div>'
+              + '</td>'
+              + '<td class="text-right">' + (item.last || '--') + '</td>'
+              + '<td class="text-right ' + cls + '" style="font-weight: 900 !important; color: ' + color + ' !important;">' + pctText + '</td>'
+              + '<td class="text-right text-muted small">' + (item.last ? timeText : '') + '</td>'
+              + '</tr>';
+          });
+
+          tbody.innerHTML = html;
+
+          // Atualizar média
+          var avg = countPct > 0 ? (totalPct / countPct) : 0;
+          var mediaEl = document.getElementById('media-cripto-gold');
+          if (mediaEl) {
+            var val = Number.isFinite(avg) ? parseFloat(avg.toFixed(2)) : 0;
+            mediaEl.textContent = val.toFixed(2) + '%';
+            mediaEl.className = 'media-percentage ' + (val > 0 ? 'positive' : (val < 0 ? 'negative' : 'neutral'));
+          }
+        })
+        .catch(function (e) {
+          console.error('renderCryptosGold error:', e);
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Erro ao carregar</td></tr>';
+        });
+
+    } catch (e) { console.error('renderCryptosGold error:', e); }
+  }
+
   // Ativar tooltips customizados para a tabela de gold miners
   function activateMinersTooltips() {
     try {
@@ -1521,6 +1616,9 @@
     renderTechnical('tv_tech_dxy', 'TVC:DXY');
     renderTechnical('tv_tech_us10y', 'TVC:US10Y');
     renderTechnical('tv_tech_vix', 'CBOE:VIX');
+
+    // Card de Criptomoedas (Top 7)
+    renderCryptosGold();
   }
 
   // ============================================================================
