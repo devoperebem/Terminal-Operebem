@@ -421,7 +421,7 @@ $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
   . '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>'
   . '<script src="/assets/js/boot.js?v=' . time() . '"></script>'
-  . '<script src="/assets/dev/js.php?f=gold-dashboard.js&v=' . time() . '"></script>'
+  . dev_script_tag('gold-dashboard.js')
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
   . '<script>'
   . '  // Inicializar tooltips do Bootstrap'

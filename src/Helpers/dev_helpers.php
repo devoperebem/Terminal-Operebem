@@ -46,3 +46,30 @@ if (!function_exists('get_dev_view_path')) {
         return null;
     }
 }
+
+if (!function_exists('dev_script_tag')) {
+    /**
+     * Retorna tag de script com caminho correto baseado no ambiente
+     * Em ambiente dev, inclui o JavaScript inline para evitar problemas de MIME type
+     * 
+     * @param string $scriptName Nome do arquivo JS (ex: 'gold-dashboard.js')
+     * @return string Tag <script> completa
+     */
+    function dev_script_tag(string $scriptName): string
+    {
+        if (is_dev_environment()) {
+            // Caminho para versão dev
+            $devPath = dirname(__DIR__, 2) . '/public/assets/dev/js/' . $scriptName;
+            
+            if (file_exists($devPath)) {
+                // Incluir inline para garantir que funcione
+                $content = file_get_contents($devPath);
+                return '<script>' . $content . '</script>';
+            }
+        }
+        
+        // Fallback para versão de produção normal
+        $v = time();
+        return '<script src="/assets/js/' . htmlspecialchars($scriptName) . '?v=' . $v . '"></script>';
+    }
+}
