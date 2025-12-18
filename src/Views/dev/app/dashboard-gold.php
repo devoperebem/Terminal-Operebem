@@ -357,6 +357,7 @@ html.all-black .media-percentage.neutral {
             <!-- TradingView Widget BEGIN -->
             <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
               <div style="width: 100%; height: 250px;">
+                <div class="text-center text-muted small fw-semibold mb-2">Crypto Heatmap</div>
                 <div class="tradingview-widget-container" style="width: 100%; height: 100%;">
                   <div class="tradingview-widget-container__widget"></div>
                   <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
