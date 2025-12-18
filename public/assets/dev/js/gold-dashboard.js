@@ -830,6 +830,47 @@
           tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Erro ao carregar</td></tr>';
         });
 
+      // Renderizar Heatmap dinamicamente (suporte a tema)
+      var heatmapContainer = document.getElementById('tv_crypto_heatmap_widget');
+      if (heatmapContainer) {
+        heatmapContainer.innerHTML = ''; // Limpar anterior
+
+        var theme = 'light';
+        try { theme = getCurrentTheme(); } catch (e) { }
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'tradingview-widget-container';
+        wrapper.style.width = '100%';
+        wrapper.style.height = '100%';
+
+        var widgetDiv = document.createElement('div');
+        widgetDiv.className = 'tradingview-widget-container__widget';
+        wrapper.appendChild(widgetDiv);
+
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js';
+        script.async = true;
+        script.innerHTML = JSON.stringify({
+          "dataSource": "CryptoWithoutStable",
+          "blockSize": "market_cap_calc",
+          "blockColor": "24h_close_change|5",
+          "locale": "br",
+          "symbolUrl": "",
+          "colorTheme": theme,
+          "hasTopBar": false,
+          "isDataSetEnabled": false,
+          "isZoomEnabled": true,
+          "hasSymbolTooltip": false,
+          "isMonoSize": false,
+          "width": "100%",
+          "height": "100%"
+        });
+
+        wrapper.appendChild(script);
+        heatmapContainer.appendChild(wrapper);
+      }
+
     } catch (e) { console.error('renderCryptosGold error:', e); }
   }
 

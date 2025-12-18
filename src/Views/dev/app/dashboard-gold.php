@@ -358,26 +358,7 @@ html.all-black .media-percentage.neutral {
             <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
               <div style="width: 100%; height: 250px;">
                 <div class="text-center text-muted small fw-semibold mb-2">Crypto Heatmap</div>
-                <div class="tradingview-widget-container" style="width: 100%; height: 100%;">
-                  <div class="tradingview-widget-container__widget"></div>
-                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
-                  {
-                  "dataSource": "CryptoWithoutStable",
-                  "blockSize": "market_cap_calc",
-                  "blockColor": "24h_close_change|5",
-                  "locale": "br",
-                  "symbolUrl": "",
-                  "colorTheme": "light",
-                  "hasTopBar": false,
-                  "isDataSetEnabled": false,
-                  "isZoomEnabled": true,
-                  "hasSymbolTooltip": false,
-                  "isMonoSize": false,
-                  "width": "100%",
-                  "height": "100%"
-                  }
-                  </script>
-                </div>
+                <div id="tv_crypto_heatmap_widget" style="width: 100%; height: 100%;"></div>
               </div>
             </div>
             <!-- TradingView Widget END -->
