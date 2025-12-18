@@ -305,6 +305,13 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="tbody_futuros_ouro"></tbody>
             </table>
+            <!-- Gráfico de Curva de Futuros -->
+            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
+              <div style="position: relative; width: 100%; height: 250px; overflow: hidden;">
+                <div class="text-center text-muted small fw-semibold mb-2">Curva de Futuros (Term Structure)</div>
+                <canvas id="gc_futures_curve" style="width: 100% !important; height: 220px !important; display: block;"></canvas>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -322,6 +329,13 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="tbody_gold_miners"></tbody>
             </table>
+            <!-- Gráfico TradingView GDX vs GOLD -->
+            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
+              <div style="width: 100%; height: 250px;">
+                <div class="text-center text-muted small fw-semibold mb-2">GDX vs GOLD</div>
+                <div id="tv_gold_miners_widget" style="width: 100%; height: 220px;"></div>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -340,36 +354,39 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="text-xl" id="table_criptomoedas_gold"></tbody>
             </table>
+            <!-- TradingView Widget BEGIN -->
+            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
+              <div style="width: 100%; height: 250px;">
+                <div class="tradingview-widget-container" style="width: 100%; height: 100%;">
+                  <div class="tradingview-widget-container__widget"></div>
+                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+                  {
+                  "dataSource": "CryptoWithoutStable",
+                  "blockSize": "market_cap_calc",
+                  "blockColor": "24h_close_change|5",
+                  "locale": "br",
+                  "symbolUrl": "",
+                  "colorTheme": "light",
+                  "hasTopBar": false,
+                  "isDataSetEnabled": false,
+                  "isZoomEnabled": true,
+                  "hasSymbolTooltip": false,
+                  "isMonoSize": false,
+                  "width": "100%",
+                  "height": "100%"
+                  }
+                  </script>
+                </div>
+              </div>
+            </div>
+            <!-- TradingView Widget END -->
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Seção: Gráficos Detalhados (Curva de Futuros e GDX vs GOLD) -->
-  <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-lg-6">
-      <div class="card w-100 card_indices h-100">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">Curva de Futuros (Term Structure)</div>
-        <div class="card-body p-3 d-flex justify-content-center align-items-center">
-          <div style="position: relative; width: 100%; max-width: 550px; height: 250px; overflow: hidden;">
-            <canvas id="gc_futures_curve" style="width: 100% !important; height: 220px !important; display: block;"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-12 col-lg-6">
-      <div class="card w-100 card_indices h-100">
-        <div class="card-header title-card py-1 px-2 fs-6 fw-bold">GDX vs GOLD</div>
-        <div class="card-body p-3 d-flex justify-content-center align-items-center">
-          <div style="width: 100%; max-width: 550px; height: 250px;">
-            <div id="tv_gold_miners_widget" style="width: 100%; height: 220px;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Se├º├úo: Compara├º├╡es e Raz├╡es -->
   <div class="row g-3 px-2 px-md-3 mt-3">
