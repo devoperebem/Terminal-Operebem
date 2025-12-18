@@ -358,7 +358,7 @@ html.all-black .media-percentage.neutral {
             <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
               <div style="width: 100%; height: 250px;">
                 <div class="text-center text-muted small fw-semibold mb-2">Crypto Heatmap</div>
-                <div id="tv_crypto_heatmap_widget" style="width: 100%; height: 100%;"></div>
+                <div id="tv_crypto_heatmap_widget" style="width: 100%; height: 220px;"></div>
               </div>
             </div>
             <!-- TradingView Widget END -->
