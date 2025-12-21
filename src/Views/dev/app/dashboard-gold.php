@@ -175,6 +175,13 @@ html.all-black .media-percentage.neutral {
       max-width: 100% !important;
     }
   }
+  @media (min-width: 851px) and (max-width: 1199px) {
+    .col-custom-stack-tablet-center {
+      flex: 0 0 auto !important;
+      width: 100% !important;
+      max-width: 800px !important;
+    }
+  }
 </style>
 
 <!-- Ticker Tape TradingView -->
@@ -307,7 +314,7 @@ html.all-black .media-percentage.neutral {
   </div>
 
   <!-- Se├º├úo: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
-  <div class="row g-3 px-2 px-md-3 mt-3">
+  <div class="row g-3 px-2 px-md-3 mt-3 justify-content-center">
     <div class="col-12 col-md-6 col-xl-4 col-custom-stack">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
@@ -357,7 +364,7 @@ html.all-black .media-percentage.neutral {
     </div>
 
     <!-- Card de Criptomoedas (Top 7) -->
-    <div class="col-12 col-md-6 col-xl-4 col-custom-stack">
+    <div class="col-12 col-md-6 col-xl-4 col-custom-stack col-custom-stack-tablet-center">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Criptomoedas</span>
