@@ -163,12 +163,19 @@ html.all-black .media-percentage.neutral {
 }
 </style>
 
+<style>
+  .page-limit {
+    max-width: 2000px;
+    margin: 0 auto;
+  }
+</style>
+
 <!-- Ticker Tape TradingView -->
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 page-limit">
   <div id="gold_ticker_tape" class="tradingview-widget-container w-100 mb-4"></div>
 </div>
 
-<div class="container-fluid mt-3">
+<div class="container-fluid mt-3 page-limit">
 
   <!-- Se├º├úo: Ativos Principais -->
   <div class="row g-3 px-2 px-md-3 mb-3">
@@ -294,7 +301,7 @@ html.all-black .media-percentage.neutral {
 
   <!-- Se├º├úo: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
   <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6 col-xl-4">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Futuros de Ouro</span>
@@ -318,7 +325,7 @@ html.all-black .media-percentage.neutral {
       </div>
     </div>
     
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6 col-xl-4">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Gold Miners</span>
@@ -343,7 +350,7 @@ html.all-black .media-percentage.neutral {
     </div>
 
     <!-- Card de Criptomoedas (Top 7) -->
-    <div class="col-12 col-md-6 col-lg-4">
+    <div class="col-12 col-md-6 col-xl-4">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Criptomoedas</span>
