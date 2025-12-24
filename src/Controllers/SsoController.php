@@ -11,6 +11,40 @@ class SsoController extends BaseController
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
+    /**
+     * Gera um token JWT SSO para o usuário autenticado
+     * @param int $userId ID do usuário
+     * @param string $email Email do usuário
+     * @param string $secret Chave secreta compartilhada
+     * @param string $iss Issuer (Terminal)
+     * @param string $aud Audience (sistema destino)
+     * @param int $ttl Tempo de vida do token em segundos
+     * @return string Token JWT
+     */
+    private function generateToken(int $userId, string $email, string $secret, string $iss, string $aud, int $ttl): string
+    {
+        $now = time();
+        $payload = [
+            'iss' => $iss,
+            'aud' => $aud,
+            'sub' => $userId,
+            'email' => $email,
+            'iat' => $now,
+            'exp' => $now + $ttl,
+            'jti' => bin2hex(random_bytes(16))
+        ];
+        $header = ['alg' => 'HS256', 'typ' => 'JWT'];
+        $h64 = $this->b64urlEncode(json_encode($header, JSON_UNESCAPED_SLASHES));
+        $p64 = $this->b64urlEncode(json_encode($payload, JSON_UNESCAPED_SLASHES));
+        $sig = hash_hmac('sha256', $h64 . '.' . $p64, $secret, true);
+        $s64 = $this->b64urlEncode($sig);
+        return $h64 . '.' . $p64 . '.' . $s64;
+    }
+
+    /**
+     * SSO Start para Portal do Aluno (comportamento original)
+     * GET /sso/start
+     */
     public function start(): void
     {
         // Pode ser acessado por guest; se não autenticado, guardar next_url e enviar para modal de login
@@ -39,23 +73,8 @@ class SsoController extends BaseController
         $aud = (string)($_ENV['SSO_AUDIENCE'] ?? 'https://aluno.operebem.com.br');
         $ttl = (int)($_ENV['SSO_TTL'] ?? 60);
         $ttl = max(10, min(600, $ttl));
-        $now = time();
 
-        $payload = [
-            'iss' => $iss,
-            'aud' => $aud,
-            'sub' => (int)$user['id'],
-            'email' => (string)$user['email'],
-            'iat' => $now,
-            'exp' => $now + $ttl,
-            'jti' => bin2hex(random_bytes(16))
-        ];
-        $header = ['alg' => 'HS256', 'typ' => 'JWT'];
-        $h64 = $this->b64urlEncode(json_encode($header, JSON_UNESCAPED_SLASHES));
-        $p64 = $this->b64urlEncode(json_encode($payload, JSON_UNESCAPED_SLASHES));
-        $sig = hash_hmac('sha256', $h64 . '.' . $p64, $secret, true);
-        $s64 = $this->b64urlEncode($sig);
-        $jwt = $h64 . '.' . $p64 . '.' . $s64;
+        $jwt = $this->generateToken((int)$user['id'], (string)$user['email'], $secret, $iss, $aud, $ttl);
 
         $audBase = rtrim($aud, '/');
         $callback = $audBase . '/sso/callback?token=' . urlencode($jwt);
@@ -66,6 +85,66 @@ class SsoController extends BaseController
                 $callback .= '&return=' . urlencode($return);
             }
         }
+
+        header('Location: ' . $callback, true, 302);
+        exit;
+    }
+
+    /**
+     * SSO Start para Diário Operebem
+     * GET /sso/diario/start
+     * Usa variáveis SSO_DIARIO_* ou fallback para SSO_* com audience do Diário
+     */
+    public function diarioStart(): void
+    {
+        $userId = (int)($_SESSION['user_id'] ?? 0);
+        $return = (string)($_GET['return'] ?? '');
+        
+        if ($userId <= 0) {
+            $qs = '/sso/diario/start';
+            if ($return !== '') { $qs .= '?return=' . urlencode($return); }
+            $_SESSION['next_url'] = $qs;
+            $this->redirect('/?modal=login');
+        }
+
+        $user = Database::fetch('SELECT id, email FROM users WHERE id = ? AND deleted_at IS NULL', [$userId]);
+        if (!$user) {
+            $this->redirect('/logout');
+        }
+
+        // Configuração específica do Diário (com fallback para configuração padrão)
+        $secret = trim((string)($_ENV['SSO_DIARIO_SECRET'] ?? $_ENV['SSO_SHARED_SECRET'] ?? ''));
+        if ($secret === '') {
+            http_response_code(500);
+            echo 'SSO Diário não configurado';
+            exit;
+        }
+
+        $iss = (string)($_ENV['SSO_DIARIO_ISSUER'] ?? $_ENV['SSO_ISSUER'] ?? Application::getInstance()->config('app.url') ?? 'https://terminal.operebem.com.br');
+        $aud = (string)($_ENV['SSO_DIARIO_AUDIENCE'] ?? 'https://diario.operebem.com.br');
+        $ttl = (int)($_ENV['SSO_DIARIO_TTL'] ?? $_ENV['SSO_TTL'] ?? 60);
+        $ttl = max(10, min(600, $ttl));
+
+        $jwt = $this->generateToken((int)$user['id'], (string)$user['email'], $secret, $iss, $aud, $ttl);
+
+        $audBase = rtrim($aud, '/');
+        $callback = $audBase . '/sso/callback?token=' . urlencode($jwt);
+        if ($return !== '') {
+            $retHost = parse_url($return, PHP_URL_HOST);
+            $audHost = parse_url($audBase, PHP_URL_HOST);
+            if ($retHost === null || ($audHost && strcasecmp($retHost, $audHost) === 0)) {
+                $callback .= '&return=' . urlencode($return);
+            }
+        }
+
+        // Log da operação SSO para auditoria
+        try {
+            Application::getInstance()->logger()->info('SSO Diário start', [
+                'user_id' => $userId,
+                'audience' => $aud,
+                'return' => $return
+            ]);
+        } catch (\Throwable $t) { /* ignore */ }
 
         header('Location: ' . $callback, true, 302);
         exit;

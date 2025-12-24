@@ -763,23 +763,47 @@ class AuthController extends BaseController
         setcookie('__Host-refresh_token', '', [ 'expires' => time()-3600, 'path' => '/', 'secure' => $secure, 'httponly' => true, 'samesite' => 'Strict' ]);
         unset($_SESSION['usr_rt_jti']);
         $this->authService->logout();
-        // Propagar logout para o Portal do Aluno via token assinado (curta duração)
+
+        // Helper para gerar token de logout JWT
+        $generateLogoutToken = function(string $secret, string $iss, string $aud): string {
+            $now = time();
+            $ttl = 30;
+            $header = ['alg' => 'HS256', 'typ' => 'JWT'];
+            $payload = [ 'iss' => $iss, 'aud' => $aud, 'iat' => $now, 'exp' => $now + $ttl, 'jti' => bin2hex(random_bytes(16)), 'typ' => 'logout' ];
+            $h64 = rtrim(strtr(base64_encode(json_encode($header, JSON_UNESCAPED_SLASHES)), '+/', '-_'), '=');
+            $p64 = rtrim(strtr(base64_encode(json_encode($payload, JSON_UNESCAPED_SLASHES)), '+/', '-_'), '=');
+            $sig = hash_hmac('sha256', $h64 . '.' . $p64, $secret, true);
+            $s64 = rtrim(strtr(base64_encode($sig), '+/', '-_'), '=');
+            return $h64 . '.' . $p64 . '.' . $s64;
+        };
+
+        $iss = (string)(Application::getInstance()->config('app.url') ?? 'https://terminal.operebem.com.br');
+        $retTerminalHome = $iss;
+
+        // Notificar o Diário Operebem em background (não bloqueia)
+        try {
+            $diarioSecret = trim((string)($_ENV['SSO_DIARIO_SECRET'] ?? $_ENV['SSO_SHARED_SECRET'] ?? ''));
+            $diarioAud = (string)($_ENV['SSO_DIARIO_AUDIENCE'] ?? 'https://diario.operebem.com.br');
+            if ($diarioSecret !== '' && $diarioAud !== '') {
+                $diarioJwt = $generateLogoutToken($diarioSecret, $iss, $diarioAud);
+                $diarioUrl = rtrim($diarioAud, '/') . '/sso/logout?token=' . urlencode($diarioJwt) . '&return=' . urlencode($retTerminalHome);
+                // Requisição assíncrona em background (fire-and-forget)
+                $ch = curl_init($diarioUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500); // 500ms timeout para não bloquear
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+                curl_exec($ch);
+                curl_close($ch);
+            }
+        } catch (\Throwable $t) { /* ignore */ }
+
+        // Propagar logout para o Portal do Aluno via token assinado (curta duração) - redirect principal
         try {
             $aud = (string)($_ENV['SSO_AUDIENCE'] ?? 'https://aluno.operebem.com.br');
             $secret = trim((string)($_ENV['SSO_SHARED_SECRET'] ?? ''));
-            $iss = (string)(Application::getInstance()->config('app.url') ?? 'https://terminal.operebem.com.br');
             if ($secret !== '' && $aud !== '') {
-                $now = time();
-                $ttl = 30;
-                $header = ['alg' => 'HS256', 'typ' => 'JWT'];
-                $payload = [ 'iss' => $iss, 'aud' => $aud, 'iat' => $now, 'exp' => $now + $ttl, 'jti' => bin2hex(random_bytes(16)), 'typ' => 'logout' ];
-                $h64 = rtrim(strtr(base64_encode(json_encode($header, JSON_UNESCAPED_SLASHES)), '+/', '-_'), '=');
-                $p64 = rtrim(strtr(base64_encode(json_encode($payload, JSON_UNESCAPED_SLASHES)), '+/', '-_'), '=');
-                $sig = hash_hmac('sha256', $h64 . '.' . $p64, $secret, true);
-                $s64 = rtrim(strtr(base64_encode($sig), '+/', '-_'), '=');
-                $jwt = $h64 . '.' . $p64 . '.' . $s64;
+                $jwt = $generateLogoutToken($secret, $iss, $aud);
                 // Após logout no Portal do Aluno, retornar para a home pública do Terminal
-                $retTerminalHome = (string)(Application::getInstance()->config('app.url') ?? 'https://terminal.operebem.com.br');
                 $cb = rtrim($aud, '/') . '/sso/logout?token=' . urlencode($jwt) . '&return=' . urlencode($retTerminalHome);
                 header('Location: ' . $cb, true, 302);
                 exit;

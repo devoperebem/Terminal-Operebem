@@ -90,6 +90,8 @@ $router->get('/app/dashboard', [DashboardController::class, 'index'], [AuthMiddl
 $router->get('/app/dashboard/gold', [DashboardController::class, 'gold'], [AuthMiddleware::class]);
 // SSO start (public): se não autenticado, envia para modal de login; se autenticado, emite token e redireciona para o Portal do Aluno
 $router->get('/sso/start', [SsoController::class, 'start']);
+// SSO start para Diário Operebem (public): mesma lógica, mas redireciona para o Diário
+$router->get('/sso/diario/start', [SsoController::class, 'diarioStart']);
 // Compat: redirecionar antigo /dashboard -> /app/dashboard (301)
 $router->get('/dashboard', function(){
     header('Location: /app/dashboard', true, 301);
