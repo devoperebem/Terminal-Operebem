@@ -115,3 +115,12 @@ if (empty($exchangesFaltando)) {
     echo "\n=== EXCHANGES QUE PRECISAM SER ADICIONADAS ===\n";
     echo implode(', ', array_keys($exchangesFaltando)) . "\n";
 }
+
+// Salvar em JSON para fácil visualização
+$resultado = [
+    'exchanges_existentes' => $exchangesExistentes,
+    'exchanges_faltando' => array_keys($exchangesFaltando),
+    'detalhes' => $exchangesFaltando
+];
+file_put_contents(__DIR__ . '/../public/exchanges_check.json', json_encode($resultado, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+echo "\n\nResultado salvo em public/exchanges_check.json\n";
