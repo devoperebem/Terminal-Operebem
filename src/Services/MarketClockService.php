@@ -91,21 +91,36 @@ class MarketClockService
             $tz = new DateTimeZone($exchange['timezone_name']);
             $now = new DateTime('now', $tz);
             $currentTime = $now->format('H:i:s');
+            $dayOfWeekNum = (int)$now->format('w'); // 0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab
             $dayOfWeek = $now->format('D'); // Mon, Tue, Wed, etc
             
             // Verificar se está em dia de trading
-            $tradingDays = $exchange['trading_days'];
+            $tradingDays = $exchange['trading_days'] ?? '';
             
-            // Verificar dias especiais (ex: Saudi = Sun-Thu)
-            if (strpos($tradingDays, 'Sun-Thu') !== false) {
-                if (in_array($dayOfWeek, ['Fri', 'Sat'])) {
-                    return 'closed';
-                }
+            // Converter dia para formato numérico usado no banco (1=Dom, 2=Seg, 3=Ter, etc)
+            // Nota: PHP format('w') retorna 0=Dom, 1=Seg, etc
+            // Banco usa 1=Dom, 2=Seg, 3=Ter, 4=Qua, 5=Qui, 6=Sex, 7=Sab
+            $dayNumForDb = $dayOfWeekNum + 1; // 1-7 (Dom=1, Seg=2, etc)
+            
+            // Verificar se está em dia de trading
+            $isTradingDay = false;
+            
+            if (is_numeric(str_replace(['1','2','3','4','5','6','7'], '', $tradingDays)) === false && strlen($tradingDays) <= 7 && preg_match('/^[1-7]+$/', $tradingDays)) {
+                // Formato numérico: "23456" = Seg-Sex, "1234567" = todos os dias
+                $isTradingDay = strpos($tradingDays, (string)$dayNumForDb) !== false;
+            } elseif (strpos($tradingDays, 'Sun-Thu') !== false) {
+                // Formato especial Sun-Thu (ex: Saudi Arabia)
+                $isTradingDay = in_array($dayOfWeek, ['Sun', 'Mon', 'Tue', 'Wed', 'Thu']);
+            } elseif (strpos($tradingDays, 'Mon-Sun') !== false) {
+                // Todos os dias
+                $isTradingDay = true;
             } else {
                 // Padrão Mon-Fri
-                if (in_array($dayOfWeek, ['Sat', 'Sun'])) {
-                    return 'closed';
-                }
+                $isTradingDay = !in_array($dayOfWeek, ['Sat', 'Sun']);
+            }
+            
+            if (!$isTradingDay) {
+                return 'closed';
             }
             
             // Verificar horários
