@@ -41,22 +41,43 @@
   }
 
   function exchangeCodeForItem(item) {
-    const b = item.bolsa || '';
+    // Primeiro: Se a bolsa do ativo já é um código de exchange (Xxxx, MISX, etc), usar diretamente
+    const bolsa = (item && item.bolsa || '').toString().trim().toUpperCase();
+    if (bolsa && /^[A-Z]{3,5}$/.test(bolsa)) {
+      // Código de exchange válido (3-5 letras maiúsculas), usar diretamente
+      return bolsa;
+    }
+
+    // Segundo: Tentar mapear o nome da bolsa para um código
+    const b = (item && item.bolsa || '').toString();
     if (b.includes('NYSE') || b.includes('NASDAQ') || b.includes('AMEX')) return 'XNYS';
     if (b.includes('CME')) return 'XCME';
     if (b.includes('COMEX')) return 'XCEC';
     if (b.includes('NYMEX')) return 'XNYM';
-    if (b.includes('CBOT') || b.includes('XCBT')) return 'XCBT'; // Chicago Board of Trade
+    if (b.includes('CBOT') || b.includes('XCBT')) return 'XCBT';
     if (b.includes('EUREX')) return 'XEUR';
-    if (b.includes('ICE')) return 'IFUS'; // ICE Futures US (Coffee, Brent Oil, etc.)
+    if (b.includes('ICE')) return 'IFUS';
     if (b.includes('LSE') || b.includes('London')) return 'XLON';
-    if (b.includes('B3') || b.includes('BOVESPA')) return 'BVMF';
+    if (b.includes('B3') || b.includes('BOVESPA')) return 'XBSP';
     if (b.includes('Euronext')) return 'XPAR';
-    if (b.includes('Frankfurt') || b.includes('Xetra')) return 'XFRA';
+    if (b.includes('Frankfurt') || b.includes('Xetra')) return 'XETR';
     if (b.includes('Tokyo') || b.includes('TSE')) return 'XTKS';
     if (b.includes('Hong Kong') || b.includes('HKEX')) return 'XHKG';
     if (b.includes('Shanghai') || b.includes('SSE')) return 'XSHG';
-    return '';
+
+    // Terceiro: Tentar pelo grupo
+    const g = (item && item.grupo || '').toString();
+    if (g.includes('cripto')) return 'CRYPTO';
+    if (g.includes('adrs')) return 'XNYS'; // ADRs são negociados na NYSE
+    if (g.includes('indice_brasileiro')) return 'XBSP';
+    if (g.includes('indice_usa') || g.includes('big_tech')) return 'XNYS';
+    if (g.includes('indice_europeu')) return 'XETR';
+    if (g.includes('indice_asia')) return 'XTKS';
+    if (g.includes('energia')) return 'XNYM';
+    if (g.includes('metais')) return 'XCME';
+    if (g.includes('agricola')) return 'XCBT';
+
+    return 'UNKNOWN';
   }
 
   function formatTimeFromTimestamp(ts) {
