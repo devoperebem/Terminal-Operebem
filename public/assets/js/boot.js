@@ -124,14 +124,27 @@ function cryptoSlugFrom(item) {
   }
 
   function exchangeCodeForItem(item) {
+    // Primeiro: Se a bolsa do ativo já é um código de exchange (Xxxx, MISX, etc), usar diretamente
+    const bolsa = (item && item.bolsa || '').toString().trim().toUpperCase();
+    if (bolsa && /^[A-Z]{3,5}$/.test(bolsa)) {
+      // Código de exchange válido (3-5 letras maiúsculas), usar diretamente
+      return bolsa;
+    }
+
+    // Segundo: Tentar mapear o nome da bolsa para um código
     const byBolsa = exchangeFromBolsa(item && item.bolsa);
     if (byBolsa) return byBolsa;
+
+    // Terceiro: Tentar pelo grupo
     const g = (item && item.grupo || '').toString();
-    const f = (item && item.icone_bandeira || '').toString();
+    if (g.includes('cripto')) return 'CRYPTO';
     if (g.includes('indice_brasileiro')) return 'XBSP';
     if (g.includes('indice_usa') || g.includes('big_tech') || g.includes('adrs')) return 'XNYS';
     if (g.includes('indice_europeu')) return 'XETR';
     if (g.includes('indice_asia')) return 'XTKS';
+
+    // Quarto: Tentar pela bandeira
+    const f = (item && item.icone_bandeira || '').toString();
     if (f.includes('fi-br')) return 'XBSP';
     if (f.includes('fi-us') || f.includes('fi-um')) return 'XNYS';
     if (f.includes('fi-de')) return 'XETR';
@@ -139,6 +152,7 @@ function cryptoSlugFrom(item) {
     if (f.includes('fi-fr')) return 'XPAR';
     if (f.includes('fi-jp')) return 'XTKS';
     if (f.includes('fi-hk') || f.includes('fi-cn')) return 'XHKG';
+
     return 'UNKNOWN';
   }
 
