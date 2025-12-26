@@ -4,8 +4,6 @@
  * REMOVER APÓS USO!
  */
 
-require_once __DIR__ . '/vendor/autoload.php';
-
 // Carregar .env
 $envPath = __DIR__ . '/.env';
 if (file_exists($envPath)) {
