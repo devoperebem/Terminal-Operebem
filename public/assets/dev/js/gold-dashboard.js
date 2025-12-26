@@ -801,9 +801,17 @@
               iconHtml = '<i class="fas fa-coins me-2"></i>';
             }
 
+            // Status bubble para indicar mercado aberto/fechado (criptomoedas sempre abertas)
+            var itemKey = (item.id_api || item.code || '').toString();
+            var escapeAttrLocal = function (val) {
+              try { return String(val).replace(/[&<>"]/g, function (s) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[s]; }); } catch (_) { return ''; }
+            };
+            var statusHtml = '<div class="status-bubble me-2 status_' + itemKey + '" data-exchange="CRYPTO" data-code="' + escapeAttrLocal(item.code || item.id_api || '') + '"></div>';
+
             html += '<tr style="font-weight: 600 !important">'
               + '<td width="50%">'
               + '<div class="d-flex align-items-center">'
+              + statusHtml
               + iconHtml
               + '<span class="tooltip-target" data-tooltip="' + nome + '">' + apelido + '</span>'
               + '</div>'
@@ -824,6 +832,14 @@
             mediaEl.textContent = val.toFixed(2) + '%';
             mediaEl.className = 'media-percentage ' + (val > 0 ? 'positive' : (val < 0 ? 'negative' : 'neutral'));
           }
+
+          // Atualizar as bolinhas de status de mercado (status-bubbles)
+          // Aguardar um momento para o DOM ser atualizado e então chamar o status-service
+          setTimeout(function () {
+            if (typeof window.__statusServiceRefresh === 'function') {
+              window.__statusServiceRefresh();
+            }
+          }, 100);
         })
         .catch(function (e) {
           console.error('renderCryptosGold error:', e);

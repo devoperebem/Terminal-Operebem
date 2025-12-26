@@ -19,8 +19,6 @@ ob_start();
 
 <?php include __DIR__ . '/../../partials/market-status-tooltip-styles.php'; ?>
 
-<?php include __DIR__ . '/../../partials/market-status-tooltip-styles.php'; ?>
-
 <style>
 /* Esconder copyright do TradingView */
 .tradingview-widget-copyright { display: none !important; }
@@ -471,6 +469,7 @@ $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
   . '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>'
   . '<script src="/assets/js/boot.js?v=' . time() . '"></script>'
+  . '<script src="/assets/js/status-service.js?v=' . time() . '"></script>'
   . dev_script_tag('gold-dashboard.js')
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
   . '<script>'
