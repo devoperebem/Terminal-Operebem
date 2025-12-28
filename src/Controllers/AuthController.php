@@ -92,10 +92,11 @@ class AuthController extends BaseController
                 (new \App\Services\SystemMaintenanceService())->ensureCore();
                 $jwt = new UserJwtService();
                 // Access claim
-                $user = Database::fetch('SELECT id, email FROM users WHERE email = ? AND deleted_at IS NULL', [$email]);
+                $user = Database::fetch('SELECT id, email, tier FROM users WHERE email = ? AND deleted_at IS NULL', [$email]);
                 if ($user && !empty($user['id'])) {
-                    $at = $jwt->issueAccessToken(['sub' => (int)$user['id'], 'role' => 'user']);
-                    $rt = $jwt->issueRefreshToken(['sub' => (int)$user['id'], 'role' => 'user']);
+                    $userTier = $user['tier'] ?? 'FREE';
+                    $at = $jwt->issueAccessToken(['sub' => (int)$user['id'], 'role' => 'user', 'tier' => $userTier]);
+                    $rt = $jwt->issueRefreshToken(['sub' => (int)$user['id'], 'role' => 'user', 'tier' => $userTier]);
                     $secure = Application::getInstance()->isHttps();
                     setcookie('__Host-access_token', $at, [ 'expires' => time()+600, 'path' => '/', 'secure' => $secure, 'httponly' => true, 'samesite' => 'Strict' ]);
                     setcookie('__Host-refresh_token', $rt['token'], [ 'expires' => (int)$rt['exp'], 'path' => '/', 'secure' => $secure, 'httponly' => true, 'samesite' => 'Strict' ]);
@@ -830,10 +831,12 @@ class AuthController extends BaseController
             if (!$row || (int)$row['user_id'] !== $sub) { throw new \Exception('refresh desconhecido'); }
             if (!empty($row['revoked_at'])) { throw new \Exception('refresh revogado'); }
             if ((int)$row['exp'] < time()) { throw new \Exception('refresh expirado'); }
-            // Rotacionar e emitir novos
+            // Rotacionar e emitir novos - buscar tier do usuário
             Database::update('user_refresh_tokens', [ 'revoked_at' => date('Y-m-d H:i:s') ], [ 'jti' => $jti ]);
-            $newAt = $jwt->issueAccessToken(['sub' => $sub, 'role' => 'user']);
-            $newRt = $jwt->issueRefreshToken(['sub' => $sub, 'role' => 'user']);
+            $userForTier = Database::fetch('SELECT tier FROM users WHERE id = ? AND deleted_at IS NULL', [$sub]);
+            $userTier = $userForTier['tier'] ?? 'FREE';
+            $newAt = $jwt->issueAccessToken(['sub' => $sub, 'role' => 'user', 'tier' => $userTier]);
+            $newRt = $jwt->issueRefreshToken(['sub' => $sub, 'role' => 'user', 'tier' => $userTier]);
             Database::insert('user_refresh_tokens', [
                 'jti' => (string)$newRt['jti'],
                 'user_id' => $sub,
