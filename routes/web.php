@@ -124,6 +124,8 @@ $router->get('/api/news/noticias', [NewsController::class, 'noticias'], [AuthMid
 
 // Profile (protected)
 $router->get('/app/profile', [ProfileController::class, 'index'], [AuthMiddleware::class]);
+// Profile Dev (protected)
+$router->get('/dev/profile', [ProfileController::class, 'indexDev'], [AuthMiddleware::class]);
 
 // Community Discord (protected)
 $router->get('/app/community', [\App\Controllers\CommunityController::class, 'index'], [AuthMiddleware::class]);

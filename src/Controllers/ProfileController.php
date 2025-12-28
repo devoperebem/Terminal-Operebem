@@ -45,6 +45,50 @@ class ProfileController extends BaseController
         ]);
     }
 
+    /**
+     * Versão de desenvolvimento do perfil (/dev/profile)
+     */
+    public function indexDev(): void
+    {
+        $user = $this->authService->getCurrentUser();
+        
+        if (!$user) {
+            $this->redirect('/login');
+        }
+
+        // Compute avatar URL if exists
+        $root = dirname(__DIR__, 2);
+        $docroot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), DIRECTORY_SEPARATOR);
+        $publicPath = $docroot !== '' ? $docroot : ($root . DIRECTORY_SEPARATOR . 'public');
+        $uploadsDir = $publicPath . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'avatars';
+        $avatarPath = '';
+        $candidates = [
+            $uploadsDir . DIRECTORY_SEPARATOR . $user['id'] . '.png',
+            $uploadsDir . DIRECTORY_SEPARATOR . $user['id'] . '.jpg',
+            $uploadsDir . DIRECTORY_SEPARATOR . $user['id'] . '.jpeg',
+            $uploadsDir . DIRECTORY_SEPARATOR . $user['id'] . '.webp',
+        ];
+        foreach ($candidates as $c) {
+            if (is_file($c)) { $avatarPath = $c; break; }
+        }
+        $avatarUrl = '';
+        if ($avatarPath) {
+            $rel = '/uploads/avatars/' . basename($avatarPath);
+            $v = @filemtime($avatarPath) ?: time();
+            $avatarUrl = $rel . '?v=' . $v;
+        }
+
+        // Obter timezones suportados
+        $timezones = \App\Services\TimezoneService::getSupportedTimezones();
+
+        // Renderizar versão dev
+        $this->view('dev/profile/index', [
+            'user' => $user,
+            'avatar_url' => $avatarUrl,
+            'timezones' => $timezones,
+        ]);
+    }
+
     public function updatePreferences(): void
     {
         if (!$this->validateCsrf()) {
