@@ -7,8 +7,6 @@ ob_start();
 
 <?php include __DIR__ . '/../partials/market-status-tooltip-styles.php'; ?>
 
-<?php include __DIR__ . '/../partials/market-status-tooltip-styles.php'; ?>
-
 <style>
 /* Esconder copyright do TradingView */
 .tradingview-widget-copyright { display: none !important; }
@@ -50,7 +48,7 @@ body.all-black #gold_ticker_tape {
 .card .tradingview-widget-container__widget { height: 100% !important; width: 100% !important; }
 .card .tradingview-widget-container iframe { height: 100% !important; width: 100% !important; border: 0 !important; }
 
-/* Estilos para tooltips de correla├º├úo */
+/* Estilos para tooltips de correlação */
 .correlation-info {
   display: inline-flex;
   align-items: center;
@@ -151,21 +149,42 @@ html.all-black .media-percentage.neutral {
 }
 </style>
 
+<style>
+  .page-limit {
+    max-width: 2000px;
+    margin: 0 auto;
+  }
+  @media (max-width: 850px) {
+    .col-custom-stack {
+      width: 100% !important;
+      flex: 0 0 100% !important;
+      max-width: 100% !important;
+    }
+  }
+  @media (min-width: 851px) and (max-width: 1199px) {
+    .col-custom-stack-tablet-center {
+      flex: 0 0 auto !important;
+      width: 100% !important;
+      max-width: 800px !important;
+    }
+  }
+</style>
+
 <!-- Ticker Tape TradingView -->
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 page-limit">
   <div id="gold_ticker_tape" class="tradingview-widget-container w-100 mb-4"></div>
 </div>
 
-<div class="container-fluid mt-3">
+<div class="container-fluid mt-3 page-limit">
 
-  <!-- Se├º├úo: Ativos Principais -->
+  <!-- Seção: Ativos Principais -->
   <div class="row g-3 px-2 px-md-3 mb-3">
     <div class="col-6 col-md-4 col-xl">
       <div class="card h-100 card_indices">
         <div class="card-header title-card py-1 px-2">
           <span class="fs-6 fw-bold">Ouro</span>
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Ouro ├á vista (XAU/USD): Principal refer├¬ncia mundial para o pre├ºo do ouro, negociado 24h no mercado spot.">?</span>
+                title="Ouro à vista (XAU/USD): Principal referência mundial para o preço do ouro, negociado 24h no mercado spot.">?</span>
         </div>
         <div class="card-body p-3">
           <div class="fs-5 fw-semibold mb-1" id="q_gold_price">--</div>
@@ -183,7 +202,7 @@ html.all-black .media-percentage.neutral {
         <div class="card-header title-card py-1 px-2">
           <span class="fs-6 fw-bold">Ouro 2!</span>
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Fonte alternativa de cota├º├úo do ouro ├á vista, ├║til para compara├º├úo e valida├º├úo de pre├ºos.">?</span>
+                title="Fonte alternativa de cotação do ouro à vista, útil para comparação e validação de preços.">?</span>
         </div>
         <div class="card-body p-3">
           <div class="fs-5 fw-semibold mb-1" id="q_gold2_price">--</div>
@@ -201,7 +220,7 @@ html.all-black .media-percentage.neutral {
         <div class="card-header title-card py-1 px-2">
           <span class="fs-6 fw-bold">DXY</span>
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="├ìndice do D├│lar (DXY): Correla├º├úo inversa forte com o ouro. D├│lar forte = ouro mais caro internacionalmente = menor demanda.">?</span>
+                title="Índice do Dólar (DXY): Correlação inversa forte com o ouro. Dólar forte = ouro mais caro internacionalmente = menor demanda.">?</span>
         </div>
         <div class="card-body p-3">
           <div class="fs-5 fw-semibold mb-1" id="q_dxy_price">--</div>
@@ -219,7 +238,7 @@ html.all-black .media-percentage.neutral {
         <div class="card-header title-card py-1 px-2">
           <span class="fs-6 fw-bold">US10Y</span>
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="T├¡tulos de 10 anos (US10Y): Correla├º├úo inversa. Juros altos reduzem atratividade do ouro, que n├úo paga rendimentos.">?</span>
+                title="Títulos de 10 anos (US10Y): Correlação inversa. Juros altos reduzem atratividade do ouro, que não paga rendimentos.">?</span>
         </div>
         <div class="card-body p-3">
           <div class="fs-5 fw-semibold mb-1" id="q_us10y_price">--</div>
@@ -237,7 +256,7 @@ html.all-black .media-percentage.neutral {
         <div class="card-header title-card py-1 px-2">
           <span class="fs-6 fw-bold">VIX</span>
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="├ìndice de Volatilidade (VIX): Correla├º├úo positiva. Medo e incerteza impulsionam investidores a buscar o ouro como porto seguro.">?</span>
+                title="Índice de Volatilidade (VIX): Correlação positiva. Medo e incerteza impulsionam investidores a buscar o ouro como porto seguro.">?</span>
         </div>
         <div class="card-body p-3">
           <div class="fs-5 fw-semibold mb-1" id="q_vix_price">--</div>
@@ -255,7 +274,7 @@ html.all-black .media-percentage.neutral {
         <div class="card-header title-card py-1 px-2">
           <span class="fs-6 fw-bold">Gold Vol</span>
           <span class="correlation-info" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Volatilidade do Ouro (GVZ): Mede expectativa de flutua├º├úo de pre├ºo do ouro. Valores altos indicam maior incerteza no mercado.">?</span>
+                title="Volatilidade do Ouro (GVZ): Mede expectativa de flutuação de preço do ouro. Valores altos indicam maior incerteza no mercado.">?</span>
         </div>
         <div class="card-body p-3">
           <div class="fs-5 fw-semibold mb-1" id="q_gvz_price">--</div>
@@ -269,7 +288,7 @@ html.all-black .media-percentage.neutral {
     </div>
   </div>
 
-  <!-- Se├º├úo: Gr├ífico Principal do Ouro -->
+  <!-- Seção: Gráfico Principal do Ouro -->
   <div class="row g-3 px-2 px-md-3">
     <div class="col-12">
       <div class="card">
@@ -280,9 +299,9 @@ html.all-black .media-percentage.neutral {
     </div>
   </div>
 
-  <!-- Se├º├úo: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
-  <div class="row g-3 px-2 px-md-3 mt-3">
-    <div class="col-12 col-lg-6">
+  <!-- Seção: Futuros de Ouro CME (GC1! - GC7!) e Gold Miners -->
+  <div class="row g-3 px-2 px-md-3 mt-3 justify-content-center">
+    <div class="col-12 col-md-6 col-xl-4 col-custom-stack">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Futuros de Ouro</span>
@@ -293,19 +312,20 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="tbody_futuros_ouro"></tbody>
             </table>
-            <!-- Gr├ífico de Curva de Futuros -->
+            <!-- Gráfico de Curva de Futuros -->
             <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
-              <div style="position: relative; width: 550px; height: 250px; overflow: hidden;">
+              <div style="position: relative; width: 100%; height: 250px; overflow: hidden;">
                 <div class="text-center text-muted small fw-semibold mb-2">Curva de Futuros (Term Structure)</div>
-                <canvas id="gc_futures_curve" style="width: 550px !important; height: 220px !important; display: block;"></canvas>
+                <canvas id="gc_futures_curve" style="width: 100% !important; height: 220px !important; display: block;"></canvas>
               </div>
             </div>
+
           </div>
         </div>
       </div>
     </div>
     
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-md-6 col-xl-4 col-custom-stack">
       <div class="card w-100 card_indices">
         <div class="card-header title-card">
           <span>Gold Miners</span>
@@ -316,20 +336,48 @@ html.all-black .media-percentage.neutral {
             <table class="table mb-0">
               <tbody class="tbody_gold_miners"></tbody>
             </table>
-            <!-- Gr├ífico TradingView GDX vs GOLD -->
+            <!-- Gráfico TradingView GDX vs GOLD -->
             <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
-              <div style="width: 550px; height: 250px;">
+              <div style="width: 100%; height: 250px;">
                 <div class="text-center text-muted small fw-semibold mb-2">GDX vs GOLD</div>
-                <div id="tv_gold_miners_widget" style="width: 550px; height: 220px;"></div>
+                <div id="tv_gold_miners_widget" style="width: 100%; height: 220px;"></div>
               </div>
             </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de Criptomoedas (Top 7) -->
+    <div class="col-12 col-md-6 col-xl-4 col-custom-stack col-custom-stack-tablet-center">
+      <div class="card w-100 card_indices">
+        <div class="card-header title-card">
+          <span>Criptomoedas</span>
+          <span class="media-percentage" id="media-cripto-gold"></span>
+        </div>
+        <div class="card-body p-0">
+          <div class="w-100">
+            <table class="table mb-0">
+              <tbody class="text-xl" id="table_criptomoedas_gold"></tbody>
+            </table>
+            <!-- TradingView Widget BEGIN -->
+            <div class="px-3 pb-3 mt-3 d-flex justify-content-center">
+              <div style="width: 100%; height: 250px;">
+                <div class="text-center text-muted small fw-semibold mb-2">Crypto Heatmap</div>
+                <div id="tv_crypto_heatmap_widget" style="width: 100%; height: 220px;"></div>
+              </div>
+            </div>
+            <!-- TradingView Widget END -->
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Se├º├úo: Compara├º├╡es e Raz├╡es -->
+
+
+  <!-- Seção: Comparações e Razões -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-lg-6">
       <div class="card h-100 card_indices">
@@ -365,7 +413,7 @@ html.all-black .media-percentage.neutral {
     </div>
   </div>
 
-  <!-- Se├º├úo: Indicadores T├⌐cnicos -->
+  <!-- Seção: Indicadores Técnicos -->
   <div class="row g-3 px-2 px-md-3 mt-3">
     <div class="col-12 col-xl-3">
       <div class="card h-100 card_indices">
@@ -409,6 +457,7 @@ $scripts = ''
   . '<script src="https://s3.tradingview.com/tv.js"></script>'
   . '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>'
   . '<script src="/assets/js/boot.js?v=' . time() . '"></script>'
+  . '<script src="/assets/js/status-service.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/gold-dashboard.js?v=' . time() . '"></script>'
   . '<script src="/assets/js/mobile-menu.js?v=' . time() . '"></script>'
   . '<script>'

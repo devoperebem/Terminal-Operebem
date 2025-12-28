@@ -738,6 +738,158 @@
     } catch (e) { console.error('renderGoldMinersGrid error:', e); }
   }
 
+  // ============================================================================
+  // GRID CRIPTOMOEDAS (Top 7) - Para o Dashboard de Ouro
+  // ============================================================================
+  function renderCryptosGold() {
+    try {
+      var tbody = document.getElementById('table_criptomoedas_gold');
+      if (!tbody) return;
+
+      // Buscar dados de criptomoedas do boot.js (via API principal)
+      fetch('/actions/boot.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'acao=listar'
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (json) {
+          var dados = json.data || [];
+
+          // Filtrar apenas criptomoedas
+          var cryptos = dados.filter(function (item) {
+            return (item.grupo || '').indexOf('cripto') >= 0;
+          });
+
+          // Pegar apenas os primeiros 7
+          cryptos = cryptos.slice(0, 7);
+
+          if (cryptos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Carregando...</td></tr>';
+            return;
+          }
+
+          var html = '';
+          var totalPct = 0;
+          var countPct = 0;
+
+          cryptos.forEach(function (item) {
+            var pct = toNumber(item.pcp);
+            var pctText = pct !== null ? formatPercent(pct) : '--';
+            var cls = pct > 0 ? 'text-success' : (pct < 0 ? 'text-danger' : 'text-muted');
+            var color = pct > 0 ? '#10b981' : (pct < 0 ? '#ef4444' : '');
+            var timeText = formatTime(item);
+
+            if (pct !== null && !isNaN(pct)) {
+              totalPct += pct;
+              countPct++;
+            }
+
+            // Montar nome limpo
+            var apelido = (item.apelido || item.nome || '').replace(/\\s*\\(CFD\\)\\s*/gi, '').trim();
+            var nome = (item.nome || '').replace(/\\s*\\(CFD\\)\\s*/gi, '').trim();
+
+            // Ícone da cripto (usar função global se disponível, senão ícone genérico)
+            var iconHtml = '';
+            if (typeof window.cryptoSlugFrom === 'function') {
+              var slug = window.cryptoSlugFrom(item);
+              if (slug) {
+                iconHtml = '<img src="/assets/images/crypto-dashboard-flags/' + slug + '.png" alt="' + slug + '" width="18" height="18" class="me-2" style="user-select:none;pointer-events:none;">';
+              }
+            }
+            if (!iconHtml) {
+              iconHtml = '<i class="fas fa-coins me-2"></i>';
+            }
+
+            // Status bubble para indicar mercado aberto/fechado (criptomoedas sempre abertas)
+            var itemKey = (item.id_api || item.code || '').toString();
+            var escapeAttrLocal = function (val) {
+              try { return String(val).replace(/[&<>"]/g, function (s) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[s]; }); } catch (_) { return ''; }
+            };
+            var statusHtml = '<div class="status-bubble me-2 status_' + itemKey + '" data-exchange="CRYPTO" data-code="' + escapeAttrLocal(item.code || item.id_api || '') + '"></div>';
+
+            html += '<tr style="font-weight: 600 !important">'
+              + '<td width="50%">'
+              + '<div class="d-flex align-items-center">'
+              + statusHtml
+              + iconHtml
+              + '<span class="tooltip-target" data-tooltip="' + nome + '">' + apelido + '</span>'
+              + '</div>'
+              + '</td>'
+              + '<td class="text-right">' + (item.last || '--') + '</td>'
+              + '<td class="text-right ' + cls + '" style="font-weight: 900 !important; color: ' + color + ' !important;">' + pctText + '</td>'
+              + '<td class="text-right text-muted small">' + (item.last ? timeText : '') + '</td>'
+              + '</tr>';
+          });
+
+          tbody.innerHTML = html;
+
+          // Atualizar média
+          var avg = countPct > 0 ? (totalPct / countPct) : 0;
+          var mediaEl = document.getElementById('media-cripto-gold');
+          if (mediaEl) {
+            var val = Number.isFinite(avg) ? parseFloat(avg.toFixed(2)) : 0;
+            mediaEl.textContent = val.toFixed(2) + '%';
+            mediaEl.className = 'media-percentage ' + (val > 0 ? 'positive' : (val < 0 ? 'negative' : 'neutral'));
+          }
+
+          // Atualizar as bolinhas de status de mercado (status-bubbles)
+          // Aguardar um momento para o DOM ser atualizado e então chamar o status-service
+          setTimeout(function () {
+            if (typeof window.__statusServiceRefresh === 'function') {
+              window.__statusServiceRefresh();
+            }
+          }, 100);
+        })
+        .catch(function (e) {
+          console.error('renderCryptosGold error:', e);
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Erro ao carregar</td></tr>';
+        });
+
+      // Renderizar Heatmap dinamicamente (suporte a tema)
+      var heatmapContainer = document.getElementById('tv_crypto_heatmap_widget');
+      if (heatmapContainer) {
+        heatmapContainer.innerHTML = ''; // Limpar anterior
+
+        var theme = 'light';
+        try { theme = getCurrentTheme(); } catch (e) { }
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'tradingview-widget-container';
+        wrapper.style.width = '100%';
+        wrapper.style.height = '100%';
+
+        var widgetDiv = document.createElement('div');
+        widgetDiv.className = 'tradingview-widget-container__widget';
+        wrapper.appendChild(widgetDiv);
+
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js';
+        script.async = true;
+        script.innerHTML = JSON.stringify({
+          "dataSource": "CryptoWithoutStable",
+          "blockSize": "market_cap_calc",
+          "blockColor": "24h_close_change|5",
+          "locale": "br",
+          "symbolUrl": "",
+          "colorTheme": theme,
+          "hasTopBar": false,
+          "isDataSetEnabled": false,
+          "isZoomEnabled": true,
+          "hasSymbolTooltip": false,
+          "isMonoSize": false,
+          "width": "100%",
+          "height": "100%"
+        });
+
+        wrapper.appendChild(script);
+        heatmapContainer.appendChild(wrapper);
+      }
+
+    } catch (e) { console.error('renderCryptosGold error:', e); }
+  }
+
   // Ativar tooltips customizados para a tabela de gold miners
   function activateMinersTooltips() {
     try {
@@ -1521,6 +1673,9 @@
     renderTechnical('tv_tech_dxy', 'TVC:DXY');
     renderTechnical('tv_tech_us10y', 'TVC:US10Y');
     renderTechnical('tv_tech_vix', 'CBOE:VIX');
+
+    // Card de Criptomoedas (Top 7)
+    renderCryptosGold();
   }
 
   // ============================================================================
