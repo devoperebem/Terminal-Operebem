@@ -474,7 +474,7 @@ class AdminSecureController extends BaseController
     {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) { $this->redirect('/secure/adm/users?err=invalid'); }
-        $u = Database::fetch('SELECT id, name, email, created_at, tier FROM users WHERE id = ?', [$id]);
+        $u = Database::fetch('SELECT id, name, email, created_at, tier, subscription_expires_at FROM users WHERE id = ?', [$id]);
         if (!$u) { $this->redirect('/secure/adm/users?err=notfound'); }
         $this->view('admin_secure/user_edit', [ 'title' => 'Editar Usuário #' . (int)$u['id'], 'profile' => $u, 'footerVariant' => 'admin-auth' ]);
     }
@@ -486,10 +486,17 @@ class AdminSecureController extends BaseController
         $name = trim((string)($_POST['name'] ?? ''));
         $email = trim((string)($_POST['email'] ?? ''));
         $tier = strtoupper(trim((string)($_POST['tier'] ?? '')));
+        $expiresAt = trim((string)($_POST['subscription_expires_at'] ?? ''));
         if ($id <= 0 || $name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) { $this->redirect('/secure/adm/users?err=invalid'); }
         $allowedTiers = ['FREE', 'PLUS', 'PRO'];
         $update = [ 'name' => $name, 'email' => $email ];
         if ($tier !== '' && in_array($tier, $allowedTiers, true)) { $update['tier'] = $tier; }
+        // Subscription expires at (pode ser vazio para remover)
+        if ($expiresAt !== '') {
+            $update['subscription_expires_at'] = $expiresAt . ' 23:59:59';
+        } else {
+            $update['subscription_expires_at'] = null;
+        }
         Database::update('users', $update, [ 'id' => $id ]);
         try { Application::getInstance()->logger()->info('Admin updated user', ['id' => $id, 'tier' => $tier]); } catch (\Throwable $t) {}
         $this->audit('user_update', ['id' => $id]);

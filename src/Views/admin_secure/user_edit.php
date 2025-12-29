@@ -37,7 +37,7 @@ ob_start();
             'PRO' => ['label' => 'PRO - Completo', 'badge' => 'warning']
           ];
           ?>
-          <select name="tier" class="form-select">
+          <select name="tier" class="form-select" id="tierSelect">
             <?php foreach ($tiers as $tierValue => $tierInfo): ?>
             <option value="<?= $tierValue ?>" <?= $currentTier === $tierValue ? 'selected' : '' ?>>
               <?= $tierInfo['label'] ?>
@@ -50,6 +50,30 @@ ob_start();
           </div>
         </div>
         
+        <div class="col-md-6" id="expiresAtContainer">
+          <label class="form-label"><i class="fas fa-calendar-alt me-2"></i>Expiração da Assinatura</label>
+          <?php 
+          $expiresAt = $profile['subscription_expires_at'] ?? null;
+          $expiresAtDate = '';
+          if ($expiresAt) {
+            $expiresAtDate = date('Y-m-d', strtotime($expiresAt));
+          }
+          ?>
+          <input type="date" name="subscription_expires_at" class="form-control" id="expiresAtInput" value="<?= htmlspecialchars($expiresAtDate) ?>">
+          <div class="form-text">
+            <?php if ($expiresAt): ?>
+              Expira em: <strong><?= date('d/m/Y H:i', strtotime($expiresAt)) ?></strong>
+              <?php if (strtotime($expiresAt) < time()): ?>
+                <span class="badge bg-danger">Expirado</span>
+              <?php else: ?>
+                <span class="badge bg-success">Ativo</span>
+              <?php endif; ?>
+            <?php else: ?>
+              Deixe em branco para assinatura sem expiração.
+            <?php endif; ?>
+          </div>
+        </div>
+        
         <div class="col-12 d-flex justify-content-end gap-2">
           <a href="/secure/adm/users/view?id=<?= (int)$profile['id'] ?>" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>Cancelar</a>
           <button class="btn btn-primary"><i class="fas fa-save me-2"></i>Salvar</button>
@@ -58,6 +82,30 @@ ob_start();
     </div>
   </div>
 </div>
+
+<script>
+// Mostrar/ocultar campo de expiração baseado no tier
+document.addEventListener('DOMContentLoaded', function() {
+  const tierSelect = document.getElementById('tierSelect');
+  const expiresContainer = document.getElementById('expiresAtContainer');
+  const expiresInput = document.getElementById('expiresAtInput');
+  
+  function toggleExpires() {
+    if (tierSelect.value === 'FREE') {
+      expiresContainer.style.opacity = '0.5';
+      expiresInput.disabled = true;
+      expiresInput.value = '';
+    } else {
+      expiresContainer.style.opacity = '1';
+      expiresInput.disabled = false;
+    }
+  }
+  
+  tierSelect.addEventListener('change', toggleExpires);
+  toggleExpires();
+});
+</script>
+
 <?php
 $content = ob_get_clean();
 $scripts = '';
