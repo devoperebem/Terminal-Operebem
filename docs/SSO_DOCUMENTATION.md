@@ -221,7 +221,7 @@ Além do SSO, o Terminal também emite tokens JWT para autenticação interna:
 
 ---
 
-## 🔗 Endpoints
+## 🔗 Endpoints SSO
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
@@ -231,5 +231,180 @@ Além do SSO, o Terminal também emite tokens JWT para autenticação interna:
 
 ---
 
-*Documentação gerada em: 2025-12-28*
-*Versão: 1.0*
+## 🔄 API de Subscription (Gerenciamento de Tiers)
+
+Esta API permite que **sistemas externos** (Portal do Aluno, etc) **atualizem o tier** do usuário no Terminal.
+
+### Configuração
+
+```env
+SUBSCRIPTION_API_KEY=sua_chave_secreta_aqui
+```
+
+### Endpoints
+
+#### 1. Health Check (público)
+```http
+GET /api/subscription/ping
+```
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "message": "Subscription API is running",
+  "timestamp": "2025-12-29 08:00:00",
+  "version": "1.0"
+}
+```
+
+---
+
+#### 2. Consultar Status da Assinatura
+```http
+GET /api/subscription/status?user_id=123
+GET /api/subscription/status?email=user@example.com
+
+Headers:
+  X-API-KEY: sua_chave_secreta
+```
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": 123,
+    "email": "user@example.com",
+    "tier": "PLUS",
+    "is_active": true,
+    "expires_at": "2025-12-31 23:59:59",
+    "member_since": "2024-01-15 10:30:00"
+  }
+}
+```
+
+---
+
+#### 3. Atualizar Tier do Usuário
+```http
+POST /api/subscription/update
+
+Headers:
+  X-API-KEY: sua_chave_secreta
+  Content-Type: application/json
+
+Body:
+{
+  "user_id": 123,
+  "tier": "PLUS",
+  "expires_at": "2025-12-31 23:59:59"
+}
+```
+
+**Parâmetros do Body:**
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| `user_id` | int | Sim* | ID do usuário |
+| `email` | string | Sim* | Email do usuário (alternativa ao user_id) |
+| `tier` | string | Sim | Novo tier: `FREE`, `PLUS` ou `PRO` |
+| `expires_at` | string | Não | Data de expiração (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS) |
+
+*Pelo menos um dos dois (`user_id` ou `email`) é obrigatório.
+
+**Resposta de Sucesso:**
+```json
+{
+  "success": true,
+  "message": "Tier updated from FREE to PLUS",
+  "data": {
+    "user_id": 123,
+    "email": "user@example.com",
+    "old_tier": "FREE",
+    "new_tier": "PLUS",
+    "expires_at": "2025-12-31 23:59:59"
+  }
+}
+```
+
+**Erros Possíveis:**
+
+| Código | Erro | Descrição |
+|--------|------|-----------|
+| 401 | Unauthorized | API Key inválida ou ausente |
+| 400 | Bad Request | JSON inválido ou parâmetros faltando |
+| 404 | Not Found | Usuário não encontrado |
+| 500 | Internal Server Error | Erro ao atualizar no banco |
+
+---
+
+### Exemplos de Uso
+
+#### cURL - Atualizar para PLUS
+```bash
+curl -X POST https://terminal.operebem.com.br/api/subscription/update \
+  -H "X-API-KEY: sua_chave_secreta" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "usuario@exemplo.com",
+    "tier": "PLUS",
+    "expires_at": "2025-12-31"
+  }'
+```
+
+#### cURL - Downgrade para FREE
+```bash
+curl -X POST https://terminal.operebem.com.br/api/subscription/update \
+  -H "X-API-KEY: sua_chave_secreta" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": 123,
+    "tier": "FREE"
+  }'
+```
+
+#### PHP - Exemplo de Integração
+```php
+<?php
+$data = [
+    'user_id' => 123,
+    'tier' => 'PRO',
+    'expires_at' => '2025-12-31 23:59:59'
+];
+
+$ch = curl_init('https://terminal.operebem.com.br/api/subscription/update');
+curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => json_encode($data),
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        'X-API-KEY: sua_chave_secreta',
+        'Content-Type: application/json'
+    ]
+]);
+
+$response = curl_exec($ch);
+$result = json_decode($response, true);
+
+if ($result['success']) {
+    echo "Tier atualizado com sucesso!";
+}
+```
+
+---
+
+## 📁 Arquivos Relevantes
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `src/Controllers/SsoController.php` | Controller SSO (gera tokens e redireciona) |
+| `src/Controllers/Api/SubscriptionApiController.php` | API de gerenciamento de tiers |
+| `src/Services/UserJwtService.php` | Serviço de emissão de tokens internos |
+| `src/Controllers/AuthController.php` | Login/logout (emite tokens internos) |
+| `routes/web.php` | Rotas SSO e Subscription API |
+
+---
+
+*Documentação atualizada em: 2025-12-29*
+*Versão: 1.1*
