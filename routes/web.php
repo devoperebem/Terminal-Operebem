@@ -394,15 +394,6 @@ $router->post('/api/xp/lesson-completed', [\App\Controllers\Api\XPApiController:
 $router->post('/api/xp/course-completed', [\App\Controllers\Api\XPApiController::class, 'courseCompleted']);
 
 // ============================================================================
-// SUBSCRIPTION API (Gerenciamento de Tiers)
-// ============================================================================
-// Protegido por X-API-KEY (SUBSCRIPTION_API_KEY)
-// Permite que sistemas externos (Portal do Aluno, etc) atualizem o tier do usuário
-$router->get('/api/subscription/ping', [\App\Controllers\Api\SubscriptionApiController::class, 'ping']);
-$router->get('/api/subscription/status', [\App\Controllers\Api\SubscriptionApiController::class, 'status']);
-$router->post('/api/subscription/update', [\App\Controllers\Api\SubscriptionApiController::class, 'update']);
-
-// ============================================================================
 // REVIEWS API
 // ============================================================================
 

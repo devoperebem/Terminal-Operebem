@@ -485,13 +485,13 @@ class AdminSecureController extends BaseController
         $id = (int)($_POST['id'] ?? 0);
         $name = trim((string)($_POST['name'] ?? ''));
         $email = trim((string)($_POST['email'] ?? ''));
-        $tier = trim((string)($_POST['tier'] ?? ''));
+        $tier = strtoupper(trim((string)($_POST['tier'] ?? '')));
         if ($id <= 0 || $name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) { $this->redirect('/secure/adm/users?err=invalid'); }
-        $allowedTiers = ['free','premium','pro'];
+        $allowedTiers = ['FREE', 'PLUS', 'PRO'];
         $update = [ 'name' => $name, 'email' => $email ];
         if ($tier !== '' && in_array($tier, $allowedTiers, true)) { $update['tier'] = $tier; }
         Database::update('users', $update, [ 'id' => $id ]);
-        try { Application::getInstance()->logger()->info('Admin updated user', ['id' => $id]); } catch (\Throwable $t) {}
+        try { Application::getInstance()->logger()->info('Admin updated user', ['id' => $id, 'tier' => $tier]); } catch (\Throwable $t) {}
         $this->audit('user_update', ['id' => $id]);
         $this->redirect('/secure/adm/users?ok=updated');
     }
