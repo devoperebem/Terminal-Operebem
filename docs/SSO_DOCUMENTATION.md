@@ -36,6 +36,7 @@ O Terminal Operebem implementa um sistema de **Single Sign-On (SSO)** baseado em
 | `iss` | string | Issuer - Quem emitiu o token | `https://terminal.operebem.com.br` |
 | `aud` | string | Audience - Sistema destino | `https://aluno.operebem.com.br` |
 | `sub` | int | Subject - ID do usuário | `123` |
+| `name` | string | Nome completo do usuário | `João Silva` |
 | `email` | string | Email do usuário | `usuario@exemplo.com` |
 | `tier` | string | Nível de assinatura do usuário | `FREE`, `PLUS` ou `PRO` |
 | `iat` | int | Issued At - Timestamp de emissão | `1703793600` |
@@ -48,6 +49,7 @@ O Terminal Operebem implementa um sistema de **Single Sign-On (SSO)** baseado em
   "iss": "https://terminal.operebem.com.br",
   "aud": "https://aluno.operebem.com.br",
   "sub": 123,
+  "name": "João Silva",
   "email": "usuario@exemplo.com",
   "tier": "FREE",
   "iat": 1703793600,
@@ -185,6 +187,7 @@ Além do SSO, o Terminal também emite tokens JWT para autenticação interna:
 | **TTL padrão** | 60 segundos | 600 segundos (10 min) | 30 dias |
 | **Claim `tier`** | ✅ Sim | ✅ Sim | ✅ Sim |
 | **Claim `role`** | ❌ Não | ✅ Sim | ✅ Sim |
+| **Claim `name`** | ✅ Sim | ❌ Não | ❌ Não |
 | **Claim `email`** | ✅ Sim | ❌ Não | ❌ Não |
 | **Claim `jti`** | ✅ Sim | ❌ Não | ✅ Sim |
 | **Armazenamento** | URL (query param) | Cookie httpOnly | Cookie httpOnly |
