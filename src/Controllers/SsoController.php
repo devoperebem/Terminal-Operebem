@@ -12,6 +12,37 @@ class SsoController extends BaseController
     }
 
     /**
+     * Retorna o tier efetivo do usuário, verificando se a assinatura expirou
+     * Se expirou, retorna 'FREE' ao invés do tier armazenado
+     * @param string $tier Tier armazenado no banco
+     * @param string|null $expiresAt Data de expiração (null = sem expiração)
+     * @return string Tier efetivo (FREE, PLUS ou PRO)
+     */
+    private function getEffectiveTier(string $tier, ?string $expiresAt): string
+    {
+        $tier = strtoupper($tier ?: 'FREE');
+        
+        // FREE nunca expira
+        if ($tier === 'FREE') {
+            return 'FREE';
+        }
+        
+        // Se não tem data de expiração, é vitalício
+        if ($expiresAt === null || $expiresAt === '') {
+            return $tier;
+        }
+        
+        // Verifica se expirou
+        $expirationTime = strtotime($expiresAt);
+        if ($expirationTime !== false && $expirationTime < time()) {
+            // Expirou! Retorna FREE
+            return 'FREE';
+        }
+        
+        return $tier;
+    }
+
+    /**
      * Gera um token JWT SSO para o usuário autenticado
      * @param int $userId ID do usuário
      * @param string $email Email do usuário
@@ -59,7 +90,7 @@ class SsoController extends BaseController
             $this->redirect('/?modal=login');
         }
 
-        $user = Database::fetch('SELECT id, email, tier FROM users WHERE id = ? AND deleted_at IS NULL', [$userId]);
+        $user = Database::fetch('SELECT id, email, tier, subscription_expires_at FROM users WHERE id = ? AND deleted_at IS NULL', [$userId]);
         if (!$user) {
             $this->redirect('/logout');
         }
@@ -76,7 +107,7 @@ class SsoController extends BaseController
         $ttl = (int)($_ENV['SSO_TTL'] ?? 60);
         $ttl = max(10, min(600, $ttl));
 
-        $userTier = strtoupper($user['tier'] ?? 'FREE');
+        $userTier = $this->getEffectiveTier($user['tier'] ?? 'FREE', $user['subscription_expires_at'] ?? null);
         $jwt = $this->generateToken((int)$user['id'], (string)$user['email'], $userTier, $secret, $iss, $aud, $ttl);
 
         $audBase = rtrim($aud, '/');
@@ -110,7 +141,7 @@ class SsoController extends BaseController
             $this->redirect('/?modal=login');
         }
 
-        $user = Database::fetch('SELECT id, email, tier FROM users WHERE id = ? AND deleted_at IS NULL', [$userId]);
+        $user = Database::fetch('SELECT id, email, tier, subscription_expires_at FROM users WHERE id = ? AND deleted_at IS NULL', [$userId]);
         if (!$user) {
             $this->redirect('/logout');
         }
@@ -128,7 +159,7 @@ class SsoController extends BaseController
         $ttl = (int)($_ENV['SSO_DIARIO_TTL'] ?? $_ENV['SSO_TTL'] ?? 60);
         $ttl = max(10, min(600, $ttl));
 
-        $userTier = strtoupper($user['tier'] ?? 'FREE');
+        $userTier = $this->getEffectiveTier($user['tier'] ?? 'FREE', $user['subscription_expires_at'] ?? null);
         $jwt = $this->generateToken((int)$user['id'], (string)$user['email'], $userTier, $secret, $iss, $aud, $ttl);
 
         $audBase = rtrim($aud, '/');
