@@ -4,9 +4,14 @@
  * Execute: php run_stripe_migrations.php
  */
 
-require __DIR__ . '/bootstrap.php';
+require __DIR__ . '/vendor/autoload.php';
 
+use App\Core\Application;
 use App\Core\Database;
+
+// Inicializar app
+$app = Application::getInstance();
+Database::init($app->config('database'));
 
 echo "=== Executando Migrations do Stripe ===\n\n";
 
