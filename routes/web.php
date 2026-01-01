@@ -441,4 +441,21 @@ $router->post('/subscription/validate-coupon', [SubscriptionController::class, '
 // Stripe Webhook (sem autenticação, validado por assinatura do Stripe)
 $router->post('/api/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
+// Stripe Test Ping (temporário - para verificar se configuração está OK)
+$router->get('/api/stripe/ping', function() {
+    header('Content-Type: application/json');
+    try {
+        $stripe = new \App\Services\StripeService();
+        $result = $stripe->ping();
+        echo json_encode($result);
+    } catch (Throwable $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+    exit;
+});
+
 return $router;
