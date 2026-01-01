@@ -422,4 +422,23 @@ $router->get('/api/market-clock/{code}', [MarketClockController::class, 'show'])
 // Admin-only: atualizar status e gravar em tabela clock (pode ser acionado por botão no admin ou cron interno)
 $router->post('/api/market-clock/update-statuses', [MarketClockController::class, 'updateStatuses'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
+// ============================================================================
+// SUBSCRIPTION (Assinaturas)
+// ============================================================================
+
+use App\Controllers\SubscriptionController;
+use App\Controllers\StripeWebhookController;
+
+// Páginas de assinatura (requer login)
+$router->get('/subscription/plans', [SubscriptionController::class, 'plans']);
+$router->post('/subscription/checkout', [SubscriptionController::class, 'checkout'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
+$router->get('/subscription/success', [SubscriptionController::class, 'success']);
+$router->get('/subscription/canceled', [SubscriptionController::class, 'canceled']);
+$router->get('/subscription/manage', [SubscriptionController::class, 'manage'], [AuthMiddleware::class]);
+$router->post('/subscription/cancel', [SubscriptionController::class, 'cancel'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
+$router->post('/subscription/validate-coupon', [SubscriptionController::class, 'validateCoupon'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
+
+// Stripe Webhook (sem autenticação, validado por assinatura do Stripe)
+$router->post('/api/stripe/webhook', [StripeWebhookController::class, 'handle']);
+
 return $router;
