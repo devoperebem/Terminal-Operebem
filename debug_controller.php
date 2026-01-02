@@ -37,12 +37,17 @@ try {
     $sub = new \App\Services\SubscriptionService();
     echo "7. SubscriptionService OK<br>\n";
     
-    // BaseController precisa de session
+    // Session start
+    echo "7.5 Iniciando session...<br>\n";
     if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+        @session_start();
+        echo "7.6 Session iniciada<br>\n";
+    } else {
+        echo "7.6 Session já ativa<br>\n";
     }
     
     // SubscriptionController
+    echo "7.7 Criando SubscriptionController...<br>\n";
     $controller = new \App\Controllers\SubscriptionController();
     echo "8. SubscriptionController OK<br>\n";
     
