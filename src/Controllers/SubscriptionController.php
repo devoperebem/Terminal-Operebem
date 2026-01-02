@@ -8,21 +8,19 @@
 namespace App\Controllers;
 
 use App\Core\Database;
-use App\Services\AuthService;
 use App\Services\StripeService;
 use App\Services\SubscriptionService;
 
 class SubscriptionController extends BaseController
 {
-    private AuthService $authService;
+    // Não declarar authService pois já existe no BaseController
     private StripeService $stripeService;
     private SubscriptionService $subscriptionService;
     
     public function __construct()
     {
         try {
-            parent::__construct();
-            $this->authService = new AuthService();
+            parent::__construct(); // Isso já configura authService
             $this->stripeService = new StripeService();
             $this->subscriptionService = new SubscriptionService();
         } catch (\Throwable $e) {
