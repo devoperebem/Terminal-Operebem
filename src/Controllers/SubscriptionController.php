@@ -20,10 +20,15 @@ class SubscriptionController extends BaseController
     
     public function __construct()
     {
-        parent::__construct();
-        $this->authService = new AuthService();
-        $this->stripeService = new StripeService();
-        $this->subscriptionService = new SubscriptionService();
+        try {
+            parent::__construct();
+            $this->authService = new AuthService();
+            $this->stripeService = new StripeService();
+            $this->subscriptionService = new SubscriptionService();
+        } catch (\Throwable $e) {
+            error_log('[SubscriptionController::__construct] Error: ' . $e->getMessage() . ' | File: ' . $e->getFile() . ':' . $e->getLine());
+            throw $e;
+        }
     }
     
     /**
@@ -32,24 +37,31 @@ class SubscriptionController extends BaseController
      */
     public function plans(): void
     {
-        $user = $this->authService->getCurrentUser();
-        if (!$user) {
-            $_SESSION['next_url'] = '/subscription/plans';
-            $this->redirect('/?modal=login');
+        try {
+            $user = $this->authService->getCurrentUser();
+            if (!$user) {
+                $_SESSION['next_url'] = '/subscription/plans';
+                $this->redirect('/?modal=login');
+                return;
+            }
+            
+            $plans = $this->subscriptionService->getActivePlans();
+            $currentSubscription = $this->subscriptionService->getActiveSubscription($user['id']);
+            $effectiveTier = $this->subscriptionService->getEffectiveTier($user);
+            
+            $this->view('subscription/plans', [
+                'title' => 'Planos Operebem',
+                'plans' => $plans,
+                'currentSubscription' => $currentSubscription,
+                'effectiveTier' => $effectiveTier,
+                'stripePublicKey' => $this->stripeService->getPublicKey(),
+                'user' => $user,
+            ]);
+        } catch (\Throwable $e) {
+            // Log de erro para debug
+            error_log('[SubscriptionController::plans] Error: ' . $e->getMessage() . ' | File: ' . $e->getFile() . ':' . $e->getLine());
+            throw $e;
         }
-        
-        $plans = $this->subscriptionService->getActivePlans();
-        $currentSubscription = $this->subscriptionService->getActiveSubscription($user['id']);
-        $effectiveTier = $this->subscriptionService->getEffectiveTier($user);
-        
-        $this->view('subscription/plans', [
-            'title' => 'Planos Operebem',
-            'plans' => $plans,
-            'currentSubscription' => $currentSubscription,
-            'effectiveTier' => $effectiveTier,
-            'stripePublicKey' => $this->stripeService->getPublicKey(),
-            'user' => $user,
-        ]);
     }
     
     /**
