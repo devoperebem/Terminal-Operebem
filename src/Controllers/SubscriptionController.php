@@ -255,10 +255,4 @@ class SubscriptionController extends BaseController
         echo json_encode($data);
         exit;
     }
-    
-    private function validateCsrf(): bool
-    {
-        $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-        return !empty($token) && isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
-    }
 }
