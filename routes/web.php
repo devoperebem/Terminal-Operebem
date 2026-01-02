@@ -458,4 +458,25 @@ $router->get('/api/stripe/ping', function() {
     exit;
 });
 
+// Debug: testar instanciação do SubscriptionController
+$router->get('/api/debug/subscription-controller', function() {
+    header('Content-Type: application/json');
+    try {
+        $controller = new \App\Controllers\SubscriptionController();
+        echo json_encode([
+            'success' => true,
+            'message' => 'SubscriptionController instanciado com sucesso'
+        ]);
+    } catch (Throwable $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+    exit;
+});
+
 return $router;
