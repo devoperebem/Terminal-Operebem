@@ -423,23 +423,24 @@ $router->get('/api/market-clock/{code}', [MarketClockController::class, 'show'])
 $router->post('/api/market-clock/update-statuses', [MarketClockController::class, 'updateStatuses'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
 // ============================================================================
-// SUBSCRIPTION (Assinaturas) - PROTEÇÃO: Apenas admin ou ambiente debug
+// SUBSCRIPTION (Assinaturas) - Apenas via /dev/ (ambiente de desenvolvimento)
 // ============================================================================
 
 use App\Controllers\SubscriptionController;
 use App\Controllers\StripeWebhookController;
-use App\Middleware\DebugOnlyMiddleware;
 
-// Páginas de assinatura (protegidas: apenas admin ou debug)
-$router->get('/subscription/plans', [SubscriptionController::class, 'plans'], [DebugOnlyMiddleware::class]);
-$router->post('/subscription/checkout', [SubscriptionController::class, 'checkout'], [DebugOnlyMiddleware::class, AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
-$router->get('/subscription/success', [SubscriptionController::class, 'success'], [DebugOnlyMiddleware::class]);
-$router->get('/subscription/canceled', [SubscriptionController::class, 'canceled'], [DebugOnlyMiddleware::class]);
-$router->get('/subscription/manage', [SubscriptionController::class, 'manage'], [DebugOnlyMiddleware::class, AuthMiddleware::class]);
-$router->post('/subscription/cancel', [SubscriptionController::class, 'cancel'], [DebugOnlyMiddleware::class, AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
-$router->post('/subscription/validate-coupon', [SubscriptionController::class, 'validateCoupon'], [DebugOnlyMiddleware::class, AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
+// Rotas de assinatura só acessíveis via /dev/
+if (defined('IS_DEV_ENVIRONMENT') && IS_DEV_ENVIRONMENT === true) {
+    $router->get('/subscription/plans', [SubscriptionController::class, 'plans']);
+    $router->post('/subscription/checkout', [SubscriptionController::class, 'checkout'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
+    $router->get('/subscription/success', [SubscriptionController::class, 'success']);
+    $router->get('/subscription/canceled', [SubscriptionController::class, 'canceled']);
+    $router->get('/subscription/manage', [SubscriptionController::class, 'manage'], [AuthMiddleware::class]);
+    $router->post('/subscription/cancel', [SubscriptionController::class, 'cancel'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
+    $router->post('/subscription/validate-coupon', [SubscriptionController::class, 'validateCoupon'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
+}
 
-// Stripe Webhook (sem autenticação, validado por assinatura do Stripe)
+// Stripe Webhook (sempre disponível - validado por assinatura do Stripe)
 $router->post('/api/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
 // Stripe Test Ping (temporário - para verificar se configuração está OK)
