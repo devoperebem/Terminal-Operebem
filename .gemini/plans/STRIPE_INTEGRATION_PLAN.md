@@ -415,54 +415,64 @@ STRIPE_CANCEL_URL=https://terminal.operebem.com.br/subscription/canceled
 
 ## 📅 Cronograma de Implementação
 
-### Fase 1: Setup e Infraestrutura (2-3 horas)
-- [ ] Criar migrations
-- [ ] Executar migrations em dev/prod
-- [ ] Configurar variáveis .env
-- [ ] Criar produtos/preços no Stripe Dashboard
-- [ ] Configurar webhook no Stripe Dashboard
+### ✅ Fase 1: Setup e Infraestrutura (CONCLUÍDA - 2026-01-03)
+- [x] Criar migrations (6 tabelas criadas)
+- [x] Executar migrations em dev/prod
+- [x] Configurar variáveis .env
+- [x] Criar produtos/preços no Stripe via API
+- [ ] ⏳ Configurar webhook no Stripe Dashboard
 
-### Fase 2: Services (3-4 horas)
-- [ ] `config/stripe.php`
-- [ ] `StripeService.php` - wrapper da API
-- [ ] `SubscriptionService.php` - lógica de negócio
-- [ ] `CouponService.php` - gerenciamento de cupons
+**Produtos criados no Stripe (modo teste):**
+| Plano | Product ID | Price ID | Valor |
+|-------|-----------|----------|-------|
+| PLUS Terminal Operebem | `prod_Tiy0KMof7HfFH3` | `price_1SlW4fDhuEkxOnkWz1Sh1mcS` | R$ 29,90/mês |
+| PRO Terminal Operebem | `prod_Tiy050l9NF7nEs` | `price_1SlW4gDhuEkxOnkWelPmZJ21` | R$ 697,00/ano |
 
-### Fase 3: Webhooks (2-3 horas)
-- [ ] `StripeWebhookController.php`
-- [ ] Validação de assinatura de webhook
-- [ ] Handlers para cada evento
-- [ ] Logs detalhados
+### ✅ Fase 2: Services (CONCLUÍDA)
+- [x] `config/stripe.php` - configuração com getenv()
+- [x] `StripeService.php` - wrapper da API Stripe
+- [x] `SubscriptionService.php` - lógica de negócio
+- [ ] `CouponService.php` - gerenciamento de cupons (opcional, já incluído no SubscriptionService)
 
-### Fase 4: Checkout do Usuário (3-4 horas)
-- [ ] `SubscriptionController.php`
-- [ ] View: plans.php (escolher plano)
-- [ ] View: success.php
-- [ ] View: canceled.php
-- [ ] View: manage.php
-- [ ] Integração com cupons
+### ✅ Fase 3: Webhooks (CONCLUÍDA)
+- [x] `StripeWebhookController.php`
+- [x] Validação de assinatura de webhook
+- [x] Handlers para cada evento
+- [x] Logs detalhados
 
-### Fase 5: Admin Panel (3-4 horas)
+### ✅ Fase 4: Checkout do Usuário (CONCLUÍDA)
+- [x] `SubscriptionController.php`
+- [x] View: plans.php (escolher plano)
+- [x] View: success.php
+- [x] View: canceled.php
+- [x] View: manage.php
+- [x] Integração com cupons
+
+**Nota:** Rotas de assinatura protegidas via `/dev/` (só acessíveis em ambiente de desenvolvimento)
+
+### ⏳ Fase 5: Admin Panel (NÃO INICIADA)
 - [ ] Lista de assinaturas
 - [ ] Dar tier manualmente
 - [ ] Estender trial
 - [ ] Histórico de pagamentos
 - [ ] CRUD de cupons
 
-### Fase 6: Testes e Deploy (2 horas)
-- [ ] Testar fluxo completo em sandbox
+### ⏳ Fase 6: Testes e Deploy (PARCIALMENTE CONCLUÍDA)
+- [x] Deploy das migrations em produção
+- [x] Produtos criados no Stripe (modo teste)
+- [ ] Testar fluxo completo de checkout
 - [ ] Testar webhooks com Stripe CLI
-- [ ] Deploy em produção
-- [ ] Testar em produção com valor mínimo
+- [ ] Configurar webhook no Stripe Dashboard
+- [ ] Migrar para chaves de produção
 
 ---
 
 ## ✅ Checklist Pré-Implementação
 
-- [ ] Criar conta Stripe (ou verificar existente)
-- [ ] Criar produtos no Stripe Dashboard
-- [ ] Obter chaves de API
-- [ ] Configurar webhook URL no Stripe
+- [x] Criar conta Stripe (ou verificar existente)
+- [x] Criar produtos no Stripe (via API)
+- [x] Obter chaves de API (teste configuradas)
+- [ ] ⏳ Configurar webhook URL no Stripe Dashboard
 
 ---
 
@@ -472,8 +482,39 @@ STRIPE_CANCEL_URL=https://terminal.operebem.com.br/subscription/canceled
 2. **Tier manual:** Assinaturas com `source='admin'` não passam pelo Stripe
 3. **PIX:** Stripe gera QR code, confirmação automática via webhook
 4. **Parcelamento:** Usar Stripe Installments (beta) ou criar price fixo
+5. **Proteção de rotas:** Rotas de `/subscription/*` só acessíveis via prefixo `/dev/`
+6. **Erro corrigido:** SubscriptionController não pode redeclarar propriedades/métodos do BaseController
+
+---
+
+## 🗒️ Anotações da Implementação (2026-01-03)
+
+### Problemas Encontrados e Resolvidos:
+
+1. **Erro 500 na página de planos:**
+   - **Causa:** SubscriptionController estava redeclarando `private AuthService $authService` quando BaseController já define `protected AuthService $authService`
+   - **Solução:** Remover redeclaração e usar a propriedade herdada
+
+2. **Método validateCsrf duplicado:**
+   - **Causa:** SubscriptionController definia `private function validateCsrf()` mas BaseController já tem `protected function validateCsrf()`
+   - **Solução:** Remover método duplicado
+
+3. **Variáveis de ambiente não carregando:**
+   - **Causa:** Uso de `$_ENV` vs `getenv()` em diferentes contextos
+   - **Solução:** `config/stripe.php` usa helper que tenta ambos
+
+### Scripts Temporários Criados:
+- `run_stripe_migrations.php` - executar migrations no servidor
+- `test_subscription.php` - testar serviços
+- `debug_controller.php` - debug de erros
+- `create_stripe_products.php` - criar produtos no Stripe
+- `list_stripe_prices.php` - listar Price IDs
+- `update_subscription_plans.php` - atualizar tabela com Stripe IDs
+
+**Esses scripts podem ser removidos após confirmação de funcionamento.**
 
 ---
 
 *Documento criado em: 2026-01-01*
-*Versão: 1.0*
+*Última atualização: 2026-01-03*
+*Versão: 1.1*
