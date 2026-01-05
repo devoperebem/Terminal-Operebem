@@ -265,6 +265,21 @@ $router->get('/secure/adm/gamification/user/{id}', [\App\Controllers\Admin\Gamif
 $router->get('/secure/adm/gamification/settings', [\App\Controllers\Admin\GamificationController::class, 'settings'], [SecureAdminMiddleware::class]);
 $router->post('/secure/adm/gamification/settings', [\App\Controllers\Admin\GamificationController::class, 'saveSettings'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
+// Secure Admin - Subscriptions Management (Assinaturas)
+$router->get('/secure/adm/subscriptions', [\App\Controllers\Admin\SubscriptionAdminController::class, 'index'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/subscriptions/view', [\App\Controllers\Admin\SubscriptionAdminController::class, 'view'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/subscriptions/grant', [\App\Controllers\Admin\SubscriptionAdminController::class, 'grantForm'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/subscriptions/grant', [\App\Controllers\Admin\SubscriptionAdminController::class, 'grant'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/secure/adm/subscriptions/extend-trial', [\App\Controllers\Admin\SubscriptionAdminController::class, 'extendTrialForm'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/subscriptions/extend-trial', [\App\Controllers\Admin\SubscriptionAdminController::class, 'extendTrial'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/secure/adm/subscriptions/payments', [\App\Controllers\Admin\SubscriptionAdminController::class, 'payments'], [SecureAdminMiddleware::class]);
+
+// Secure Admin - Coupons Management (Cupons)
+$router->get('/secure/adm/coupons', [\App\Controllers\Admin\SubscriptionAdminController::class, 'coupons'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/coupons/create', [\App\Controllers\Admin\SubscriptionAdminController::class, 'createCouponForm'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/coupons/create', [\App\Controllers\Admin\SubscriptionAdminController::class, 'createCoupon'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/coupons/toggle', [\App\Controllers\Admin\SubscriptionAdminController::class, 'toggleCoupon'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+
 // Executar todas as migrations do sistema via navegador (somente admin)
 $router->get('/secure/adm/run-migrations', [AdminSecureController::class, 'runMigrations'], [SecureAdminMiddleware::class]);
 

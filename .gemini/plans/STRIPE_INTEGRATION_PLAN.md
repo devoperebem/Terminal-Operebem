@@ -450,12 +450,23 @@ STRIPE_CANCEL_URL=https://terminal.operebem.com.br/subscription/canceled
 
 **Nota:** Rotas de assinatura protegidas via `/dev/` (só acessíveis em ambiente de desenvolvimento)
 
-### ⏳ Fase 5: Admin Panel (NÃO INICIADA)
-- [ ] Lista de assinaturas
-- [ ] Dar tier manualmente
-- [ ] Estender trial
-- [ ] Histórico de pagamentos
-- [ ] CRUD de cupons
+### ✅ Fase 5: Admin Panel (CONCLUÍDA - 2026-01-03)
+- [x] Lista de assinaturas (`/secure/adm/subscriptions`)
+- [x] Dar tier manualmente (`/secure/adm/subscriptions/grant`)
+- [x] Estender trial (`/secure/adm/subscriptions/extend-trial`)
+- [x] Histórico de pagamentos (`/secure/adm/subscriptions/payments`)
+- [x] CRUD de cupons (`/secure/adm/coupons`)
+
+**Arquivos criados:**
+- `src/Controllers/Admin/SubscriptionAdminController.php`
+- `src/Views/admin_secure/subscriptions/index.php`
+- `src/Views/admin_secure/subscriptions/view.php`
+- `src/Views/admin_secure/subscriptions/grant.php`
+- `src/Views/admin_secure/subscriptions/extend_trial.php`
+- `src/Views/admin_secure/subscriptions/payments.php`
+- `src/Views/admin_secure/subscriptions/coupons.php`
+- `src/Views/admin_secure/subscriptions/coupon_create.php`
+
 
 ### ⏳ Fase 6: Testes e Deploy (PARCIALMENTE CONCLUÍDA)
 - [x] Deploy das migrations em produção
