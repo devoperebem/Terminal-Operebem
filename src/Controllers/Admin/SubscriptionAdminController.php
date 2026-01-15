@@ -14,13 +14,23 @@ use App\Services\AdminAuthService;
 
 class SubscriptionAdminController
 {
-    private SubscriptionService $subscriptionService;
+    private ?SubscriptionService $subscriptionService = null;
     private AdminAuthService $adminAuthService;
     
     public function __construct()
     {
-        $this->subscriptionService = new SubscriptionService();
         $this->adminAuthService = new AdminAuthService();
+    }
+    
+    /**
+     * Retorna o SubscriptionService (lazy loading)
+     */
+    private function getSubscriptionService(): SubscriptionService
+    {
+        if ($this->subscriptionService === null) {
+            $this->subscriptionService = new SubscriptionService();
+        }
+        return $this->subscriptionService;
     }
     
     /**
@@ -211,7 +221,7 @@ class SubscriptionAdminController
         }
         
         try {
-            $result = $this->subscriptionService->grantTierManually(
+            $result = $this->getSubscriptionService()->grantTierManually(
                 $userId,
                 $tier,
                 $expiresAt ?: null,
@@ -292,7 +302,7 @@ class SubscriptionAdminController
         }
         
         try {
-            $result = $this->subscriptionService->extendTrial($userId, $days, $admin['id'], $reason);
+            $result = $this->getSubscriptionService()->extendTrial($userId, $days, $admin['id'], $reason);
             
             if ($result['success']) {
                 header('Location: /secure/adm/subscriptions?success=trial_extended');
