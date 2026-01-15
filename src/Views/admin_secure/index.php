@@ -82,6 +82,22 @@ ob_start();
             </div>
           </a>
         </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/secure/adm/subscriptions" class="btn btn-outline-success w-100 shortcut-btn">
+            <div class="py-2">
+              <div class="h1 mb-1">💳</div>
+              <div class="small">Assinaturas</div>
+            </div>
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/secure/adm/coupons" class="btn btn-outline-dark w-100 shortcut-btn">
+            <div class="py-2">
+              <div class="h1 mb-1">🎟️</div>
+              <div class="small">Cupons</div>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   </div>

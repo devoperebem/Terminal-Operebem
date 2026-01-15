@@ -12,13 +12,13 @@
 ┌─────────────────────────────────────────────────────────────────────┐
 │                     FASE 1: STRIPE (14-16h)                         │
 │                                                                     │
-│  ├── 1.1 Setup e Configuração                                      │
-│  ├── 1.2 Tabelas e Migrations                                      │
-│  ├── 1.3 Services (Stripe + Subscription)                          │
-│  ├── 1.4 Webhooks                                                  │
-│  ├── 1.5 Frontend Usuário (Planos, Checkout, Gerenciar)            │
-│  ├── 1.6 Admin (Assinaturas, Cupons, Histórico)                    │
-│  └── 1.7 TESTE FASE 1                                              │
+│  ├── 1.1 Setup e Configuração                                       │
+│  ├── 1.2 Tabelas e Migrations                                       │
+│  ├── 1.3 Services (Stripe + Subscription)                           │
+│  ├── 1.4 Webhooks                                                   │
+│  ├── 1.5 Frontend Usuário (Planos, Checkout, Gerenciar)             │
+│  ├── 1.6 Admin (Assinaturas, Cupons, Histórico)                     │
+│  └── 1.7 TESTE FASE 1                                               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
                                   │
@@ -26,12 +26,12 @@
 ┌─────────────────────────────────────────────────────────────────────┐
 │                   FASE 2: RESTRIÇÕES (9-11h)                        │
 │                                                                     │
-│  ├── 2.1 TierService                                               │
-│  ├── 2.2 Middleware de Tier                                        │
-│  ├── 2.3 Expor Tier no Frontend                                    │
-│  ├── 2.4 Bloquear Features por Tier                                │
-│  ├── 2.5 Intervalos Variáveis de Polling                           │
-│  └── 2.6 TESTE FASE 2                                              │
+│  ├── 2.1 TierService                                                │
+│  ├── 2.2 Middleware de Tier                                         │
+│  ├── 2.3 Expor Tier no Frontend                                     │
+│  ├── 2.4 Bloquear Features por Tier                                 │
+│  ├── 2.5 Intervalos Variáveis de Polling                            │
+│  └── 2.6 TESTE FASE 2                                               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
                                   │
@@ -39,12 +39,12 @@
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    FASE 3: EMAILS (15-17h)                          │
 │                                                                     │
-│  ├── 3.1 Tabelas e Migrations                                      │
-│  ├── 3.2 Services (Email, Template, Queue, Trigger)                │
-│  ├── 3.3 Admin Interface                                           │
-│  ├── 3.4 Templates Padrão                                          │
-│  ├── 3.5 Integrar com Eventos                                      │
-│  └── 3.6 TESTE FASE 3                                              │
+│  ├── 3.1 Tabelas e Migrations                                       │
+│  ├── 3.2 Services (Email, Template, Queue, Trigger)                 │
+│  ├── 3.3 Admin Interface                                            │
+│  ├── 3.4 Templates Padrão                                           │
+│  ├── 3.5 Integrar com Eventos                                       │
+│  └── 3.6 TESTE FASE 3                                               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```

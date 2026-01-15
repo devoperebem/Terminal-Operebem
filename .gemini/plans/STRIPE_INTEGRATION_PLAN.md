@@ -415,24 +415,35 @@ STRIPE_CANCEL_URL=https://terminal.operebem.com.br/subscription/canceled
 
 ## 📅 Cronograma de Implementação
 
-### ✅ Fase 1: Setup e Infraestrutura (CONCLUÍDA - 2026-01-03)
+### ✅ Fase 1: Setup e Infraestrutura (CONCLUÍDA - 2026-01-14)
 - [x] Criar migrations (6 tabelas criadas)
 - [x] Executar migrations em dev/prod
 - [x] Configurar variáveis .env
 - [x] Criar produtos/preços no Stripe via API
-- [ ] ⏳ Configurar webhook no Stripe Dashboard
+- [x] Configurar webhook no Stripe (via API)
 
-**Produtos criados no Stripe (modo teste):**
-| Plano | Product ID | Price ID | Valor |
-|-------|-----------|----------|-------|
-| PLUS Terminal Operebem | `prod_Tiy0KMof7HfFH3` | `price_1SlW4fDhuEkxOnkWz1Sh1mcS` | R$ 29,90/mês |
-| PRO Terminal Operebem | `prod_Tiy050l9NF7nEs` | `price_1SlW4gDhuEkxOnkWelPmZJ21` | R$ 697,00/ano |
+**Produtos criados no Stripe:**
+
+| Ambiente | Plano | Price ID | Valor |
+|----------|-------|----------|-------|
+| TESTE | PLUS Mensal | `price_1SlW4fDhuEkxOnkWz1Sh1mcS` | R$ 29,90/mês |
+| TESTE | PRO Anual (à vista) | `price_1SlW4gDhuEkxOnkWelPmZJ21` | R$ 697,00/ano |
+| TESTE | PRO Anual (12x) | `price_1SpUuLDhuEkxOnkWmsdcKUrs` | R$ 838,80/ano |
+| PRODUÇÃO | PLUS Mensal | `price_1SpUzEDhuEkxOnkWeG1RdPUF` | R$ 29,90/mês |
+| PRODUÇÃO | PRO Anual (à vista) | `price_1SpUv6DhuEkxOnkWbIbpRvZQ` | R$ 697,00/ano |
+| PRODUÇÃO | PRO Anual (12x) | `price_1SpUv6DhuEkxOnkWCnDazUEF` | R$ 838,80/ano |
+
+**Webhooks configurados:**
+| Ambiente | Webhook ID | Secret |
+|----------|------------|--------|
+| TESTE | `we_1SpUzpDhuEkxOnkWaZlUGl7p` | `whsec_f7Sn...` |
+| PRODUÇÃO | `we_1SpV06DhuEkxOnkWNGs4nIbS` | `whsec_ZxPH...` |
 
 ### ✅ Fase 2: Services (CONCLUÍDA)
 - [x] `config/stripe.php` - configuração com getenv()
 - [x] `StripeService.php` - wrapper da API Stripe
 - [x] `SubscriptionService.php` - lógica de negócio
-- [ ] `CouponService.php` - gerenciamento de cupons (opcional, já incluído no SubscriptionService)
+- [x] Cupons incluídos no SubscriptionService
 
 ### ✅ Fase 3: Webhooks (CONCLUÍDA)
 - [x] `StripeWebhookController.php`
@@ -468,13 +479,16 @@ STRIPE_CANCEL_URL=https://terminal.operebem.com.br/subscription/canceled
 - `src/Views/admin_secure/subscriptions/coupon_create.php`
 
 
-### ⏳ Fase 6: Testes e Deploy (PARCIALMENTE CONCLUÍDA)
+### ⏳ Fase 6: Testes e Deploy (EM PROGRESSO)
 - [x] Deploy das migrations em produção
-- [x] Produtos criados no Stripe (modo teste)
-- [ ] Testar fluxo completo de checkout
-- [ ] Testar webhooks com Stripe CLI
-- [ ] Configurar webhook no Stripe Dashboard
-- [ ] Migrar para chaves de produção
+- [x] Produtos criados no Stripe (teste E produção)
+- [x] PRO Parcelado criado (R$ 838,80 = 12x R$ 69,90)
+- [x] Webhooks configurados (teste E produção)
+- [x] .env atualizado com Price IDs e Webhook Secrets
+- [ ] ⏳ Atualizar tabela `subscription_plans` no banco
+- [ ] ⏳ Testar fluxo completo de checkout
+- [ ] ⏳ Testar webhooks (fazer compra de teste)
+- [ ] Migrar para chaves de produção (quando pronto)
 
 ---
 
@@ -482,8 +496,8 @@ STRIPE_CANCEL_URL=https://terminal.operebem.com.br/subscription/canceled
 
 - [x] Criar conta Stripe (ou verificar existente)
 - [x] Criar produtos no Stripe (via API)
-- [x] Obter chaves de API (teste configuradas)
-- [ ] ⏳ Configurar webhook URL no Stripe Dashboard
+- [x] Obter chaves de API (teste e produção)
+- [x] Configurar webhook URL no Stripe (via API)
 
 ---
 
