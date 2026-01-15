@@ -111,6 +111,24 @@ class Database
         return $stmt->fetchAll();
     }
 
+    /**
+     * Executa uma query e retorna o valor da primeira coluna da primeira linha
+     */
+    public static function fetchColumn(string $sql, array $params = [], int $column = 0, ?string $connection = null): mixed
+    {
+        $stmt = self::query($sql, $params, $connection);
+        return $stmt->fetchColumn($column);
+    }
+
+    /**
+     * Executa uma query e retorna o número de linhas afetadas
+     */
+    public static function execute(string $sql, array $params = [], ?string $connection = null): int
+    {
+        $stmt = self::query($sql, $params, $connection);
+        return $stmt->rowCount();
+    }
+
     public static function insert(string $table, array $data, ?string $connection = null): int
     {
         $columns = implode(', ', array_keys($data));
