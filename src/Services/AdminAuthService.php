@@ -91,6 +91,37 @@ class AdminAuthService
         unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['admin_login_time']);
     }
 
+    /**
+     * Retorna os dados do admin atualmente logado
+     */
+    public function getCurrentAdmin(): ?array
+    {
+        if (!$this->isAuthenticated()) {
+            return null;
+        }
+        
+        $adminId = (int)($_SESSION['admin_id'] ?? 0);
+        if (!$adminId) {
+            return null;
+        }
+        
+        $admin = Database::fetch(
+            'SELECT id, username, name, created_at FROM admin_users WHERE id = ?',
+            [$adminId]
+        );
+        
+        if (!$admin) {
+            return null;
+        }
+        
+        // Usar username como name se name estiver vazio
+        if (empty($admin['name'])) {
+            $admin['name'] = $admin['username'];
+        }
+        
+        return $admin;
+    }
+
     public function listAdmins(bool $hideDefault = true): array
     {
         $this->ensureTableAndSeed();
