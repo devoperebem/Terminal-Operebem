@@ -388,13 +388,24 @@ class SubscriptionAdminController
     {
         $admin = $this->adminAuthService->getCurrentAdmin();
         
-        $coupons = Database::fetchAll(
-            "SELECT c.*, a.name as created_by_name,
-                    (SELECT COUNT(*) FROM coupon_redemptions WHERE coupon_id = c.id) as usage_count
-             FROM coupons c
-             LEFT JOIN admin_users a ON c.created_by = a.id
-             ORDER BY c.created_at DESC"
-        );
+        // Query simplificada usando apenas username
+        try {
+            $coupons = Database::fetchAll(
+                "SELECT c.*, a.username as created_by_name,
+                        (SELECT COUNT(*) FROM coupon_redemptions WHERE coupon_id = c.id) as usage_count
+                 FROM coupons c
+                 LEFT JOIN admin_users a ON c.created_by = a.id
+                 ORDER BY c.created_at DESC"
+            );
+        } catch (\Throwable $e) {
+            // Se der erro, tentar sem o JOIN
+            $coupons = Database::fetchAll(
+                "SELECT c.*, NULL as created_by_name,
+                        (SELECT COUNT(*) FROM coupon_redemptions WHERE coupon_id = c.id) as usage_count
+                 FROM coupons c
+                 ORDER BY c.created_at DESC"
+            );
+        }
         
         $error = $_GET['error'] ?? null;
         $success = $_GET['success'] ?? null;
