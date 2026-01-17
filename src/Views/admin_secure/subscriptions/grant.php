@@ -1,28 +1,11 @@
 <?php
-/**
- * Admin - Dar Tier Manualmente
- */
-
-$title = 'Secure Admin - Dar Tier Manual';
-$pageTitle = 'Dar Tier Manual';
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-$footerVariant = 'admin-auth';
-
-$errorMessages = [
-    'csrf' => 'Token de seguranca invalido. Tente novamente.',
-    'invalid' => 'Dados invalidos. Verifique os campos.',
-    'user_not_found' => 'Usuario nao encontrado.',
-    'exception' => 'Ocorreu um erro inesperado. Tente novamente.',
-    'already_has_subscription' => 'Usuario ja possui uma assinatura ativa.',
-];
-
 ob_start();
 ?>
 <style>
-    .tier-option { cursor: pointer; transition: all 0.2s; }
-    .tier-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .tier-option.selected { border-color: #0d6efd !important; background: #f0f7ff; }
-    .tier-option input { display: none; }
+.tier-option { cursor: pointer; transition: all 0.2s; }
+.tier-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.tier-option.selected { border-color: #0d6efd !important; background: #f0f7ff; }
+.tier-option input { display: none; }
 </style>
 
 <div class="container my-4">
@@ -33,24 +16,33 @@ ob_start();
                     <h5 class="mb-0"><i class="fas fa-gift me-2"></i>Dar Tier Manualmente</h5>
                 </div>
                 <div class="card-body">
-                    <?php if ($error): ?>
+                    <?php if (isset($error) && $error): ?>
                         <div class="alert alert-danger">
-                            <?= $errorMessages[$error] ?? 'Erro desconhecido.' ?>
+                            <?php
+                            $errorMessages = [
+                                'csrf' => 'Token de segurança inválido. Tente novamente.',
+                                'invalid' => 'Dados inválidos. Verifique os campos.',
+                                'user_not_found' => 'Usuário não encontrado.',
+                                'exception' => 'Ocorreu um erro inesperado. Tente novamente.',
+                                'already_has_subscription' => 'Usuário já possui uma assinatura ativa.',
+                            ];
+                            echo $errorMessages[$error] ?? 'Erro desconhecido.';
+                            ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($success): ?>
+                    <?php if (isset($success) && $success): ?>
                         <div class="alert alert-success">
                             Tier concedido com sucesso!
                         </div>
                     <?php endif; ?>
 
                     <form method="POST" action="/secure/adm/subscriptions/grant">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Usuario</label>
-                            <?php if ($user): ?>
+                            <label class="form-label fw-bold">Usuário</label>
+                            <?php if (isset($user) && $user): ?>
                                 <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                                 <div class="card bg-light">
                                     <div class="card-body py-2">
@@ -115,10 +107,10 @@ ob_start();
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Data de Expiracao</label>
+                            <label class="form-label fw-bold">Data de Expiração</label>
                             <input type="datetime-local" name="expires_at" class="form-control" id="expires_at">
                             <div class="form-text">
-                                Deixe em branco para acesso vitalicio (sem expiracao).
+                                Deixe em branco para acesso vitalício (sem expiração).
                             </div>
                             <div class="mt-2">
                                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setExpiration(7)">+7 dias</button>

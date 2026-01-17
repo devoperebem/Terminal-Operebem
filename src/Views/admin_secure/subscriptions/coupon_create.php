@@ -1,29 +1,11 @@
 <?php
-/**
- * Admin - Criar Cupom
- */
-
-$title = 'Secure Admin - Criar Cupom';
-$pageTitle = 'Criar Cupom';
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-$footerVariant = 'admin-auth';
-
-$errorMessages = [
-    'csrf' => 'Token de seguranca invalido. Tente novamente.',
-    'invalid_code' => 'Codigo invalido. Deve ter pelo menos 3 caracteres.',
-    'invalid_value' => 'Valor de desconto invalido.',
-    'percent_over_100' => 'Percentual nao pode ser maior que 100%.',
-    'code_exists' => 'Este codigo ja existe.',
-    'exception' => 'Ocorreu um erro inesperado. Tente novamente.',
-];
-
 ob_start();
 ?>
 <style>
-    .discount-type-card { cursor: pointer; transition: all 0.2s; }
-    .discount-type-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .discount-type-card.selected { border-color: #0d6efd !important; background: #f0f7ff; }
-    .discount-type-card input { display: none; }
+.discount-type-card { cursor: pointer; transition: all 0.2s; }
+.discount-type-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.discount-type-card.selected { border-color: #0d6efd !important; background: #f0f7ff; }
+.discount-type-card input { display: none; }
 </style>
 
 <div class="container my-4">
@@ -34,21 +16,31 @@ ob_start();
                     <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Criar Novo Cupom</h5>
                 </div>
                 <div class="card-body">
-                    <?php if ($error): ?>
+                    <?php if (isset($error) && $error): ?>
                         <div class="alert alert-danger">
-                            <?= $errorMessages[$error] ?? 'Erro desconhecido.' ?>
+                            <?php
+                            $errorMessages = [
+                                'csrf' => 'Token de segurança inválido. Tente novamente.',
+                                'invalid_code' => 'Código inválido. Deve ter pelo menos 3 caracteres.',
+                                'invalid_value' => 'Valor de desconto inválido.',
+                                'percent_over_100' => 'Percentual não pode ser maior que 100%.',
+                                'code_exists' => 'Este código já existe.',
+                                'exception' => 'Ocorreu um erro inesperado. Tente novamente.',
+                            ];
+                            echo $errorMessages[$error] ?? 'Erro desconhecido.';
+                            ?>
                         </div>
                     <?php endif; ?>
 
                     <form method="POST" action="/secure/adm/coupons/create">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Codigo do Cupom</label>
+                            <label class="form-label fw-bold">Código do Cupom</label>
                             <input type="text" name="code" class="form-control text-uppercase"
                                    placeholder="Ex: NATAL2026" required minlength="3" maxlength="30"
-                                   pattern="[A-Za-z0-9_-]+" title="Somente letras, numeros, _ e -">
-                            <div class="form-text">Somente letras, numeros, _ e - (sera convertido para maiusculas)</div>
+                                   pattern="[A-Za-z0-9_-]+" title="Somente letras, números, _ e -">
+                            <div class="form-text">Somente letras, números, _ e - (será convertido para maiúsculas)</div>
                         </div>
 
                         <div class="mb-4">
@@ -93,14 +85,14 @@ ob_start();
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Valido ate (opcional)</label>
+                            <label class="form-label fw-bold">Válido até (opcional)</label>
                             <input type="datetime-local" name="valid_until" class="form-control">
-                            <div class="form-text">Deixe em branco para sem data de expiracao</div>
+                            <div class="form-text">Deixe em branco para sem data de expiração</div>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-bold">Notas (opcional)</label>
-                            <textarea name="notes" class="form-control" rows="2" placeholder="Observacoes internas sobre o cupom"></textarea>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="Observações internas sobre o cupom"></textarea>
                         </div>
 
                         <div class="d-grid gap-2">

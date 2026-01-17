@@ -1,48 +1,17 @@
 <?php
-/**
- * Admin - Historico de Pagamentos
- */
-
-$title = 'Secure Admin - Historico de Pagamentos';
-$pageTitle = 'Historico de Pagamentos';
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-$footerVariant = 'admin-auth';
-
-function formatDate($date) {
-    if (!$date) return '-';
-    return date('d/m/Y H:i', strtotime($date));
-}
-
-function formatMoney($cents) {
-    return 'R$ ' . number_format($cents / 100, 2, ',', '.');
-}
-
-function statusBadge($status) {
-    $badges = [
-        'succeeded' => ['bg-success', 'Pago'],
-        'pending' => ['bg-warning', 'Pendente'],
-        'processing' => ['bg-info', 'Processando'],
-        'failed' => ['bg-danger', 'Falhou'],
-        'refunded' => ['bg-secondary', 'Reembolsado'],
-        'disputed' => ['bg-danger', 'Disputado'],
-    ];
-    $b = $badges[$status] ?? ['bg-secondary', $status];
-    return "<span class=\"badge {$b[0]}\">{$b[1]}</span>";
-}
-
 ob_start();
 ?>
 <style>
-    .stats-card { border-left: 4px solid; }
-    .stats-card.total { border-left-color: #6c757d; }
-    .stats-card.success { border-left-color: #198754; }
-    .stats-card.failed { border-left-color: #dc3545; }
-    .stats-card.revenue { border-left-color: #0d6efd; }
+.stats-card { border-left: 4px solid; }
+.stats-card.total { border-left-color: #6c757d; }
+.stats-card.success { border-left-color: #198754; }
+.stats-card.failed { border-left-color: #dc3545; }
+.stats-card.revenue { border-left-color: #0d6efd; }
 </style>
 
 <div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h1 class="h4 mb-0"><i class="fas fa-cash-register me-2"></i><?= $pageTitle ?></h1>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h1 class="h4 mb-0"><i class="fas fa-cash-register me-2"></i>Histórico de Pagamentos</h1>
     </div>
 
     <div class="row g-3 mb-4">
@@ -71,12 +40,12 @@ ob_start();
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card stats-card revenue">
-                <div class="card-body">
-                    <h6 class="text-muted mb-1">Receita Total</h6>
-                    <h3 class="mb-0"><?= formatMoney($stats['total_amount']) ?></h3>
+                <div class="card stats-card revenue">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Receita Total</h6>
+                        <h3 class="mb-0">R$ <?= number_format($stats['total_amount'] / 100, 2, ',', '.') ?></h3>
+                    </div>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -138,10 +107,23 @@ ob_start();
                                     </td>
                                     <td>
                                         <strong class="<?= $payment['status'] === 'succeeded' ? 'text-success' : '' ?>">
-                                            <?= formatMoney($payment['amount_cents']) ?>
+                                            R$ <?= number_format($payment['amount_cents'] / 100, 2, ',', '.') ?>
                                         </strong>
                                     </td>
-                                    <td><?= statusBadge($payment['status']) ?></td>
+                                    <td>
+                                        <?php
+                                        $statusBadges = [
+                                            'succeeded' => ['bg-success', 'Pago'],
+                                            'pending' => ['bg-warning', 'Pendente'],
+                                            'processing' => ['bg-info', 'Processando'],
+                                            'failed' => ['bg-danger', 'Falhou'],
+                                            'refunded' => ['bg-secondary', 'Reembolsado'],
+                                            'disputed' => ['bg-danger', 'Disputado'],
+                                        ];
+                                        $statusInfo = $statusBadges[$payment['status']] ?? ['bg-secondary', $payment['status']];
+                                        ?>
+                                        <span class="badge <?= $statusInfo[0] ?>"><?= $statusInfo[1] ?></span>
+                                    </td>
                                     <td>
                                         <?php if ($payment['payment_method_type'] === 'card'): ?>
                                             <i class="fas fa-credit-card"></i>
@@ -153,7 +135,7 @@ ob_start();
                                             -
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= formatDate($payment['paid_at'] ?? $payment['created_at']) ?></td>
+                                    <td><?= ($payment['paid_at'] ?? $payment['created_at']) ? date('d/m/Y H:i', strtotime($payment['paid_at'] ?? $payment['created_at'])) : '-' ?></td>
                                     <td>
                                         <?php if ($payment['hosted_invoice_url']): ?>
                                             <a href="<?= htmlspecialchars($payment['hosted_invoice_url']) ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver fatura">
@@ -220,7 +202,7 @@ ob_start();
                     </ul>
                 </nav>
                 <p class="text-center text-muted small mt-2 mb-0">
-                    Mostrando pagina <?= $page ?> de <?= $totalPages ?> (<?= number_format($total) ?> registros)
+                    Mostrando página <?= $page ?> de <?= $totalPages ?> (<?= number_format($total) ?> registros)
                 </p>
             </div>
         <?php endif; ?>

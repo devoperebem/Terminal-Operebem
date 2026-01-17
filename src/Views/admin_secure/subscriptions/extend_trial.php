@@ -1,26 +1,4 @@
 <?php
-/**
- * Admin - Estender Trial
- */
-
-$title = 'Secure Admin - Estender Trial';
-$pageTitle = 'Estender Trial';
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-$footerVariant = 'admin-auth';
-
-$errorMessages = [
-    'csrf' => 'Token de seguranca invalido. Tente novamente.',
-    'invalid' => 'Dados invalidos. Informe o usuario e quantidade de dias.',
-    'user_not_found' => 'Usuario nao encontrado.',
-    'no_subscription' => 'Usuario nao possui assinatura em trial.',
-    'exception' => 'Ocorreu um erro inesperado. Tente novamente.',
-];
-
-function formatDate($date) {
-    if (!$date) return '-';
-    return date('d/m/Y H:i', strtotime($date));
-}
-
 ob_start();
 ?>
 <div class="container my-4">
@@ -31,47 +9,56 @@ ob_start();
                     <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>Estender Trial</h5>
                 </div>
                 <div class="card-body">
-                    <?php if ($error): ?>
+                    <?php if (isset($error) && $error): ?>
                         <div class="alert alert-danger">
-                            <?= $errorMessages[$error] ?? 'Erro: ' . htmlspecialchars($error) ?>
+                            <?php
+                            $errorMessages = [
+                                'csrf' => 'Token de segurança inválido. Tente novamente.',
+                                'invalid' => 'Dados inválidos. Informe o usuário e quantidade de dias.',
+                                'user_not_found' => 'Usuário não encontrado.',
+                                'no_subscription' => 'Usuário não possui assinatura em trial.',
+                                'exception' => 'Ocorreu um erro inesperado. Tente novamente.',
+                            ];
+                            echo $errorMessages[$error] ?? ('Erro: ' . htmlspecialchars($error));
+                            ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($success): ?>
+                    <?php if (isset($success) && $success): ?>
                         <div class="alert alert-success">
                             Trial estendido com sucesso!
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($subscription): ?>
+                    <?php if (isset($subscription) && $subscription): ?>
                         <div class="alert alert-light border mb-4">
                             <h6 class="alert-heading">Assinatura Atual</h6>
                             <div class="row">
                                 <div class="col-6">
-                                    <small class="text-muted">Usuario</small><br>
+                                    <small class="text-muted">Usuário</small><br>
                                     <strong><?= htmlspecialchars($subscription['user_name']) ?></strong><br>
                                     <small><?= htmlspecialchars($subscription['user_email']) ?></small>
                                 </div>
                                 <div class="col-6">
                                     <small class="text-muted">Trial termina em</small><br>
-                                    <strong><?= formatDate($subscription['trial_end']) ?></strong>
+                                    <strong><?= $subscription['trial_end'] ? date('d/m/Y H:i', strtotime($subscription['trial_end'])) : '-' ?></strong>
                                 </div>
                             </div>
                         </div>
                     <?php endif; ?>
 
                     <form method="POST" action="/secure/adm/subscriptions/extend-trial">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Usuario</label>
-                            <?php if ($subscription): ?>
+                            <label class="form-label fw-bold">Usuário</label>
+                            <?php if (isset($subscription) && $subscription): ?>
                                 <input type="hidden" name="user_id" value="<?= $subscription['user_id'] ?>">
                                 <div class="form-control-plaintext">
                                     <?= htmlspecialchars($subscription['user_name']) ?>
                                     <small class="text-muted">(<?= htmlspecialchars($subscription['user_email']) ?>)</small>
                                 </div>
-                            <?php elseif ($user): ?>
+                            <?php elseif (isset($user) && $user): ?>
                                 <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                                 <div class="form-control-plaintext">
                                     <?= htmlspecialchars($user['name']) ?>
@@ -114,7 +101,7 @@ ob_start();
 
                         <div class="mb-4">
                             <label class="form-label fw-bold">Motivo (opcional)</label>
-                            <textarea name="reason" class="form-control" rows="2" placeholder="Por que esta estendendo o trial?"></textarea>
+                            <textarea name="reason" class="form-control" rows="2" placeholder="Por que está estendendo o trial?"></textarea>
                         </div>
 
                         <div class="d-grid gap-2">
