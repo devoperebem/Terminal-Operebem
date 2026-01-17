@@ -1,63 +1,29 @@
 <?php
-/**
- * Admin - Visualizar Assinatura
- */
-
-$title = 'Secure Admin - Assinatura #' . $subscription['id'];
-$pageTitle = 'Assinatura #' . $subscription['id'];
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-$footerVariant = 'admin-auth';
-
-function formatDate($date) {
-    if (!$date) return '-';
-    return date('d/m/Y H:i', strtotime($date));
-}
-
-function formatMoney($cents) {
-    return 'R$ ' . number_format($cents / 100, 2, ',', '.');
-}
-
-function statusBadge($status) {
-    $badges = [
-        'active' => ['bg-success', 'Ativa'],
-        'trialing' => ['bg-info', 'Trial'],
-        'canceled' => ['bg-warning', 'Cancelada'],
-        'past_due' => ['bg-danger', 'Atrasada'],
-        'unpaid' => ['bg-danger', 'Nao Paga'],
-        'manual' => ['bg-primary', 'Manual'],
-        'incomplete' => ['bg-secondary', 'Incompleta'],
-        'succeeded' => ['bg-success', 'Pago'],
-        'failed' => ['bg-danger', 'Falhou'],
-        'pending' => ['bg-warning', 'Pendente'],
-        'refunded' => ['bg-info', 'Reembolsado'],
-    ];
-    $b = $badges[$status] ?? ['bg-secondary', $status];
-    return "<span class=\"badge {$b[0]}\">{$b[1]}</span>";
-}
-
-function tierBadge($tier) {
-    $badges = [
-        'FREE' => ['bg-secondary', 'FREE'],
-        'PLUS' => ['bg-primary', 'PLUS'],
-        'PRO' => ['bg-warning text-dark', 'PRO'],
-    ];
-    $b = $badges[$tier] ?? ['bg-secondary', $tier];
-    return "<span class=\"badge {$b[0]}\">{$b[1]}</span>";
-}
-
 ob_start();
 ?>
 <style>
-    .info-label { font-weight: 600; color: #6c757d; font-size: 0.85rem; }
-    .info-value { font-size: 1rem; }
+.info-label { font-weight: 600; color: #6c757d; font-size: 0.85rem; }
+.info-value { font-size: 1rem; }
 </style>
 
 <div class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h1 class="h4 mb-0">
             <i class="fas fa-credit-card me-2"></i>
-            <?= $pageTitle ?>
-            <?= statusBadge($subscription['status']) ?>
+            Assinatura #<?= $subscription['id'] ?>
+            <?php
+            $statusBadges = [
+                'active' => ['bg-success', 'Ativa'],
+                'trialing' => ['bg-info', 'Trial'],
+                'canceled' => ['bg-warning', 'Cancelada'],
+                'past_due' => ['bg-danger', 'Atrasada'],
+                'unpaid' => ['bg-danger', 'Não Paga'],
+                'manual' => ['bg-primary', 'Manual'],
+                'incomplete' => ['bg-secondary', 'Incompleta'],
+            ];
+            $statusInfo = $statusBadges[$subscription['status']] ?? ['bg-secondary', $subscription['status']];
+            ?>
+            <span class="badge <?= $statusInfo[0] ?>"><?= $statusInfo[1] ?></span>
         </h1>
         <div class="d-flex flex-wrap gap-2">
             <a href="/secure/adm/subscriptions/extend-trial?subscription_id=<?= $subscription['id'] ?>" class="btn btn-info btn-sm">
@@ -83,7 +49,13 @@ ob_start();
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Tier</p>
-                            <p class="info-value"><?= tierBadge($subscription['tier']) ?></p>
+                            <p class="info-value">
+                                <?php
+                                $tierBadges = ['FREE' => 'bg-secondary', 'PLUS' => 'bg-primary', 'PRO' => 'bg-warning text-dark'];
+                                $tierClass = $tierBadges[$subscription['tier']] ?? 'bg-secondary';
+                                ?>
+                                <span class="badge <?= $tierClass ?>"><?= $subscription['tier'] ?></span>
+                            </p>
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Intervalo</p>
@@ -91,7 +63,7 @@ ob_start();
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Valor</p>
-                            <p class="info-value"><?= $subscription['price_cents'] ? formatMoney($subscription['price_cents']) : '-' ?></p>
+                            <p class="info-value"><?= $subscription['price_cents'] ? ('R$ ' . number_format($subscription['price_cents'] / 100, 2, ',', '.')) : '-' ?></p>
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Origem</p>
@@ -108,7 +80,7 @@ ob_start();
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Criado em</p>
-                            <p class="info-value"><?= formatDate($subscription['created_at']) ?></p>
+                            <p class="info-value"><?= $subscription['created_at'] ? date('d/m/Y H:i', strtotime($subscription['created_at'])) : '-' ?></p>
                         </div>
                     </div>
 
@@ -142,11 +114,17 @@ ob_start();
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Tier Atual</p>
-                            <p class="info-value"><?= tierBadge($subscription['user_tier']) ?></p>
+                            <p class="info-value">
+                                <?php
+                                $tierBadges = ['FREE' => 'bg-secondary', 'PLUS' => 'bg-primary', 'PRO' => 'bg-warning text-dark'];
+                                $tierClass = $tierBadges[$subscription['user_tier']] ?? 'bg-secondary';
+                                ?>
+                                <span class="badge <?= $tierClass ?>"><?= $subscription['user_tier'] ?></span>
+                            </p>
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Expira em</p>
-                            <p class="info-value"><?= formatDate($subscription['subscription_expires_at']) ?></p>
+                            <p class="info-value"><?= $subscription['subscription_expires_at'] ? date('d/m/Y H:i', strtotime($subscription['subscription_expires_at'])) : '-' ?></p>
                         </div>
                     </div>
                 </div>
@@ -161,20 +139,20 @@ ob_start();
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-6">
-                            <p class="info-label mb-1">Inicio do Periodo</p>
-                            <p class="info-value"><?= formatDate($subscription['current_period_start']) ?></p>
+                            <p class="info-label mb-1">Início do Período</p>
+                            <p class="info-value"><?= $subscription['current_period_start'] ? date('d/m/Y H:i', strtotime($subscription['current_period_start'])) : '-' ?></p>
                         </div>
                         <div class="col-6">
-                            <p class="info-label mb-1">Fim do Periodo</p>
-                            <p class="info-value"><?= formatDate($subscription['current_period_end']) ?></p>
+                            <p class="info-label mb-1">Fim do Período</p>
+                            <p class="info-value"><?= $subscription['current_period_end'] ? date('d/m/Y H:i', strtotime($subscription['current_period_end'])) : '-' ?></p>
                         </div>
                         <div class="col-6">
-                            <p class="info-label mb-1">Trial Inicio</p>
-                            <p class="info-value"><?= formatDate($subscription['trial_start']) ?></p>
+                            <p class="info-label mb-1">Trial Início</p>
+                            <p class="info-value"><?= $subscription['trial_start'] ? date('d/m/Y H:i', strtotime($subscription['trial_start'])) : '-' ?></p>
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Trial Fim</p>
-                            <p class="info-value"><?= formatDate($subscription['trial_end']) ?></p>
+                            <p class="info-value"><?= $subscription['trial_end'] ? date('d/m/Y H:i', strtotime($subscription['trial_end'])) : '-' ?></p>
                         </div>
                         <div class="col-6">
                             <p class="info-label mb-1">Trial Usado</p>
@@ -193,9 +171,9 @@ ob_start();
                     <?php if ($subscription['canceled_at']): ?>
                         <hr>
                         <div class="alert alert-warning mb-0">
-                            <strong>Cancelado em:</strong> <?= formatDate($subscription['canceled_at']) ?>
+                            <strong>Cancelado em:</strong> <?= $subscription['canceled_at'] ? date('d/m/Y H:i', strtotime($subscription['canceled_at'])) : '-' ?>
                             <?php if ($subscription['ended_at']): ?>
-                                <br><strong>Encerrado em:</strong> <?= formatDate($subscription['ended_at']) ?>
+                                <br><strong>Encerrado em:</strong> <?= $subscription['ended_at'] ? date('d/m/Y H:i', strtotime($subscription['ended_at'])) : '-' ?>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
@@ -252,10 +230,21 @@ ob_start();
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($payments as $payment): ?>
-                                        <tr>
-                                            <td><?= $payment['id'] ?></td>
-                                            <td><strong><?= formatMoney($payment['amount_cents']) ?></strong></td>
-                                            <td><?= statusBadge($payment['status']) ?></td>
+                                <tr>
+                                    <td><?= $payment['id'] ?></td>
+                                    <td><strong>R$ <?= number_format($payment['amount_cents'] / 100, 2, ',', '.') ?></strong></td>
+                                    <td>
+                                        <?php
+                                        $paymentStatusBadges = [
+                                            'succeeded' => ['bg-success', 'Pago'],
+                                            'failed' => ['bg-danger', 'Falhou'],
+                                            'pending' => ['bg-warning', 'Pendente'],
+                                            'refunded' => ['bg-info', 'Reembolsado'],
+                                        ];
+                                        $paymentStatus = $paymentStatusBadges[$payment['status']] ?? ['bg-secondary', $payment['status']];
+                                        ?>
+                                        <span class="badge <?= $paymentStatus[0] ?>"><?= $paymentStatus[1] ?></span>
+                                    </td>
                                             <td>
                                                 <?php if ($payment['payment_method_type'] === 'card'): ?>
                                                     <i class="fas fa-credit-card"></i>
@@ -267,7 +256,7 @@ ob_start();
                                                     -
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?= formatDate($payment['paid_at'] ?? $payment['created_at']) ?></td>
+                                            <td><?= ($payment['paid_at'] ?? $payment['created_at']) ? date('d/m/Y H:i', strtotime($payment['paid_at'] ?? $payment['created_at'])) : '-' ?></td>
                                             <td>
                                                 <?php if ($payment['hosted_invoice_url']): ?>
                                                     <a href="<?= htmlspecialchars($payment['hosted_invoice_url']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
@@ -307,13 +296,13 @@ ob_start();
                                 </thead>
                                 <tbody>
                                     <?php foreach ($trialExtensions as $ext): ?>
-                                        <tr>
-                                            <td><strong>+<?= $ext['days_extended'] ?> dias</strong></td>
-                                            <td><?= formatDate($ext['new_trial_end']) ?></td>
-                                            <td><?= htmlspecialchars($ext['admin_name'] ?? 'Admin') ?></td>
-                                            <td><?= htmlspecialchars($ext['reason'] ?? '-') ?></td>
-                                            <td><?= formatDate($ext['created_at']) ?></td>
-                                        </tr>
+                                    <tr>
+                                        <td><strong>+<?= $ext['days_extended'] ?> dias</strong></td>
+                                        <td><?= $ext['new_trial_end'] ? date('d/m/Y H:i', strtotime($ext['new_trial_end'])) : '-' ?></td>
+                                        <td><?= htmlspecialchars($ext['admin_name'] ?? 'Admin') ?></td>
+                                        <td><?= htmlspecialchars($ext['reason'] ?? '-') ?></td>
+                                        <td><?= $ext['created_at'] ? date('d/m/Y H:i', strtotime($ext['created_at'])) : '-' ?></td>
+                                    </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>

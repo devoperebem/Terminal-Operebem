@@ -1,52 +1,39 @@
 <?php
-/**
- * Admin - Lista de Cupons
- */
-
-$title = 'Secure Admin - Cupons';
-$pageTitle = 'Cupons';
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-$footerVariant = 'admin-auth';
-
-function formatDate($date) {
-    if (!$date) return '-';
-    return date('d/m/Y', strtotime($date));
-}
-
-$successMessages = [
-    'created' => 'Cupom criado com sucesso!',
-    'toggled' => 'Status do cupom alterado!',
-];
-
 ob_start();
 ?>
 <style>
-    .coupon-code {
-        font-family: monospace;
-        font-size: 1.1rem;
-        background: #e9ecef;
-        padding: 2px 8px;
-        border-radius: 4px;
-    }
+.coupon-code {
+    font-family: monospace;
+    font-size: 1.1rem;
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
 </style>
 
 <div class="container my-4">
-    <?php if ($success): ?>
+    <?php if (isset($success) && $success): ?>
         <div class="alert alert-success alert-dismissible fade show">
-            <?= $successMessages[$success] ?? 'Operacao realizada com sucesso!' ?>
+            <?php
+            $successMessages = [
+                'created' => 'Cupom criado com sucesso!',
+                'toggled' => 'Status do cupom alterado!',
+            ];
+            echo $successMessages[$success] ?? 'Operação realizada com sucesso!';
+            ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
-    <?php if ($error): ?>
+    <?php if (isset($error) && $error): ?>
         <div class="alert alert-danger alert-dismissible fade show">
             Erro: <?= htmlspecialchars($error) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h1 class="h4 mb-0"><i class="fas fa-ticket me-2"></i><?= $pageTitle ?></h1>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h1 class="h4 mb-0"><i class="fas fa-ticket me-2"></i>Cupons</h1>
         <div class="d-flex gap-2">
             <a href="/secure/adm/subscriptions" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-2"></i>Voltar
@@ -63,13 +50,13 @@ ob_start();
                 <table class="table table-hover mb-0">
                     <thead class="table-dark">
                         <tr>
-                            <th>Codigo</th>
+                            <th>Código</th>
                             <th>Desconto</th>
                             <th>Uso</th>
                             <th>Validade</th>
                             <th>Criado por</th>
                             <th>Status</th>
-                            <th>Acoes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,9 +92,10 @@ ob_start();
                                             <?php
                                             $validUntil = strtotime($coupon['valid_until']);
                                             $expired = $validUntil < time();
+                                            $formattedDate = date('d/m/Y', strtotime($coupon['valid_until']));
                                             ?>
                                             <span class="<?= $expired ? 'text-danger' : '' ?>">
-                                                <?= formatDate($coupon['valid_until']) ?>
+                                                <?= $formattedDate ?>
                                                 <?php if ($expired): ?>
                                                     <span class="badge bg-danger">Expirado</span>
                                                 <?php endif; ?>
@@ -126,7 +114,7 @@ ob_start();
                                     </td>
                                     <td>
                                         <form method="POST" action="/secure/adm/coupons/toggle" class="d-inline">
-                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                             <input type="hidden" name="id" value="<?= $coupon['id'] ?>">
                                             <button type="submit" class="btn btn-sm <?= $coupon['is_active'] ? 'btn-outline-warning' : 'btn-outline-success' ?>" title="<?= $coupon['is_active'] ? 'Desativar' : 'Ativar' ?>">
                                                 <i class="fas <?= $coupon['is_active'] ? 'fa-pause-circle' : 'fa-play-circle' ?>"></i>

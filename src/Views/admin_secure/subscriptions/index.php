@@ -1,53 +1,12 @@
 <?php
-/**
- * Admin - Lista de Assinaturas
- */
-
-$title = 'Secure Admin - Assinaturas';
-$pageTitle = 'Assinaturas';
-$csrf_token = $_SESSION['csrf_token'] ?? '';
-$footerVariant = 'admin-auth';
-
-// Funcao helper para formatar data
-function formatDate($date) {
-    if (!$date) return '-';
-    return date('d/m/Y H:i', strtotime($date));
-}
-
-// Funcao helper para status badge
-function statusBadge($status) {
-    $badges = [
-        'active' => ['bg-success', 'Ativa'],
-        'trialing' => ['bg-info', 'Trial'],
-        'canceled' => ['bg-warning', 'Cancelada'],
-        'past_due' => ['bg-danger', 'Atrasada'],
-        'unpaid' => ['bg-danger', 'Nao Paga'],
-        'manual' => ['bg-primary', 'Manual'],
-        'incomplete' => ['bg-secondary', 'Incompleta'],
-    ];
-    $b = $badges[$status] ?? ['bg-secondary', $status];
-    return "<span class=\"badge {$b[0]}\">{$b[1]}</span>";
-}
-
-// Funcao helper para tier badge
-function tierBadge($tier) {
-    $badges = [
-        'FREE' => ['bg-secondary', 'FREE'],
-        'PLUS' => ['bg-primary', 'PLUS'],
-        'PRO' => ['bg-warning text-dark', 'PRO'],
-    ];
-    $b = $badges[$tier] ?? ['bg-secondary', $tier];
-    return "<span class=\"badge {$b[0]}\">{$b[1]}</span>";
-}
-
 ob_start();
 ?>
 <style>
-    .stats-card { border-left: 4px solid; }
-    .stats-card.active { border-left-color: #198754; }
-    .stats-card.trial { border-left-color: #0dcaf0; }
-    .stats-card.canceled { border-left-color: #ffc107; }
-    .stats-card.manual { border-left-color: #6f42c1; }
+.stats-card { border-left: 4px solid; }
+.stats-card.active { border-left-color: #198754; }
+.stats-card.trial { border-left-color: #0dcaf0; }
+.stats-card.canceled { border-left-color: #ffc107; }
+.stats-card.manual { border-left-color: #6f42c1; }
 </style>
 
 <div class="container my-4">
@@ -64,8 +23,8 @@ ob_start();
         </div>
     <?php endif; ?>
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h1 class="h4 mb-0"><i class="fas fa-credit-card me-2"></i><?= $pageTitle ?></h1>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h1 class="h4 mb-0"><i class="fas fa-credit-card me-2"></i>Assinaturas</h1>
         <div class="d-flex flex-wrap gap-2">
             <a href="/secure/adm/subscriptions/grant" class="btn btn-success btn-sm">
                 <i class="fas fa-plus-circle me-2"></i>Dar Tier Manual
@@ -156,14 +115,14 @@ ob_start();
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
-                            <th>Usuario</th>
+                            <th>Usuário</th>
                             <th>Plano</th>
                             <th>Tier</th>
                             <th>Status</th>
-                            <th>Periodo</th>
+                            <th>Período</th>
                             <th>Origem</th>
                             <th>Criado em</th>
-                            <th>Acoes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -182,8 +141,32 @@ ob_start();
                                         <small class="text-muted"><?= htmlspecialchars($sub['user_email']) ?></small>
                                     </td>
                                     <td><?= htmlspecialchars($sub['plan_name'] ?? $sub['plan_slug']) ?></td>
-                                    <td><?= tierBadge($sub['tier']) ?></td>
-                                    <td><?= statusBadge($sub['status']) ?></td>
+                                    <td>
+                                        <?php
+                                        $tierBadges = [
+                                            'FREE' => 'bg-secondary',
+                                            'PLUS' => 'bg-primary',
+                                            'PRO' => 'bg-warning text-dark',
+                                        ];
+                                        $tierClass = $tierBadges[$sub['tier']] ?? 'bg-secondary';
+                                        ?>
+                                        <span class="badge <?= $tierClass ?>"><?= $sub['tier'] ?></span>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        $statusBadges = [
+                                            'active' => ['bg-success', 'Ativa'],
+                                            'trialing' => ['bg-info', 'Trial'],
+                                            'canceled' => ['bg-warning', 'Cancelada'],
+                                            'past_due' => ['bg-danger', 'Atrasada'],
+                                            'unpaid' => ['bg-danger', 'Não Paga'],
+                                            'manual' => ['bg-primary', 'Manual'],
+                                            'incomplete' => ['bg-secondary', 'Incompleta'],
+                                        ];
+                                        $statusInfo = $statusBadges[$sub['status']] ?? ['bg-secondary', $sub['status']];
+                                        ?>
+                                        <span class="badge <?= $statusInfo[0] ?>"><?= $statusInfo[1] ?></span>
+                                    </td>
                                     <td>
                                         <?php if ($sub['current_period_end']): ?>
                                             <small>
@@ -211,7 +194,7 @@ ob_start();
                                             <a href="/secure/adm/subscriptions/extend-trial?subscription_id=<?= $sub['id'] ?>" class="btn btn-outline-info" title="Estender Trial">
                                                 <i class="fas fa-calendar-plus"></i>
                                             </a>
-                                            <a href="/secure/adm/users/view?id=<?= $sub['user_id'] ?>" class="btn btn-outline-secondary" title="Ver usuario">
+                                            <a href="/secure/adm/users/view?id=<?= $sub['user_id'] ?>" class="btn btn-outline-secondary" title="Ver usuário">
                                                 <i class="fas fa-user"></i>
                                             </a>
                                         </div>
@@ -254,7 +237,7 @@ ob_start();
                     </ul>
                 </nav>
                 <p class="text-center text-muted small mt-2 mb-0">
-                    Mostrando pagina <?= $page ?> de <?= $totalPages ?> (<?= number_format($total) ?> registros)
+                    Mostrando página <?= $page ?> de <?= $totalPages ?> (<?= number_format($total) ?> registros)
                 </p>
             </div>
         <?php endif; ?>
