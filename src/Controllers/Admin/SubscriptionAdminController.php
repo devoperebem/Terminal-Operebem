@@ -517,4 +517,45 @@ class SubscriptionAdminController
     {
         return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
+    
+    /**
+     * Reseta o flag trial_used do usuário
+     * POST /secure/adm/subscriptions/reset-trial
+     */
+    public function resetTrial(): void
+    {
+        $admin = $this->adminAuthService->getCurrentAdmin();
+        
+        // Validar CSRF
+        $token = $_POST['csrf_token'] ?? '';
+        if (!$this->validateCsrf($token)) {
+            header('Location: /secure/adm/subscriptions?error=csrf');
+            exit;
+        }
+        
+        $userId = (int)($_POST['user_id'] ?? 0);
+        
+        if (!$userId) {
+            header('Location: /secure/adm/subscriptions?error=invalid_user');
+            exit;
+        }
+        
+        try {
+            // Resetar trial_used em todas as assinaturas do usuário
+            Database::execute(
+                "UPDATE subscriptions SET trial_used = FALSE, updated_at = NOW() WHERE user_id = ?",
+                [$userId]
+            );
+            
+            // Log da ação
+            error_log("[SubscriptionAdmin] Admin {$admin['id']} resetou trial do usuário {$userId}");
+            
+            // Redirecionar de volta para o perfil do usuário
+            header('Location: /secure/adm/users/view?id=' . $userId . '&success=trial_reset');
+        } catch (\Throwable $e) {
+            error_log("[SubscriptionAdmin] Erro ao resetar trial: " . $e->getMessage());
+            header('Location: /secure/adm/users/view?id=' . $userId . '&error=exception');
+        }
+        exit;
+    }
 }

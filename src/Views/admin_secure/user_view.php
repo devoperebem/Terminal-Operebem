@@ -140,63 +140,129 @@ ob_start();
           <!-- Assinatura -->
           <div class="border-top pt-3 mt-3">
             <h6 class="mb-3">Assinatura</h6>
+            <?php
+            // Buscar assinatura ativa do usuário
+            $activeSubscription = \App\Core\Database::fetch(
+              "SELECT * FROM subscriptions WHERE user_id = ? AND status IN ('trialing', 'active', 'past_due') ORDER BY created_at DESC LIMIT 1",
+              [(int)$profile['id']]
+            );
+            
+            // Verificar se já usou trial
+            $trialUsed = \App\Core\Database::fetch(
+              'SELECT COUNT(*) as count FROM subscriptions WHERE user_id = ? AND trial_used = TRUE',
+              [(int)$profile['id']]
+            );
+            $hasUsedTrial = (int)($trialUsed['count'] ?? 0) > 0;
+            
+            // Calcular dias restantes de trial
+            $trialDaysRemaining = 0;
+            $trialEndDate = null;
+            if ($activeSubscription && $activeSubscription['status'] === 'trialing' && $activeSubscription['trial_end']) {
+              $trialEndDate = $activeSubscription['trial_end'];
+              $trialDaysRemaining = max(0, ceil((strtotime($trialEndDate) - time()) / 86400));
+            }
+            
+            $userTier = strtoupper($profile['tier'] ?? 'FREE');
+            $tierClass = match($userTier) {
+              'PLUS' => 'bg-primary',
+              'PRO' => 'bg-warning',
+              default => 'bg-secondary'
+            };
+            ?>
+            
             <div class="row g-3">
+              <!-- Tier Atual -->
               <div class="col-6 col-md-3">
                 <div class="card h-100">
                   <div class="card-body py-3 text-center">
                     <div class="text-muted small">Tier Atual</div>
-                    <?php 
-                    $userTier = strtoupper($profile['tier'] ?? 'FREE');
-                    $tierClass = match($userTier) {
-                      'PLUS' => 'bg-primary',
-                      'PRO' => 'bg-warning',
-                      default => 'bg-secondary'
-                    };
-                    ?>
                     <span class="badge <?= $tierClass ?> px-3 py-2"><?= $userTier ?></span>
                   </div>
                 </div>
               </div>
+              
+              <!-- Status -->
               <div class="col-6 col-md-3">
                 <div class="card h-100">
                   <div class="card-body py-3 text-center">
-                    <div class="text-muted small">Expira em</div>
-                    <div class="h6 mb-0">
-                      <?= $profile['subscription_expires_at'] 
-                        ? date('d/m/Y', strtotime($profile['subscription_expires_at'])) 
-                        : '—' ?>
-                    </div>
+                    <div class="text-muted small">Status</div>
+                    <?php if ($activeSubscription): ?>
+                      <?php 
+                      $statusLabels = [
+                        'trialing' => ['Em Trial', 'bg-warning text-dark'],
+                        'active' => ['Ativo', 'bg-success'],
+                        'past_due' => ['Pagamento Pendente', 'bg-danger'],
+                      ];
+                      $statusInfo = $statusLabels[$activeSubscription['status']] ?? [$activeSubscription['status'], 'bg-secondary'];
+                      ?>
+                      <span class="badge <?= $statusInfo[1] ?>"><?= $statusInfo[0] ?></span>
+                    <?php else: ?>
+                      <span class="badge bg-secondary">Sem assinatura</span>
+                    <?php endif; ?>
                   </div>
                 </div>
               </div>
+              
+              <!-- Trial Restante / Expira em -->
+              <div class="col-6 col-md-3">
+                <div class="card h-100">
+                  <div class="card-body py-3 text-center">
+                    <?php if ($activeSubscription && $activeSubscription['status'] === 'trialing'): ?>
+                      <div class="text-muted small">Trial Restante</div>
+                      <div class="h5 mb-0 <?= $trialDaysRemaining <= 3 ? 'text-danger' : 'text-primary' ?>">
+                        <?= $trialDaysRemaining ?> dias
+                      </div>
+                      <small class="text-muted"><?= date('d/m/Y H:i', strtotime($trialEndDate)) ?></small>
+                    <?php else: ?>
+                      <div class="text-muted small">Expira em</div>
+                      <div class="h6 mb-0">
+                        <?= $profile['subscription_expires_at'] 
+                          ? date('d/m/Y', strtotime($profile['subscription_expires_at'])) 
+                          : '—' ?>
+                      </div>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Trial Usado -->
               <div class="col-6 col-md-3">
                 <div class="card h-100">
                   <div class="card-body py-3 text-center">
                     <div class="text-muted small">Trial Usado</div>
-                    <?php
-                    // Verificar se já usou trial
-                    $trialUsed = \App\Core\Database::fetch(
-                      'SELECT COUNT(*) as count FROM subscriptions WHERE user_id = ? AND trial_used = TRUE',
-                      [(int)$profile['id']]
-                    );
-                    $hasUsedTrial = (int)($trialUsed['count'] ?? 0) > 0;
-                    ?>
                     <span class="badge <?= $hasUsedTrial ? 'bg-success' : 'bg-secondary' ?>">
                       <?= $hasUsedTrial ? 'Sim' : 'Não' ?>
                     </span>
+                    <?php if ($hasUsedTrial): ?>
+                      <form method="POST" action="/secure/adm/subscriptions/reset-trial" class="mt-2">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
+                        <input type="hidden" name="user_id" value="<?= (int)$profile['id'] ?>">
+                        <button type="submit" class="btn btn-xs btn-outline-warning" 
+                          onclick="return confirm('Resetar trial permitirá que o usuário ganhe 7 dias grátis novamente. Continuar?')">
+                          <i class="fas fa-redo me-1"></i>Resetar
+                        </button>
+                      </form>
+                    <?php endif; ?>
                   </div>
                 </div>
               </div>
-              <div class="col-6 col-md-3">
-                <div class="card h-100">
-                  <div class="card-body py-3 text-center d-flex flex-column justify-content-center">
-                    <a href="/secure/adm/subscriptions?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-primary w-100 mb-1">
-                      Ver Assinaturas
+            </div>
+            
+            <!-- Ações -->
+            <div class="row g-3 mt-2">
+              <div class="col-12">
+                <div class="d-flex flex-wrap gap-2">
+                  <a href="/secure/adm/subscriptions?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-list me-1"></i>Ver Assinaturas
+                  </a>
+                  <a href="/secure/adm/subscriptions/grant?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-success">
+                    <i class="fas fa-crown me-1"></i>Conceder Tier
+                  </a>
+                  <?php if ($activeSubscription && $activeSubscription['status'] === 'trialing'): ?>
+                    <a href="/secure/adm/subscriptions/extend-trial?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-info text-white">
+                      <i class="fas fa-calendar-plus me-1"></i>Estender Trial
                     </a>
-                    <a href="/secure/adm/subscriptions/grant?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-success w-100">
-                      Conceder Tier
-                    </a>
-                  </div>
+                  <?php endif; ?>
                 </div>
               </div>
             </div>

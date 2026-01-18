@@ -273,6 +273,7 @@ $router->post('/secure/adm/subscriptions/grant', [\App\Controllers\Admin\Subscri
 $router->get('/secure/adm/subscriptions/extend-trial', [\App\Controllers\Admin\SubscriptionAdminController::class, 'extendTrialForm'], [SecureAdminMiddleware::class]);
 $router->post('/secure/adm/subscriptions/extend-trial', [\App\Controllers\Admin\SubscriptionAdminController::class, 'extendTrial'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->get('/secure/adm/subscriptions/payments', [\App\Controllers\Admin\SubscriptionAdminController::class, 'payments'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/subscriptions/reset-trial', [\App\Controllers\Admin\SubscriptionAdminController::class, 'resetTrial'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
 // Secure Admin - Coupons Management (Cupons)
 $router->get('/secure/adm/coupons', [\App\Controllers\Admin\SubscriptionAdminController::class, 'coupons'], [SecureAdminMiddleware::class]);
