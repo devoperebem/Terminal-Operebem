@@ -507,6 +507,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/app/profile"><i class="fas fa-cog me-2"></i>Perfil</a></li>
+                            <li><a class="dropdown-item" href="/dev/subscription/manage"><i class="fas fa-crown me-2"></i>Minha Assinatura</a></li>
                             <li><a class="dropdown-item" href="/sso/start?return=%2Fcourses" target="_blank" rel="noopener noreferrer"><i class="fas fa-graduation-cap me-2"></i>Aulas</a></li>
                             <li><a class="dropdown-item" href="/app/community"><i class="fab fa-discord me-2"></i>Comunidade</a></li>
                             <li><a class="dropdown-item" href="/app/support"><i class="fas fa-headset me-2"></i>Suporte</a></li>
@@ -551,6 +552,10 @@
                 <a class="nav-link px-3 py-2 rounded d-flex align-items-center" href="/app/profile">
                     <i class="fas fa-user-cog me-3" style="width: 20px;"></i>
                     <span>Perfil</span>
+                </a>
+                <a class="nav-link px-3 py-2 rounded d-flex align-items-center" href="/dev/subscription/manage">
+                    <i class="fas fa-crown me-3" style="width: 20px;"></i>
+                    <span>Minha Assinatura</span>
                 </a>
                 <a class="nav-link px-3 py-2 rounded d-flex align-items-center" href="/app/community">
                     <i class="fab fa-discord me-3" style="width: 20px;"></i>
