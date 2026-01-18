@@ -403,7 +403,7 @@ async function startCheckout(planSlug) {
             formData.append('coupon', appliedCoupon);
         }
         
-        const response = await fetch('/subscription/checkout', {
+        const response = await fetch('checkout', {
             method: 'POST',
             body: formData
         });
@@ -447,7 +447,7 @@ async function validateCoupon() {
         formData.append('plan', selectedPlan);
         formData.append('csrf_token', csrfToken);
         
-        const response = await fetch('/subscription/validate-coupon', {
+        const response = await fetch('validate-coupon', {
             method: 'POST',
             body: formData
         });

@@ -170,7 +170,7 @@ class StripeService
             'line_items[0][quantity]' => 1,
             'success_url' => $this->config['success_url'],
             'cancel_url' => $this->config['cancel_url'],
-            'allow_promotion_codes' => true,
+            'allow_promotion_codes' => 'true',
         ];
         
         // Adicionar trial
