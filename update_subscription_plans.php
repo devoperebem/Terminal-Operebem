@@ -41,6 +41,18 @@ try {
     ]);
     echo "✅ PRO Anual atualizado ({$stmt->rowCount()} linhas)\n";
     
+    // Atualizar PRO Parcelado (12x)
+    $stmt = $db->prepare("
+        UPDATE subscription_plans 
+        SET stripe_product_id = :product, stripe_price_id = :price, updated_at = NOW()
+        WHERE slug = 'pro_yearly_installments'
+    ");
+    $stmt->execute([
+        'product' => 'prod_Tiy050l9NF7nEs',
+        'price' => 'price_1SpUuLDhuEkxOnkWmsdcKUrs'
+    ]);
+    echo "✅ PRO Anual (12x) atualizado ({$stmt->rowCount()} linhas)\n";
+    
     // Listar planos atualizados
     echo "\n=== Planos Atualizados ===\n";
     $result = $db->query("SELECT slug, name, stripe_product_id, stripe_price_id, price_cents, is_active FROM subscription_plans ORDER BY display_order");
