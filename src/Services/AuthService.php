@@ -285,6 +285,9 @@ class AuthService
             'advanced_snapshot' => array_key_exists('advanced_snapshot', $user) ? (bool) $user['advanced_snapshot'] : true,
             'email_verified' => !empty($user['email_verified_at']),
             'created_at' => $user['created_at'],
+            // Subscription data
+            'tier' => $user['tier'] ?? 'FREE',
+            'subscription_expires_at' => $user['subscription_expires_at'] ?? null,
             // Gamification data
             'xp' => (int)($user['xp'] ?? 0),
             'streak' => (int)($user['streak'] ?? 0),
