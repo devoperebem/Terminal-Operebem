@@ -189,15 +189,18 @@ class StripeService
         }
         
         // Determinar métodos de pagamento baseado no plano
+        // NOTA: PIX desabilitado temporariamente até estar ativo na conta Stripe
         $planSlug = $metadata['plan_slug'] ?? '';
         $planConfig = $this->config['plans'][$planSlug] ?? null;
         
-        if ($planConfig && ($planConfig['supports_pix'] ?? false)) {
-            $params['payment_method_types[0]'] = 'card';
-            $params['payment_method_types[1]'] = 'pix';
-        } else {
-            $params['payment_method_types[0]'] = 'card';
-        }
+        // Por enquanto, apenas cartão. Para habilitar PIX, ativar no dashboard Stripe primeiro.
+        // if ($planConfig && ($planConfig['supports_pix'] ?? false)) {
+        //     $params['payment_method_types[0]'] = 'card';
+        //     $params['payment_method_types[1]'] = 'pix';
+        // } else {
+        //     $params['payment_method_types[0]'] = 'card';
+        // }
+        $params['payment_method_types[0]'] = 'card';
         
         return $this->createCheckoutSession($params);
     }

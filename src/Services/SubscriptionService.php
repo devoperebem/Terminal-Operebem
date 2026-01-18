@@ -156,7 +156,7 @@ class SubscriptionService
      */
     public function createSubscription(array $data): int
     {
-        return Database::insert('subscriptions', [
+        $subscriptionId = Database::insert('subscriptions', [
             'user_id' => $data['user_id'],
             'stripe_customer_id' => $data['stripe_customer_id'] ?? null,
             'stripe_subscription_id' => $data['stripe_subscription_id'] ?? null,
@@ -176,6 +176,11 @@ class SubscriptionService
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+        
+        // Sincronizar tier do usuário imediatamente
+        $this->syncUserTier($data['user_id']);
+        
+        return $subscriptionId;
     }
     
     /**

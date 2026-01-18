@@ -12,69 +12,7 @@ $effectiveTier = $effectiveTier ?? 'FREE';
 ?>
 
 <style>
-.manage-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-.manage-header {
-    margin-bottom: 30px;
-}
-
-.manage-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary, #1e293b);
-    margin-bottom: 10px;
-}
-
-.manage-card {
-    background: var(--card-bg, #fff);
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    margin-bottom: 25px;
-}
-
-.manage-card h2 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--text-primary, #1e293b);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.manage-card h2 i {
-    color: var(--primary-color, #667eea);
-}
-
-.subscription-status {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.status-item {
-    padding: 15px;
-    background: var(--bg-secondary, #f8fafc);
-    border-radius: 10px;
-}
-
-.status-item .label {
-    font-size: 0.85rem;
-    color: var(--text-secondary, #64748b);
-    margin-bottom: 5px;
-}
-
-.status-item .value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary, #1e293b);
-}
-
+/* Status badges - cores que funcionam em qualquer tema */
 .tier-badge {
     display: inline-block;
     padding: 4px 12px;
@@ -83,7 +21,7 @@ $effectiveTier = $effectiveTier ?? 'FREE';
     font-size: 0.85rem;
 }
 
-.tier-badge.free { background: #e2e8f0; color: #64748b; }
+.tier-badge.free { background: #64748b; color: #fff; }
 .tier-badge.plus { background: #3b82f6; color: #fff; }
 .tier-badge.pro { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; }
 
@@ -95,110 +33,57 @@ $effectiveTier = $effectiveTier ?? 'FREE';
     font-weight: 500;
 }
 
-.status-badge.active { background: #dcfce7; color: #16a34a; }
-.status-badge.trialing { background: #fef3c7; color: #d97706; }
-.status-badge.canceled { background: #fecaca; color: #dc2626; }
-.status-badge.past_due { background: #fed7aa; color: #ea580c; }
+.status-badge.active { background: #22c55e; color: #fff; }
+.status-badge.trialing { background: #f59e0b; color: #000; }
+.status-badge.canceled { background: #dc2626; color: #fff; }
+.status-badge.past_due { background: #ea580c; color: #fff; }
 
-.no-subscription {
-    text-align: center;
-    padding: 40px;
-    color: var(--text-secondary, #64748b);
+/* Cancel modal styling */
+.cancel-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
 }
 
-.no-subscription i {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    opacity: 0.5;
+.cancel-modal-content {
+    background: var(--card-bg, #1a1a1a);
+    border: 1px solid var(--border-color, #333);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 450px;
+    margin: 20px;
+    color: var(--text-primary, #fff);
 }
 
-.no-subscription a {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 30px;
-    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 600;
-}
-
-.cancel-section {
-    margin-top: 30px;
-    padding-top: 30px;
-    border-top: 1px solid var(--border-color, #e2e8f0);
-}
-
-.cancel-btn {
-    background: transparent;
-    border: 2px solid #dc2626;
-    color: #dc2626;
-    padding: 10px 25px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.cancel-btn:hover {
-    background: #dc2626;
-    color: #fff;
-}
-
-.payments-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.payments-table th,
-.payments-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color, #e2e8f0);
-}
-
-.payments-table th {
-    font-weight: 600;
-    color: var(--text-secondary, #64748b);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-}
-
-.payments-table td {
-    color: var(--text-primary, #1e293b);
-}
-
-.payment-status {
-    padding: 3px 10px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-}
-
-.payment-status.succeeded { background: #dcfce7; color: #16a34a; }
-.payment-status.failed { background: #fecaca; color: #dc2626; }
-.payment-status.pending { background: #fef3c7; color: #d97706; }
-
-.cancel-warning {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+.cancel-alert {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
 }
 
-.cancel-warning h4 {
-    color: #dc2626;
+.cancel-alert h4 {
+    color: #f87171;
     margin-bottom: 10px;
 }
 
-.cancel-warning p {
-    color: #7f1d1d;
+.cancel-alert p {
+    color: #fca5a5;
     margin: 0;
 }
 
-.warning-banner {
-    background: #fef3c7;
-    border: 1px solid #fcd34d;
+/* Warning banner */
+.warning-banner-styled {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
     border-radius: 10px;
     padding: 15px 20px;
     margin-bottom: 20px;
@@ -207,45 +92,39 @@ $effectiveTier = $effectiveTier ?? 'FREE';
     gap: 15px;
 }
 
-.warning-banner i {
+.warning-banner-styled i {
     font-size: 1.5rem;
-    color: #d97706;
+    color: #fbbf24;
 }
 
-.warning-banner p {
+.warning-banner-styled p {
     margin: 0;
-    color: #92400e;
-}
-
-@media (max-width: 600px) {
-    .payments-table {
-        font-size: 0.9rem;
-    }
-    
-    .payments-table th,
-    .payments-table td {
-        padding: 8px;
-    }
+    color: var(--text-primary);
 }
 </style>
 
 <div class="container py-4">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
                 <h1 class="h3 mb-0">
                     <i class="fas fa-credit-card me-2"></i>Minha Assinatura
                 </h1>
-                <a href="/app/dashboard" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Voltar ao Dashboard
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="/dev/subscription/plans" class="btn btn-primary">
+                        <i class="fas fa-rocket me-2"></i>Ver Planos
+                    </a>
+                    <a href="/app/dashboard" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </div>
     
     <?php if ($subscription): ?>
         <?php if ($subscription['cancel_at_period_end']): ?>
-        <div class="warning-banner">
+        <div class="warning-banner-styled">
             <i class="fas fa-exclamation-triangle"></i>
             <p>
                 Sua assinatura foi cancelada e expira em 
@@ -255,25 +134,26 @@ $effectiveTier = $effectiveTier ?? 'FREE';
         </div>
         <?php endif; ?>
         
-        <div class="manage-card">
-            <h2><i class="fas fa-star"></i>Status da Assinatura</h2>
-            
-            <div class="subscription-status">
-                <div class="status-item">
-                    <div class="label">Plano</div>
-                    <div class="value"><?= htmlspecialchars($plan['name'] ?? $subscription['plan_slug']) ?></div>
-                </div>
-                
-                <div class="status-item">
-                    <div class="label">Tier Atual</div>
-                    <div class="value">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-star me-2 text-warning"></i>Status da Assinatura
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6 col-md-4">
+                        <p class="text-muted mb-1 small">Plano</p>
+                        <p class="fw-bold mb-0"><?= htmlspecialchars($plan['name'] ?? $subscription['plan_slug']) ?></p>
+                    </div>
+                    
+                    <div class="col-sm-6 col-md-4">
+                        <p class="text-muted mb-1 small">Tier Atual</p>
                         <span class="tier-badge <?= strtolower($effectiveTier) ?>"><?= $effectiveTier ?></span>
                     </div>
-                </div>
-                
-                <div class="status-item">
-                    <div class="label">Status</div>
-                    <div class="value">
+                    
+                    <div class="col-sm-6 col-md-4">
+                        <p class="text-muted mb-1 small">Status</p>
                         <span class="status-badge <?= $subscription['status'] ?>">
                             <?php
                             $statusLabels = [
@@ -286,49 +166,53 @@ $effectiveTier = $effectiveTier ?? 'FREE';
                             ?>
                         </span>
                     </div>
-                </div>
-                
-                <?php if ($subscription['status'] === 'trialing' && $subscription['trial_end']): ?>
-                <div class="status-item">
-                    <div class="label">Trial até</div>
-                    <div class="value"><?= date('d/m/Y H:i', strtotime($subscription['trial_end'])) ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if ($subscription['current_period_end']): ?>
-                <div class="status-item">
-                    <div class="label"><?= $subscription['cancel_at_period_end'] ? 'Expira em' : 'Próxima Cobrança' ?></div>
-                    <div class="value"><?= date('d/m/Y', strtotime($subscription['current_period_end'])) ?></div>
-                </div>
-                <?php endif; ?>
-                
-                <div class="status-item">
-                    <div class="label">Origem</div>
-                    <div class="value">
-                        <?= $subscription['source'] === 'admin' ? 'Concedido pelo Admin' : 'Stripe' ?>
+                    
+                    <?php if ($subscription['status'] === 'trialing' && $subscription['trial_end']): ?>
+                    <div class="col-sm-6 col-md-4">
+                        <p class="text-muted mb-1 small">Trial até</p>
+                        <p class="fw-bold mb-0"><?= date('d/m/Y H:i', strtotime($subscription['trial_end'])) ?></p>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($subscription['current_period_end']): ?>
+                    <div class="col-sm-6 col-md-4">
+                        <p class="text-muted mb-1 small"><?= $subscription['cancel_at_period_end'] ? 'Expira em' : 'Próxima Cobrança' ?></p>
+                        <p class="fw-bold mb-0"><?= date('d/m/Y', strtotime($subscription['current_period_end'])) ?></p>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="col-sm-6 col-md-4">
+                        <p class="text-muted mb-1 small">Origem</p>
+                        <p class="fw-bold mb-0"><?= $subscription['source'] === 'admin' ? 'Concedido pelo Admin' : 'Stripe' ?></p>
                     </div>
                 </div>
             </div>
-            
-            <?php if (!$subscription['cancel_at_period_end'] && $subscription['status'] !== 'canceled'): ?>
-            <div class="cancel-section">
-                <h3 style="margin-bottom: 15px;">Cancelar Assinatura</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 15px;">
+        </div>
+        
+        <?php if (!$subscription['cancel_at_period_end'] && $subscription['status'] !== 'canceled'): ?>
+        <div class="card">
+            <div class="card-header bg-danger bg-opacity-10">
+                <h6 class="card-title mb-0 text-danger">
+                    <i class="fas fa-times-circle me-2"></i>Cancelar Assinatura
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
                     Ao cancelar, você continuará tendo acesso até o fim do período atual.
                 </p>
-                <button class="cancel-btn" onclick="showCancelModal()">
+                <button class="btn btn-outline-danger" onclick="showCancelModal()">
                     <i class="fas fa-times me-2"></i>Cancelar Assinatura
                 </button>
             </div>
-            <?php endif; ?>
         </div>
+        <?php endif; ?>
     <?php else: ?>
-        <div class="manage-card">
-            <div class="no-subscription">
-                <i class="fas fa-inbox"></i>
-                <h3>Você não tem uma assinatura ativa</h3>
-                <p>Assine um plano para desbloquear funcionalidades premium!</p>
-                <a href="/dev/subscription/plans">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5>Você não tem uma assinatura ativa</h5>
+                <p class="text-muted">Assine um plano para desbloquear funcionalidades premium!</p>
+                <a href="/dev/subscription/plans" class="btn btn-primary">
                     <i class="fas fa-rocket me-2"></i>Ver Planos
                 </a>
             </div>
@@ -336,74 +220,81 @@ $effectiveTier = $effectiveTier ?? 'FREE';
     <?php endif; ?>
     
     <?php if (!empty($payments)): ?>
-    <div class="manage-card">
-        <h2><i class="fas fa-history"></i>Histórico de Pagamentos</h2>
-        
-        <table class="payments-table">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Valor</th>
-                    <th>Status</th>
-                    <th>Método</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($payments as $payment): ?>
-                <tr>
-                    <td><?= date('d/m/Y', strtotime($payment['created_at'])) ?></td>
-                    <td>R$ <?= number_format($payment['amount_cents'] / 100, 2, ',', '.') ?></td>
-                    <td>
-                        <span class="payment-status <?= $payment['status'] ?>">
-                            <?php
-                            $paymentLabels = [
-                                'succeeded' => 'Pago',
-                                'failed' => 'Falhou',
-                                'pending' => 'Pendente',
-                                'refunded' => 'Reembolsado',
-                            ];
-                            echo $paymentLabels[$payment['status']] ?? $payment['status'];
-                            ?>
-                        </span>
-                    </td>
-                    <td>
-                        <?php if ($payment['payment_method_type'] === 'card'): ?>
-                            <i class="fas fa-credit-card me-1"></i>
-                            <?= strtoupper($payment['card_brand'] ?? '') ?> ****<?= $payment['card_last4'] ?? '' ?>
-                        <?php elseif ($payment['payment_method_type'] === 'pix'): ?>
-                            <i class="fas fa-qrcode me-1"></i> PIX
-                        <?php else: ?>
-                            -
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h6 class="card-title mb-0">
+                <i class="fas fa-history me-2"></i>Histórico de Pagamentos
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Método</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($payments as $payment): ?>
+                        <tr>
+                            <td><?= date('d/m/Y', strtotime($payment['created_at'])) ?></td>
+                            <td>R$ <?= number_format($payment['amount_cents'] / 100, 2, ',', '.') ?></td>
+                            <td>
+                                <span class="badge bg-<?= $payment['status'] === 'succeeded' ? 'success' : ($payment['status'] === 'failed' ? 'danger' : 'warning') ?>">
+                                    <?php
+                                    $paymentLabels = [
+                                        'succeeded' => 'Pago',
+                                        'failed' => 'Falhou',
+                                        'pending' => 'Pendente',
+                                        'refunded' => 'Reembolsado',
+                                    ];
+                                    echo $paymentLabels[$payment['status']] ?? $payment['status'];
+                                    ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php if ($payment['payment_method_type'] === 'card'): ?>
+                                    <i class="fas fa-credit-card me-1"></i>
+                                    <?= strtoupper($payment['card_brand'] ?? '') ?> ****<?= $payment['card_last4'] ?? '' ?>
+                                <?php elseif ($payment['payment_method_type'] === 'pix'): ?>
+                                    <i class="fas fa-qrcode me-1"></i> PIX
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
     <?php endif; ?>
 </div>
 
 <!-- Modal de confirmação de cancelamento -->
-<div id="cancelModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: var(--card-bg, #fff); border-radius: 16px; padding: 30px; max-width: 450px; margin: 20px;">
-        <div class="cancel-warning">
+<div id="cancelModal" class="cancel-modal">
+    <div class="cancel-modal-content">
+        <div class="cancel-alert">
             <h4><i class="fas fa-exclamation-triangle me-2"></i>Tem certeza?</h4>
             <p>
                 Ao cancelar, você perderá acesso às funcionalidades premium quando o período atual expirar.
             </p>
         </div>
         
-        <p style="margin-bottom: 20px; color: var(--text-secondary);">
+        <p class="mb-4">
             Você continuará tendo acesso até 
             <strong><?= $subscription ? date('d/m/Y', strtotime($subscription['current_period_end'])) : '--' ?></strong>.
         </p>
         
-        <div style="display: flex; gap: 15px; justify-content: flex-end;">
-            <button onclick="hideCancelModal()" style="padding: 10px 20px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer;">
+        <div class="d-flex gap-3 justify-content-end">
+            <button onclick="hideCancelModal()" class="btn btn-outline-secondary">
                 Voltar
             </button>
-            <button onclick="confirmCancel()" style="padding: 10px 20px; background: #dc2626; color: #fff; border: none; border-radius: 8px; cursor: pointer;">
+            <button onclick="confirmCancel()" class="btn btn-danger">
                 Confirmar Cancelamento
             </button>
         </div>
