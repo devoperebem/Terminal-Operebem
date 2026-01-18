@@ -148,7 +148,36 @@ SUBSCRIPTION_TRIAL_DAYS=7
 | 1.6.6 | `admin_secure/coupons/index.php` | CRUD cupons |
 | 1.6.7 | Rotas admin | Adicionar em web.php |
 
-### 1.7 TESTE FASE 1 (ver plano de testes abaixo)
+### 1.7 Gerenciamento de Planos - Admin (9-13h)
+
+**Objetivo**: Painel admin completo para gerenciar planos de assinatura (PLUS/PRO) com edição de preços, promoções, estatísticas e sincronização automática com Stripe.
+
+**Documento Detalhado**: `SUBSCRIPTION_PLANS_ADMIN.md`
+
+| Etapa | Tempo | Descrição |
+|-------|-------|-----------|
+| 1.7.1 | 15 min | Migration: adicionar campos de desconto |
+| 1.7.2 | 1-2h | Service Layer (SubscriptionPlanService + StripeService) |
+| 1.7.3 | 2-3h | Controller (SubscriptionPlansAdminController) |
+| 1.7.4 | 2-3h | Frontend Admin (index.php + edit.php) |
+| 1.7.5 | 1h | Validações de negócio |
+| 1.7.6 | 2-3h | Testes completos |
+| 1.7.7 | 1h | Deploy produção |
+
+**Funcionalidades**:
+- ✅ Visualização de planos com estatísticas (assinantes, receita)
+- ✅ Edição de preços com sincronização Stripe automática
+- ✅ Ativar/Desativar planos (não afeta assinantes atuais)
+- ✅ Sistema de promoções temporárias (incompatível com cupons)
+- ✅ Dashboard com métricas globais
+
+**Regras Críticas**:
+- Alteração de preço cria novo Stripe Price ID automaticamente
+- Assinantes atuais nunca são afetados por mudanças de preço
+- Cupons bloqueados em planos com promoção ativa
+- Planos inativos não aparecem para novos clientes
+
+### 1.8 TESTE FASE 1 (ver plano de testes abaixo)
 
 ---
 
