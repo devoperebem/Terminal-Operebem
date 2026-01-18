@@ -37,11 +37,26 @@ class ProfileController extends BaseController
 
         // Obter timezones suportados
         $timezones = \App\Services\TimezoneService::getSupportedTimezones();
+        
+        // Buscar dados da assinatura ativa
+        $subscription = null;
+        $subscriptionPlan = null;
+        try {
+            $subscriptionService = new \App\Services\SubscriptionService();
+            $subscription = $subscriptionService->getActiveSubscription($user['id']);
+            if ($subscription) {
+                $subscriptionPlan = $subscriptionService->getPlanBySlug($subscription['plan_slug']);
+            }
+        } catch (\Exception $e) {
+            // Silenciar erro se o serviço não estiver disponível
+        }
 
         $this->view('profile/index', [
             'user' => $user,
             'avatar_url' => $avatarUrl,
             'timezones' => $timezones,
+            'subscription' => $subscription,
+            'subscriptionPlan' => $subscriptionPlan,
         ]);
     }
 

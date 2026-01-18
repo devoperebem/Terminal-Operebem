@@ -66,35 +66,63 @@ ob_start();
             <div class="card mt-3">
                 <div class="card-header">
                     <h6 class="card-title mb-0">
-                        <i class="fas fa-crown me-2"></i>Plano Atual
+                        <i class="fas fa-crown me-2"></i>Minha Assinatura
                     </h6>
                 </div>
                 <div class="card-body">
                     <?php
-                    $tier = $user['tier'] ?? 'free';
-                    $tierNames = [
-                        'free' => 'Gratuito (MVP)',
-                        'premium' => 'Premium',
-                        'pro' => 'Profissional'
-                    ];
-                    $tierName = $tierNames[$tier] ?? 'Gratuito';
+                    $subscription = $subscription ?? null;
+                    $subscriptionPlan = $subscriptionPlan ?? null;
+                    $effectiveTier = strtoupper($user['tier'] ?? 'FREE');
                     ?>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1"><?= htmlspecialchars($tierName) ?></h6>
-                            <small class="text-muted">
-                                <?= $tier === 'free' ? 'Acesso completo durante o período beta' : 'Acesso premium ativo' ?>
-                            </small>
+                    
+                    <?php if ($subscription): ?>
+                        <!-- Tem assinatura ativa -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1"><?= htmlspecialchars($subscriptionPlan['name'] ?? $subscription['plan_slug']) ?></h6>
+                                <small class="text-muted">Tier: <?= $effectiveTier ?></small>
+                            </div>
+                            <?php if ($subscription['status'] === 'trialing'): ?>
+                                <span class="badge bg-warning text-dark">Em Trial</span>
+                            <?php elseif ($subscription['status'] === 'active'): ?>
+                                <span class="badge bg-success">Ativo</span>
+                            <?php elseif ($subscription['cancel_at_period_end'] ?? false): ?>
+                                <span class="badge bg-secondary">Cancelado</span>
+                            <?php else: ?>
+                                <span class="badge bg-info"><?= ucfirst($subscription['status']) ?></span>
+                            <?php endif; ?>
                         </div>
-                        <span class="badge bg-success">Ativo</span>
-                    </div>
-                    <hr>
-                    <div class="text-center">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            <?= $tier === 'free' ? 'Em breve: planos Premium disponíveis' : 'Obrigado por ser Premium!' ?>
-                        </small>
-                    </div>
+                        
+                        <?php if ($subscription['status'] === 'trialing' && $subscription['trial_end']): ?>
+                            <div class="alert alert-warning py-2 mb-3">
+                                <small><i class="fas fa-clock me-1"></i>Trial expira em <?= date('d/m/Y', strtotime($subscription['trial_end'])) ?></small>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($subscription['cancel_at_period_end'] ?? false): ?>
+                            <div class="alert alert-secondary py-2 mb-3">
+                                <small><i class="fas fa-info-circle me-1"></i>Acesso até <?= date('d/m/Y', strtotime($subscription['current_period_end'])) ?></small>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <a href="/dev/subscription/manage" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-cog me-1"></i>Gerenciar Assinatura
+                        </a>
+                    <?php else: ?>
+                        <!-- Sem assinatura -->
+                        <div class="text-center py-2">
+                            <div class="mb-3">
+                                <span class="badge bg-secondary px-3 py-2"><?= $effectiveTier ?></span>
+                            </div>
+                            <p class="text-muted small mb-3">
+                                <?= $effectiveTier === 'FREE' ? 'Acesso durante o período beta' : 'Sem assinatura ativa' ?>
+                            </p>
+                            <a href="/dev/subscription/plans" class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-rocket me-1"></i>Ver Planos
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
             

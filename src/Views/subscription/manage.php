@@ -3,6 +3,7 @@
  * Página de Gerenciamento de Assinatura
  */
 
+$title = 'Minha Assinatura - Terminal Operebem';
 ob_start();
 $subscription = $subscription ?? null;
 $plan = $plan ?? null;
@@ -228,9 +229,18 @@ $effectiveTier = $effectiveTier ?? 'FREE';
 }
 </style>
 
-<div class="manage-container">
-    <div class="manage-header">
-        <h1><i class="fas fa-credit-card me-2"></i>Minha Assinatura</h1>
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-credit-card me-2"></i>Minha Assinatura
+                </h1>
+                <a href="/app/dashboard" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar ao Dashboard
+                </a>
+            </div>
+        </div>
     </div>
     
     <?php if ($subscription): ?>
@@ -318,7 +328,7 @@ $effectiveTier = $effectiveTier ?? 'FREE';
                 <i class="fas fa-inbox"></i>
                 <h3>Você não tem uma assinatura ativa</h3>
                 <p>Assine um plano para desbloquear funcionalidades premium!</p>
-                <a href="/subscription/plans">
+                <a href="/dev/subscription/plans">
                     <i class="fas fa-rocket me-2"></i>Ver Planos
                 </a>
             </div>
@@ -416,7 +426,7 @@ async function confirmCancel() {
         const formData = new FormData();
         formData.append('csrf_token', csrfToken);
         
-        const response = await fetch('/subscription/cancel', {
+        const response = await fetch('cancel', {
             method: 'POST',
             body: formData
         });

@@ -2,9 +2,10 @@
 /**
  * Página de Planos de Assinatura
  * 
- * Exibe os planos disponíveis e permite iniciar o checkout.
+ * Exibe os planos disponíveis seguindo o padrão visual do sistema.
  */
 
+$title = 'Planos - Terminal Operebem';
 ob_start();
 
 $plans = $plans ?? [];
@@ -13,372 +14,180 @@ $effectiveTier = $effectiveTier ?? 'FREE';
 $stripePublicKey = $stripePublicKey ?? '';
 ?>
 
-<style>
-.plans-hero {
-    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
-    color: #fff;
-    padding: 60px 20px;
-    text-align: center;
-    margin: -20px -20px 40px -20px;
-}
-
-.plans-hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-    font-weight: 700;
-}
-
-.plans-hero p {
-    font-size: 1.2rem;
-    opacity: 0.9;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.plans-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 30px;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.plan-card {
-    background: var(--card-bg, #fff);
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    position: relative;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.plan-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-}
-
-.plan-card.featured {
-    border-color: var(--primary-color, #667eea);
-    transform: scale(1.02);
-}
-
-.plan-card.featured:hover {
-    transform: scale(1.02) translateY(-5px);
-}
-
-.plan-badge {
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-    color: #fff;
-    padding: 5px 20px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.plan-tier {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    margin-bottom: 15px;
-}
-
-.plan-tier.tier-plus {
-    background: #3b82f6;
-    color: #fff;
-}
-
-.plan-tier.tier-pro {
-    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-    color: #fff;
-}
-
-.plan-name {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary, #1e293b);
-    margin-bottom: 10px;
-}
-
-.plan-price {
-    margin: 20px 0;
-}
-
-.plan-price .amount {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--primary-color, #667eea);
-}
-
-.plan-price .currency {
-    font-size: 1.5rem;
-    vertical-align: super;
-}
-
-.plan-price .period {
-    font-size: 1rem;
-    color: var(--text-secondary, #64748b);
-}
-
-.plan-price .installment {
-    font-size: 0.9rem;
-    color: var(--text-secondary, #64748b);
-    margin-top: 5px;
-}
-
-.plan-trial {
-    background: #ecfdf5;
-    color: #059669;
-    padding: 8px 15px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    margin: 15px 0;
-    text-align: center;
-}
-
-.plan-features {
-    list-style: none;
-    padding: 0;
-    margin: 25px 0;
-}
-
-.plan-features li {
-    padding: 10px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-primary, #1e293b);
-}
-
-.plan-features li i {
-    color: #22c55e;
-    font-size: 1.1rem;
-}
-
-.plan-btn {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.plan-btn.btn-primary {
-    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
-    color: #fff;
-}
-
-.plan-btn.btn-primary:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-.plan-btn.btn-outline {
-    background: transparent;
-    border: 2px solid var(--primary-color, #667eea);
-    color: var(--primary-color, #667eea);
-}
-
-.plan-btn.btn-outline:hover {
-    background: var(--primary-color, #667eea);
-    color: #fff;
-}
-
-.plan-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.current-plan-badge {
-    background: #22c55e;
-    color: #fff;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    margin-bottom: 15px;
-    display: inline-block;
-}
-
-.coupon-section {
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-.coupon-input-group {
-    display: flex;
-    gap: 10px;
-}
-
-.coupon-input-group input {
-    flex: 1;
-    padding: 12px 15px;
-    border: 2px solid var(--border-color, #e2e8f0);
-    border-radius: 8px;
-    font-size: 1rem;
-}
-
-.coupon-input-group button {
-    padding: 12px 25px;
-    background: var(--primary-color, #667eea);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.coupon-result {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    display: none;
-}
-
-.coupon-result.success {
-    background: #ecfdf5;
-    color: #059669;
-    display: block;
-}
-
-.coupon-result.error {
-    background: #fef2f2;
-    color: #dc2626;
-    display: block;
-}
-
-.pix-badge {
-    background: #32bcad;
-    color: #fff;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    margin-left: 8px;
-}
-
-@media (max-width: 768px) {
-    .plans-hero h1 {
-        font-size: 1.8rem;
-    }
-    
-    .plan-price .amount {
-        font-size: 2.5rem;
-    }
-    
-    .plans-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .plan-card.featured {
-        transform: none;
-    }
-}
-</style>
-
-<div class="plans-hero">
-    <h1><i class="fas fa-crown me-2"></i>Planos Operebem</h1>
-    <p>Escolha o plano ideal para você e desbloqueie todo o potencial do Terminal</p>
-</div>
-
-<div class="plans-container">
-    <?php foreach ($plans as $plan): ?>
-        <?php
-        $tierClass = strtolower($plan['tier']);
-        $isCurrent = $currentSubscription && $currentSubscription['plan_slug'] === $plan['slug'];
-        $isFeatured = $plan['is_featured'] ?? false;
-        $features = is_array($plan['features']) ? $plan['features'] : json_decode($plan['features'] ?? '[]', true);
-        
-        // Formatar preço
-        $priceCents = $plan['price_cents'] ?? 0;
-        $priceFormatted = number_format($priceCents / 100, 2, ',', '.');
-        
-        $interval = $plan['interval_type'] === 'year' ? '/ano' : '/mês';
-        
-        // Verificar se é parcelado
-        $isInstallment = $plan['is_installment'] ?? false;
-        $installmentCount = $plan['installment_count'] ?? 12;
-        $installmentValue = $isInstallment ? number_format(($priceCents / 100) / $installmentCount, 2, ',', '.') : null;
-        
-        // Verificar suporte a PIX
-        $supportsPix = $plan['supports_pix'] ?? false;
-        ?>
-        
-        <div class="plan-card <?= $isFeatured ? 'featured' : '' ?>">
-            <?php if ($isFeatured): ?>
-                <div class="plan-badge">Mais Popular</div>
-            <?php endif; ?>
-            
-            <?php if ($isCurrent): ?>
-                <div class="current-plan-badge"><i class="fas fa-check me-1"></i>Seu Plano Atual</div>
-            <?php endif; ?>
-            
-            <span class="plan-tier tier-<?= $tierClass ?>"><?= htmlspecialchars($plan['tier']) ?></span>
-            
-            <h2 class="plan-name"><?= htmlspecialchars($plan['name']) ?></h2>
-            
-            <div class="plan-price">
-                <?php if ($isInstallment): ?>
-                    <span class="currency">R$</span>
-                    <span class="amount"><?= $installmentValue ?></span>
-                    <span class="period">/mês</span>
-                    <div class="installment">ou R$ <?= $priceFormatted ?> à vista</div>
-                <?php else: ?>
-                    <span class="currency">R$</span>
-                    <span class="amount"><?= number_format($priceCents / 100, 0, ',', '.') ?></span>
-                    <span class="period"><?= $interval ?></span>
-                <?php endif; ?>
-                
-                <?php if ($supportsPix): ?>
-                    <span class="pix-badge"><i class="fas fa-qrcode me-1"></i>PIX</span>
-                <?php endif; ?>
-            </div>
-            
-            <?php if (($plan['trial_days'] ?? 0) > 0): ?>
-                <div class="plan-trial">
-                    <i class="fas fa-gift me-1"></i>
-                    <?= $plan['trial_days'] ?> dias grátis para testar
-                </div>
-            <?php endif; ?>
-            
-            <ul class="plan-features">
-                <?php foreach ($features as $feature): ?>
-                    <li><i class="fas fa-check-circle"></i><?= htmlspecialchars($feature) ?></li>
-                <?php endforeach; ?>
-            </ul>
-            
-            <?php if ($isCurrent): ?>
-                <a href="/subscription/manage" class="plan-btn btn-outline">
-                    <i class="fas fa-cog me-2"></i>Gerenciar
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-crown me-2"></i>Planos Operebem
+                </h1>
+                <a href="/app/dashboard" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar ao Dashboard
                 </a>
-            <?php else: ?>
-                <button class="plan-btn btn-primary" 
-                        data-plan="<?= htmlspecialchars($plan['slug']) ?>"
-                        onclick="startCheckout('<?= htmlspecialchars($plan['slug']) ?>')">
-                    <i class="fas fa-rocket me-2"></i>Assinar Agora
-                </button>
-            <?php endif; ?>
+            </div>
+            <p class="text-muted mb-4">Escolha o plano ideal para você e desbloqueie todo o potencial do Terminal</p>
         </div>
-    <?php endforeach; ?>
-</div>
-
-<div class="coupon-section">
-    <h4 class="text-center mb-3">Tem um cupom?</h4>
-    <div class="coupon-input-group">
-        <input type="text" id="couponCode" placeholder="Digite seu cupom" maxlength="20">
-        <button onclick="validateCoupon()">Aplicar</button>
     </div>
-    <div id="couponResult" class="coupon-result"></div>
+
+    <?php if ($currentSubscription): ?>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="fas fa-check-circle text-success fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Você já tem uma assinatura ativa!</h6>
+                                <p class="mb-0 text-muted">
+                                    Plano: <strong><?= htmlspecialchars($currentSubscription['plan_name'] ?? $currentSubscription['plan_slug']) ?></strong>
+                                    <?php if ($currentSubscription['status'] === 'trialing'): ?>
+                                        <span class="badge bg-warning text-dark ms-2">Em Trial</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success ms-2">Ativo</span>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                        </div>
+                        <a href="/dev/subscription/manage" class="btn btn-outline-success">
+                            <i class="fas fa-cog me-2"></i>Gerenciar Assinatura
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="row g-4">
+        <?php foreach ($plans as $plan): ?>
+            <?php
+            $tierClass = strtolower($plan['tier']);
+            $isCurrent = $currentSubscription && $currentSubscription['plan_slug'] === $plan['slug'];
+            $isFeatured = $plan['is_featured'] ?? false;
+            $features = is_array($plan['features']) ? $plan['features'] : json_decode($plan['features'] ?? '[]', true);
+            
+            // Formatar preço
+            $priceCents = $plan['price_cents'] ?? 0;
+            $priceFormatted = number_format($priceCents / 100, 2, ',', '.');
+            
+            $interval = $plan['interval_type'] === 'year' ? '/ano' : '/mês';
+            
+            // Verificar se é parcelado
+            $isInstallment = $plan['is_installment'] ?? false;
+            $installmentCount = $plan['installment_count'] ?? 12;
+            $installmentValue = $isInstallment ? number_format(($priceCents / 100) / $installmentCount, 2, ',', '.') : null;
+            
+            // Verificar suporte a PIX
+            $supportsPix = $plan['supports_pix'] ?? false;
+            ?>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 <?= $isFeatured ? 'border-primary' : '' ?> <?= $isCurrent ? 'border-success' : '' ?>">
+                    <?php if ($isFeatured && !$isCurrent): ?>
+                        <div class="card-header bg-primary text-white text-center py-2">
+                            <small class="fw-bold text-uppercase"><i class="fas fa-star me-1"></i>Mais Popular</small>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($isCurrent): ?>
+                        <div class="card-header bg-success text-white text-center py-2">
+                            <small class="fw-bold text-uppercase"><i class="fas fa-check-circle me-1"></i>Seu Plano Atual</small>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <div class="card-body d-flex flex-column">
+                        <!-- Tier Badge -->
+                        <div class="mb-3">
+                            <?php if ($tierClass === 'plus'): ?>
+                                <span class="badge bg-primary px-3 py-2">PLUS</span>
+                            <?php elseif ($tierClass === 'pro'): ?>
+                                <span class="badge bg-warning text-dark px-3 py-2">PRO</span>
+                            <?php else: ?>
+                                <span class="badge bg-secondary px-3 py-2"><?= strtoupper($plan['tier']) ?></span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Nome do Plano -->
+                        <h4 class="card-title mb-3"><?= htmlspecialchars($plan['name']) ?></h4>
+                        
+                        <!-- Preço -->
+                        <div class="mb-4">
+                            <?php if ($isInstallment): ?>
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <span class="fs-5 text-muted">R$</span>
+                                    <span class="display-5 fw-bold"><?= $installmentValue ?></span>
+                                    <span class="text-muted">/mês</span>
+                                </div>
+                                <small class="text-muted">ou R$ <?= $priceFormatted ?> à vista</small>
+                            <?php else: ?>
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <span class="fs-5 text-muted">R$</span>
+                                    <span class="display-5 fw-bold"><?= number_format($priceCents / 100, 0, ',', '.') ?></span>
+                                    <span class="text-muted"><?= $interval ?></span>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($supportsPix): ?>
+                                <span class="badge bg-info mt-2"><i class="fas fa-qrcode me-1"></i>PIX Disponível</span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Trial -->
+                        <?php if (($plan['trial_days'] ?? 0) > 0 && !$isCurrent): ?>
+                            <div class="alert alert-success py-2 px-3 mb-3">
+                                <small><i class="fas fa-gift me-1"></i><?= $plan['trial_days'] ?> dias grátis para testar</small>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <!-- Features -->
+                        <ul class="list-unstyled mb-4 flex-grow-1">
+                            <?php foreach ($features as $feature): ?>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <small><?= htmlspecialchars($feature) ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        
+                        <!-- Botão -->
+                        <div class="mt-auto">
+                            <?php if ($isCurrent): ?>
+                                <a href="/dev/subscription/manage" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-cog me-2"></i>Gerenciar
+                                </a>
+                            <?php else: ?>
+                                <button class="btn <?= $isFeatured ? 'btn-primary' : 'btn-outline-primary' ?> w-100" 
+                                        data-plan="<?= htmlspecialchars($plan['slug']) ?>"
+                                        onclick="startCheckout('<?= htmlspecialchars($plan['slug']) ?>')">
+                                    <i class="fas fa-rocket me-2"></i>Assinar Agora
+                                </button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <!-- Cupom Section -->
+    <div class="row mt-5">
+        <div class="col-lg-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3"><i class="fas fa-tags me-2"></i>Tem um cupom?</h6>
+                    <div class="input-group">
+                        <input type="text" id="couponCode" class="form-control" placeholder="Digite seu cupom" maxlength="20">
+                        <button class="btn btn-outline-primary" onclick="validateCoupon()">
+                            <i class="fas fa-check me-1"></i>Aplicar
+                        </button>
+                    </div>
+                    <div id="couponResult" class="mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -430,14 +239,12 @@ async function validateCoupon() {
     const resultDiv = document.getElementById('couponResult');
     
     if (!code) {
-        resultDiv.className = 'coupon-result error';
-        resultDiv.textContent = 'Digite um código de cupom';
+        resultDiv.innerHTML = '<div class="alert alert-warning py-2"><small>Digite um código de cupom</small></div>';
         return;
     }
     
     if (!selectedPlan) {
-        resultDiv.className = 'coupon-result error';
-        resultDiv.textContent = 'Selecione um plano primeiro';
+        resultDiv.innerHTML = '<div class="alert alert-info py-2"><small>Clique em um plano primeiro para aplicar o cupom</small></div>';
         return;
     }
     
@@ -460,21 +267,18 @@ async function validateCoupon() {
                 ? `${data.discount_value}%` 
                 : `R$ ${(data.discount_amount_cents / 100).toFixed(2).replace('.', ',')}`;
             
-            resultDiv.className = 'coupon-result success';
-            resultDiv.innerHTML = `<i class="fas fa-check-circle me-1"></i>Cupom aplicado! Desconto de ${discount}`;
+            resultDiv.innerHTML = `<div class="alert alert-success py-2"><small><i class="fas fa-check-circle me-1"></i>Cupom aplicado! Desconto de ${discount}</small></div>`;
         } else {
             appliedCoupon = null;
-            resultDiv.className = 'coupon-result error';
-            resultDiv.textContent = data.error || 'Cupom inválido';
+            resultDiv.innerHTML = `<div class="alert alert-danger py-2"><small>${data.error || 'Cupom inválido'}</small></div>`;
         }
     } catch (error) {
-        resultDiv.className = 'coupon-result error';
-        resultDiv.textContent = 'Erro ao validar cupom';
+        resultDiv.innerHTML = '<div class="alert alert-danger py-2"><small>Erro ao validar cupom</small></div>';
     }
 }
 
 // Se clicar em um plano, guardar qual é
-document.querySelectorAll('.plan-btn[data-plan]').forEach(btn => {
+document.querySelectorAll('button[data-plan]').forEach(btn => {
     btn.addEventListener('click', () => {
         selectedPlan = btn.dataset.plan;
     });
