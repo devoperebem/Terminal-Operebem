@@ -136,6 +136,71 @@ ob_start();
               </div>
             </div>
           </div>
+          
+          <!-- Assinatura -->
+          <div class="border-top pt-3 mt-3">
+            <h6 class="mb-3">Assinatura</h6>
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="card h-100">
+                  <div class="card-body py-3 text-center">
+                    <div class="text-muted small">Tier Atual</div>
+                    <?php 
+                    $userTier = strtoupper($profile['tier'] ?? 'FREE');
+                    $tierClass = match($userTier) {
+                      'PLUS' => 'bg-primary',
+                      'PRO' => 'bg-warning',
+                      default => 'bg-secondary'
+                    };
+                    ?>
+                    <span class="badge <?= $tierClass ?> px-3 py-2"><?= $userTier ?></span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card h-100">
+                  <div class="card-body py-3 text-center">
+                    <div class="text-muted small">Expira em</div>
+                    <div class="h6 mb-0">
+                      <?= $profile['subscription_expires_at'] 
+                        ? date('d/m/Y', strtotime($profile['subscription_expires_at'])) 
+                        : '—' ?>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card h-100">
+                  <div class="card-body py-3 text-center">
+                    <div class="text-muted small">Trial Usado</div>
+                    <?php
+                    // Verificar se já usou trial
+                    $trialUsed = \App\Core\Database::fetch(
+                      'SELECT COUNT(*) as count FROM subscriptions WHERE user_id = ? AND trial_used = TRUE',
+                      [(int)$profile['id']]
+                    );
+                    $hasUsedTrial = (int)($trialUsed['count'] ?? 0) > 0;
+                    ?>
+                    <span class="badge <?= $hasUsedTrial ? 'bg-success' : 'bg-secondary' ?>">
+                      <?= $hasUsedTrial ? 'Sim' : 'Não' ?>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card h-100">
+                  <div class="card-body py-3 text-center d-flex flex-column justify-content-center">
+                    <a href="/secure/adm/subscriptions?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-primary w-100 mb-1">
+                      Ver Assinaturas
+                    </a>
+                    <a href="/secure/adm/subscriptions/grant?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-success w-100">
+                      Conceder Tier
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
