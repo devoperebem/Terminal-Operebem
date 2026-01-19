@@ -99,6 +99,8 @@
                     <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/gamification') ?>" href="/secure/adm/gamification"><i class="fas fa-gamepad me-2 d-lg-none"></i>XP & Gamificação</a></li>
                     <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/tickets') ?>" href="/secure/adm/tickets"><i class="fas fa-headset me-2 d-lg-none"></i>Tickets</a></li>
                     <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/users') ?>" href="/secure/adm/users"><i class="fas fa-users me-2 d-lg-none"></i>Usuários</a></li>
+                    <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/subscriptions') ?>" href="/secure/adm/subscriptions"><i class="fas fa-credit-card me-2 d-lg-none"></i>Assinaturas</a></li>
+                    <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/plans') ?>" href="/secure/adm/plans"><i class="fas fa-tags me-2 d-lg-none"></i>Planos</a></li>
                     <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/crm') ?>" href="/secure/adm/crm"><i class="fas fa-address-card me-2 d-lg-none"></i>CRM</a></li>
                     <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/reviews') ?>" href="/secure/adm/reviews"><i class="fas fa-star me-2 d-lg-none"></i>Reviews</a></li>
                     <li class="nav-item"><a class="nav-link <?= $is('/secure/adm/admins') ?>" href="/secure/adm/admins"><i class="fas fa-users-cog me-2 d-lg-none"></i>Admins</a></li>

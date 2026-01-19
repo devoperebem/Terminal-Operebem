@@ -91,6 +91,14 @@ ob_start();
           </a>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
+          <a href="/secure/adm/plans" class="btn btn-outline-primary w-100 shortcut-btn">
+            <div class="py-2">
+              <div class="h1 mb-1">🏷️</div>
+              <div class="small">Planos & Preços</div>
+            </div>
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
           <a href="/secure/adm/coupons" class="btn btn-outline-dark w-100 shortcut-btn">
             <div class="py-2">
               <div class="h1 mb-1">🎟️</div>
