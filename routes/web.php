@@ -281,6 +281,14 @@ $router->get('/secure/adm/coupons/create', [\App\Controllers\Admin\SubscriptionA
 $router->post('/secure/adm/coupons/create', [\App\Controllers\Admin\SubscriptionAdminController::class, 'createCoupon'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/secure/adm/coupons/toggle', [\App\Controllers\Admin\SubscriptionAdminController::class, 'toggleCoupon'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
+// Secure Admin - Subscription Plans Management (Gerenciamento de Planos)
+$router->get('/secure/adm/plans', [\App\Controllers\Admin\SubscriptionPlansAdminController::class, 'index'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/plans/edit', [\App\Controllers\Admin\SubscriptionPlansAdminController::class, 'edit'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/plans/update-price', [\App\Controllers\Admin\SubscriptionPlansAdminController::class, 'updatePrice'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/plans/apply-discount', [\App\Controllers\Admin\SubscriptionPlansAdminController::class, 'applyDiscount'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/plans/remove-discount', [\App\Controllers\Admin\SubscriptionPlansAdminController::class, 'removeDiscount'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/plans/toggle-active', [\App\Controllers\Admin\SubscriptionPlansAdminController::class, 'toggleActive'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+
 // Executar todas as migrations do sistema via navegador (somente admin)
 $router->get('/secure/adm/run-migrations', [AdminSecureController::class, 'runMigrations'], [SecureAdminMiddleware::class]);
 

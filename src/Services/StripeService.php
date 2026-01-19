@@ -369,14 +369,28 @@ class StripeService
     }
     
     /**
-     * Cria um preço
+     * Cria um preço recorrente
+     * 
+     * @param string $productId ID do produto no Stripe
+     * @param int $unitAmount Valor em centavos
+     * @param string $currency Moeda (ex: BRL, USD)
+     * @param string $interval Intervalo de cobrança (month, year)
+     * @param int $intervalCount Quantidade de intervalos (default: 1)
+     * @param int $trialDays Dias de trial (default: 0)
+     * @return array Resposta do Stripe com o Price criado
      */
-    public function createPrice(string $productId, int $unitAmount, string $interval, int $intervalCount = 1, int $trialDays = 0): array
-    {
+    public function createPrice(
+        string $productId, 
+        int $unitAmount, 
+        string $currency = 'BRL',
+        string $interval = 'month', 
+        int $intervalCount = 1, 
+        int $trialDays = 0
+    ): array {
         $params = [
             'product' => $productId,
             'unit_amount' => $unitAmount,
-            'currency' => $this->config['currency'],
+            'currency' => strtolower($currency),
             'recurring[interval]' => $interval,
             'recurring[interval_count]' => $intervalCount,
         ];

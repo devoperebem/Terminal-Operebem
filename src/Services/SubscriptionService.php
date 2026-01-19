@@ -68,6 +68,11 @@ class SubscriptionService
             return ['success' => false, 'error' => 'Plano não encontrado'];
         }
         
+        // NOVA VALIDAÇÃO: Verificar se o plano está ativo
+        if (!$plan['is_active']) {
+            return ['success' => false, 'error' => 'Este plano está temporariamente indisponível'];
+        }
+        
         // Verificar se já tem assinatura ativa do mesmo tier ou superior
         $existingSubscription = $this->getActiveSubscription($userId);
         if ($existingSubscription && $existingSubscription['status'] !== 'canceled') {
@@ -86,6 +91,14 @@ class SubscriptionService
         // Verificar cupom
         $stripeCouponId = null;
         if ($couponCode) {
+            // NOVA VALIDAÇÃO: Verificar se o plano aceita cupons (não pode ter promoção ativa)
+            $planService = new \App\Services\SubscriptionPlanService();
+            $fullPlan = $planService->getPlanBySlug($planSlug);
+            
+            if ($fullPlan && !$planService->canApplyCoupon($fullPlan)) {
+                return ['success' => false, 'error' => 'Cupons não podem ser aplicados em planos com promoção ativa'];
+            }
+            
             $coupon = $this->validateCoupon($couponCode, $planSlug, $userId);
             if (!$coupon['valid']) {
                 return ['success' => false, 'error' => $coupon['error']];
@@ -99,10 +112,15 @@ class SubscriptionService
             $trialDays = $plan['trial_days'] ?? $this->config['default_trial_days'];
         }
         
+        // NOVA FUNCIONALIDADE: Obter Price ID efetivo (com desconto se aplicável)
+        $planService = new \App\Services\SubscriptionPlanService();
+        $fullPlan = $planService->getPlanBySlug($planSlug);
+        $effectivePriceId = $fullPlan ? $planService->getEffectivePriceId($fullPlan) : $plan['stripe_price_id'];
+        
         // Criar sessão de checkout
         $session = $this->stripe->createSubscriptionCheckout(
             $customer['id'],
-            $plan['stripe_price_id'],
+            $effectivePriceId,
             $trialDays,
             $stripeCouponId,
             [
