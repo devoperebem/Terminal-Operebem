@@ -51,6 +51,16 @@ ob_start();
           </div>
           <div class="d-grid gap-2 w-100 mt-3">
             <a href="/secure/adm/users/edit?id=<?= (int)$profile['id'] ?>" class="btn btn-primary">Editar</a>
+            <button type="button" class="btn btn-warning" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#resetPasswordModal">
+              <i class="fas fa-key me-2"></i>Resetar Senha
+            </button>
+            <button type="button" class="btn btn-outline-danger" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#logoutAllDevicesModal">
+              <i class="fas fa-sign-out-alt me-2"></i>Deslogar Todos Dispositivos
+            </button>
             <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteUserModal" data-user-id="<?= (int)$profile['id'] ?>" data-user-name="<?= htmlspecialchars($profile['name'] ?? '') ?>">
               Excluir
             </button>
@@ -131,142 +141,176 @@ ob_start();
                     <a href="/secure/adm/gamification/user/<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-primary w-100">
                       Ver Detalhes
                     </a>
+          </div>
+          
+          <!-- NOVA SEÇÃO: Gerenciar Assinatura -->
+          <?php if ($activeSubscription): ?>
+          <div class="border-top pt-3 mt-3">
+            <h6 class="mb-3">
+              <i class="fas fa-cog me-2"></i>Gerenciar Assinatura
+            </h6>
+            
+            <div class="card mb-3">
+              <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span>Assinatura Ativa #<?= $activeSubscription['id'] ?></span>
+                <a href="/secure/adm/subscriptions/view?id=<?= $activeSubscription['id'] ?>" 
+                   class="btn btn-sm btn-light" target="_blank">
+                  Ver Detalhes <i class="fas fa-external-link-alt ms-1"></i>
+                </a>
+              </div>
+              <div class="card-body">
+                <div class="row g-3 mb-3">
+                  <div class="col-md-3">
+                    <small class="text-muted">Plano</small>
+                    <div class="fw-bold"><?= htmlspecialchars($activeSubscription['plan_name'] ?? $activeSubscription['plan_slug']) ?></div>
+                  </div>
+                  <div class="col-md-4">
+                    <small class="text-muted">Stripe Subscription ID</small>
+                    <div class="font-monospace small"><?= htmlspecialchars($activeSubscription['stripe_subscription_id'] ?? 'Manual') ?></div>
+                  </div>
+                  <div class="col-md-3">
+                    <small class="text-muted">Data de Início</small>
+                    <div><?= date('d/m/Y', strtotime($activeSubscription['created_at'])) ?></div>
+                  </div>
+                  <div class="col-md-2">
+                    <small class="text-muted">Próxima Cobrança</small>
+                    <div>
+                      <?php if (!empty($activeSubscription['current_period_end'])): ?>
+                        <?= date('d/m/Y', strtotime($activeSubscription['current_period_end'])) ?>
+                      <?php else: ?>
+                        —
+                      <?php endif; ?>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="border-top pt-3">
+                  <div class="d-flex flex-wrap gap-2">
+                    <?php if (in_array($activeSubscription['status'], ['active', 'trialing', 'past_due'])): ?>
+                      <button type="button" class="btn btn-sm btn-danger" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#cancelSubscriptionModal"
+                              data-subscription-id="<?= $activeSubscription['id'] ?>"
+                              data-user-name="<?= htmlspecialchars($profile['name']) ?>">
+                        <i class="fas fa-times-circle me-1"></i>Cancelar Assinatura
+                      </button>
+                    <?php endif; ?>
+                    
+                    <?php if ($activeSubscription['status'] === 'trialing'): ?>
+                      <button type="button" class="btn btn-sm btn-info text-white"
+                              data-bs-toggle="modal"
+                              data-bs-target="#extendTrialModal"
+                              data-subscription-id="<?= $activeSubscription['id'] ?>"
+                              data-trial-end="<?= $activeSubscription['trial_end'] ?>"
+                              data-trial-extended-days="<?= (int)($activeSubscription['trial_extended_days'] ?? 0) ?>">
+                        <i class="fas fa-calendar-plus me-1"></i>Estender Trial
+                      </button>
+                    <?php endif; ?>
+                    
+                    <a href="/secure/adm/subscriptions/payments?user_id=<?= $profile['id'] ?>" 
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-cash-register me-1"></i>Ver Pagamentos
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
-          <!-- Assinatura -->
+          <?php else: ?>
           <div class="border-top pt-3 mt-3">
-            <h6 class="mb-3">Assinatura</h6>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Este usuário não possui assinatura ativa.
+              <a href="/secure/adm/subscriptions/grant?user_id=<?= $profile['id'] ?>" 
+                 class="btn btn-sm btn-success ms-3">
+                <i class="fas fa-crown me-1"></i>Conceder Tier Manual
+              </a>
+            </div>
+          </div>
+          <?php endif; ?>
+          
+          <!-- NOVA SEÇÃO: Histórico de Ações / Logs de Auditoria -->
+          <div class="border-top pt-3 mt-3">
+            <h6 class="mb-3">
+              <i class="fas fa-history me-2"></i>Histórico de Ações / Logs
+            </h6>
+            
             <?php
-            // Buscar assinatura ativa do usuário
-            $activeSubscription = \App\Core\Database::fetch(
-              "SELECT * FROM subscriptions WHERE user_id = ? AND status IN ('trialing', 'active', 'past_due') ORDER BY created_at DESC LIMIT 1",
-              [(int)$profile['id']]
-            );
-            
-            // Verificar se já usou trial
-            $trialUsed = \App\Core\Database::fetch(
-              'SELECT COUNT(*) as count FROM subscriptions WHERE user_id = ? AND trial_used = TRUE',
-              [(int)$profile['id']]
-            );
-            $hasUsedTrial = (int)($trialUsed['count'] ?? 0) > 0;
-            
-            // Calcular dias restantes de trial
-            $trialDaysRemaining = 0;
-            $trialEndDate = null;
-            if ($activeSubscription && $activeSubscription['status'] === 'trialing' && $activeSubscription['trial_end']) {
-              $trialEndDate = $activeSubscription['trial_end'];
-              $trialDaysRemaining = max(0, ceil((strtotime($trialEndDate) - time()) / 86400));
-            }
-            
-            $userTier = strtoupper($profile['tier'] ?? 'FREE');
-            $tierClass = match($userTier) {
-              'PLUS' => 'bg-primary',
-              'PRO' => 'bg-warning',
-              default => 'bg-secondary'
-            };
+            // Buscar logs do usuário
+            $logs = \App\Services\AuditLogService::getUserLogs((int)$profile['id'], 20);
+            $totalLogs = \App\Services\AuditLogService::countUserLogs((int)$profile['id']);
             ?>
             
-            <div class="row g-3">
-              <!-- Tier Atual -->
-              <div class="col-6 col-md-3">
-                <div class="card h-100">
-                  <div class="card-body py-3 text-center">
-                    <div class="text-muted small">Tier Atual</div>
-                    <span class="badge <?= $tierClass ?> px-3 py-2"><?= $userTier ?></span>
-                  </div>
-                </div>
+            <?php if (empty($logs)): ?>
+              <div class="alert alert-secondary">
+                <i class="fas fa-info-circle me-2"></i>
+                Nenhuma ação registrada para este usuário.
               </div>
-              
-              <!-- Status -->
-              <div class="col-6 col-md-3">
-                <div class="card h-100">
-                  <div class="card-body py-3 text-center">
-                    <div class="text-muted small">Status</div>
-                    <?php if ($activeSubscription): ?>
-                      <?php 
-                      $statusLabels = [
-                        'trialing' => ['Em Trial', 'bg-warning text-dark'],
-                        'active' => ['Ativo', 'bg-success'],
-                        'past_due' => ['Pagamento Pendente', 'bg-danger'],
-                      ];
-                      $statusInfo = $statusLabels[$activeSubscription['status']] ?? [$activeSubscription['status'], 'bg-secondary'];
-                      ?>
-                      <span class="badge <?= $statusInfo[1] ?>"><?= $statusInfo[0] ?></span>
-                    <?php else: ?>
-                      <span class="badge bg-secondary">Sem assinatura</span>
-                    <?php endif; ?>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Trial Restante / Expira em -->
-              <div class="col-6 col-md-3">
-                <div class="card h-100">
-                  <div class="card-body py-3 text-center">
-                    <?php if ($activeSubscription && $activeSubscription['status'] === 'trialing'): ?>
-                      <div class="text-muted small">Trial Restante</div>
-                      <div class="h5 mb-0 <?= $trialDaysRemaining <= 3 ? 'text-danger' : 'text-primary' ?>">
-                        <?= $trialDaysRemaining ?> dias
+            <?php else: ?>
+              <div class="card">
+                <div class="card-body">
+                  <div class="timeline">
+                    <?php foreach ($logs as $log): 
+                      $formatted = \App\Services\AuditLogService::formatLogEntry($log);
+                    ?>
+                      <div class="timeline-item mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                          <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                              <span class="badge <?= $formatted['badge_class'] ?> me-2">
+                                <i class="fas <?= $formatted['icon_class'] ?> me-1"></i>
+                                <?= htmlspecialchars($formatted['action_type']) ?>
+                              </span>
+                              <small class="text-muted">
+                                <?= $formatted['created_at_relative'] ?>
+                                (<?= $formatted['created_at_formatted'] ?>)
+                              </small>
+                            </div>
+                            
+                            <div class="mb-1">
+                              <strong><?= $formatted['actor_name'] ?></strong>
+                            </div>
+                            
+                            <?php if (!empty($formatted['description'])): ?>
+                              <div class="text-muted small">
+                                <?= htmlspecialchars($formatted['description']) ?>
+                              </div>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($formatted['changes_decoded'])): ?>
+                              <button type="button" class="btn btn-xs btn-outline-secondary mt-1"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#logDetailsModal"
+                                      data-log-id="<?= $log['id'] ?>"
+                                      data-log-changes='<?= htmlspecialchars($log['changes']) ?>'>
+                                <i class="fas fa-eye me-1"></i>Ver Detalhes
+                              </button>
+                            <?php endif; ?>
+                          </div>
+                          
+                          <div class="text-end">
+                            <small class="text-muted d-block">
+                              IP: <?= htmlspecialchars($log['ip_address'] ?? 'N/A') ?>
+                            </small>
+                          </div>
+                        </div>
                       </div>
-                      <small class="text-muted"><?= date('d/m/Y H:i', strtotime($trialEndDate)) ?></small>
-                    <?php else: ?>
-                      <div class="text-muted small">Expira em</div>
-                      <div class="h6 mb-0">
-                        <?= $profile['subscription_expires_at'] 
-                          ? date('d/m/Y', strtotime($profile['subscription_expires_at'])) 
-                          : '—' ?>
-                      </div>
-                    <?php endif; ?>
+                    <?php endforeach; ?>
                   </div>
-                </div>
-              </div>
-              
-              <!-- Trial Usado -->
-              <div class="col-6 col-md-3">
-                <div class="card h-100">
-                  <div class="card-body py-3 text-center">
-                    <div class="text-muted small">Trial Usado</div>
-                    <span class="badge <?= $hasUsedTrial ? 'bg-success' : 'bg-secondary' ?>">
-                      <?= $hasUsedTrial ? 'Sim' : 'Não' ?>
-                    </span>
-                    <?php if ($hasUsedTrial): ?>
-                      <form method="POST" action="/secure/adm/subscriptions/reset-trial" class="mt-2">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
-                        <input type="hidden" name="user_id" value="<?= (int)$profile['id'] ?>">
-                        <button type="submit" class="btn btn-xs btn-outline-warning" 
-                          onclick="return confirm('Resetar trial permitirá que o usuário ganhe 7 dias grátis novamente. Continuar?')">
-                          <i class="fas fa-redo me-1"></i>Resetar
-                        </button>
-                      </form>
-                    <?php endif; ?>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Ações -->
-            <div class="row g-3 mt-2">
-              <div class="col-12">
-                <div class="d-flex flex-wrap gap-2">
-                  <a href="/secure/adm/subscriptions?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-list me-1"></i>Ver Assinaturas
-                  </a>
-                  <a href="/secure/adm/subscriptions/grant?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-success">
-                    <i class="fas fa-crown me-1"></i>Conceder Tier
-                  </a>
-                  <?php if ($activeSubscription && $activeSubscription['status'] === 'trialing'): ?>
-                    <a href="/secure/adm/subscriptions/extend-trial?user_id=<?= (int)$profile['id'] ?>" class="btn btn-sm btn-info text-white">
-                      <i class="fas fa-calendar-plus me-1"></i>Estender Trial
-                    </a>
+                  
+                  <?php if ($totalLogs > 20): ?>
+                    <div class="text-center mt-3">
+                      <p class="text-muted mb-2">
+                        Mostrando 20 de <?= number_format($totalLogs) ?> logs
+                      </p>
+                      <!-- Implementar paginação se necessário -->
+                    </div>
                   <?php endif; ?>
                 </div>
               </div>
-            </div>
+            <?php endif; ?>
           </div>
+          
         </div>
       </div>
     </div>
@@ -415,6 +459,238 @@ ob_start();
     </div>
   </div>
 </div>
+
+<!-- Modal: Cancelar Assinatura -->
+<div class="modal fade" id="cancelSubscriptionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Cancelar Assinatura</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/secure/adm/subscriptions/cancel">
+        <div class="modal-body">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+          <input type="hidden" name="subscription_id" id="cancel-subscription-id">
+          <input type="hidden" name="user_id" value="<?= $profile['id'] ?>">
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Atenção!</strong> Esta ação irá cancelar a assinatura.
+          </div>
+          
+          <p>Usuário: <strong id="cancel-user-name"></strong></p>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Tipo de Cancelamento:</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="cancel_type" 
+                     id="cancel-at-period-end" value="at_period_end" checked>
+              <label class="form-check-label" for="cancel-at-period-end">
+                <strong>Ao fim do período</strong>
+                <small class="text-muted d-block">
+                  Usuário mantém acesso até o fim do período pago
+                </small>
+              </label>
+            </div>
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="radio" name="cancel_type" 
+                     id="cancel-immediately" value="immediately">
+              <label class="form-check-label" for="cancel-immediately">
+                <strong>Imediatamente</strong>
+                <small class="text-muted d-block">
+                  Usuário perde acesso agora (sem reembolso)
+                </small>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="cancel-reason" class="form-label">Motivo do Cancelamento:</label>
+            <textarea class="form-control" id="cancel-reason" name="reason" 
+                      rows="3" placeholder="Ex: Solicitação do usuário, problema técnico..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-times-circle me-2"></i>Confirmar Cancelamento
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Estender Trial -->
+<div class="modal fade" id="extendTrialModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">Estender Trial</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/secure/adm/subscriptions/extend-trial">
+        <div class="modal-body">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+          <input type="hidden" name="subscription_id" id="extend-subscription-id">
+          <input type="hidden" name="user_id" value="<?= $profile['id'] ?>">
+          
+          <div class="alert alert-info" id="extend-trial-info">
+            <strong>Limite de Extensão:</strong>
+            <ul class="mb-0">
+              <li>Dias já estendidos: <strong><span id="extend-days-used">0</span> dias</strong></li>
+              <li>Limite máximo: <strong>60 dias</strong></li>
+              <li>Disponível para estender: <strong id="extend-days-available" class="text-success">60 dias</strong></li>
+            </ul>
+          </div>
+          
+          <div id="extend-trial-form">
+            <p>Trial atual termina em: <strong id="extend-trial-current"></strong></p>
+            
+            <div class="mb-3">
+              <label for="extend-days" class="form-label">Dias Adicionais:</label>
+              <select class="form-select" id="extend-days" name="additional_days" required>
+                <option value="7">7 dias</option>
+                <option value="14">14 dias</option>
+                <option value="30">30 dias</option>
+                <option value="custom">Personalizado...</option>
+              </select>
+            </div>
+            
+            <div class="mb-3" id="custom-days-container" style="display: none;">
+              <label for="custom-days" class="form-label">Quantidade de dias:</label>
+              <input type="number" class="form-control" id="custom-days" 
+                     name="custom_days" min="1" max="60">
+            </div>
+            
+            <div class="mb-3">
+              <label for="extend-reason" class="form-label">Motivo:</label>
+              <textarea class="form-control" id="extend-reason" name="reason" 
+                        rows="2" placeholder="Ex: Problema técnico, solicitação especial..." required></textarea>
+            </div>
+          </div>
+          
+          <div class="alert alert-danger" id="extend-trial-limit-reached" style="display: none;">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Limite atingido!</strong> Não é possível estender mais o trial.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-info text-white" id="btn-extend-trial">
+            <i class="fas fa-calendar-plus me-2"></i>Estender Trial
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Resetar Senha -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">Resetar Senha do Usuário</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/secure/adm/users/reset-password">
+        <div class="modal-body">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+          <input type="hidden" name="user_id" value="<?= $profile['id'] ?>">
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Atenção!</strong> Esta ação irá:
+            <ul class="mb-0 mt-2">
+              <li>Gerar uma senha aleatória e segura</li>
+              <li>Enviar a nova senha por email para: <strong><?= htmlspecialchars($profile['email']) ?></strong></li>
+              <li>O usuário poderá alterar a senha depois pelo sistema</li>
+            </ul>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="reset-logout-all" name="logout_all" checked>
+            <label class="form-check-label" for="reset-logout-all">
+              Deslogar o usuário de todos os dispositivos
+            </label>
+          </div>
+          
+          <div class="mb-3">
+            <label for="reset-reason" class="form-label">Motivo:</label>
+            <textarea class="form-control" id="reset-reason" name="reason" 
+                      rows="2" placeholder="Ex: Usuário esqueceu a senha..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning text-dark">
+            <i class="fas fa-key me-2"></i>Resetar Senha
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Deslogar Todos Dispositivos -->
+<div class="modal fade" id="logoutAllDevicesModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Deslogar Todos os Dispositivos</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/secure/adm/users/logout-all-devices">
+        <div class="modal-body">
+          <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+          <input type="hidden" name="user_id" value="<?= $profile['id'] ?>">
+          
+          <p>Esta ação irá <strong>deslogar o usuário de todos os dispositivos</strong> onde ele está logado.</p>
+          
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Útil para casos de:
+            <ul class="mb-0">
+              <li>Suspeita de acesso não autorizado</li>
+              <li>Usuário reportou problema de segurança</li>
+              <li>Dispositivo perdido/roubado</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <label for="logout-reason" class="form-label">Motivo:</label>
+            <textarea class="form-control" id="logout-reason" name="reason" 
+                      rows="2" placeholder="Ex: Suspeita de acesso indevido..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-sign-out-alt me-2"></i>Deslogar Todos
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalhes do Log -->
+<div class="modal fade" id="logDetailsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes das Mudanças</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <pre id="log-changes-content" class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
 <?php
 $content = ob_get_clean();
 $csrf = htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8');
@@ -451,6 +727,83 @@ $scripts = <<<SCRIPTS
     if (idInput) idInput.value = uid || '0';
     if (nameSpan) nameSpan.textContent = uname;
   });
+  
+  // Modal: Cancelar Assinatura
+  var cancelModal = document.getElementById('cancelSubscriptionModal');
+  if (cancelModal) {
+    cancelModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var subscriptionId = button.getAttribute('data-subscription-id');
+      var userName = button.getAttribute('data-user-name');
+      
+      document.getElementById('cancel-subscription-id').value = subscriptionId;
+      document.getElementById('cancel-user-name').textContent = userName;
+    });
+  }
+  
+  // Modal: Estender Trial
+  var extendModal = document.getElementById('extendTrialModal');
+  if (extendModal) {
+    extendModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var subscriptionId = button.getAttribute('data-subscription-id');
+      var trialEnd = button.getAttribute('data-trial-end');
+      var extendedDays = parseInt(button.getAttribute('data-trial-extended-days') || '0');
+      var maxDays = 60;
+      var remaining = maxDays - extendedDays;
+      
+      document.getElementById('extend-subscription-id').value = subscriptionId;
+      document.getElementById('extend-trial-current').textContent = trialEnd ? new Date(trialEnd).toLocaleDateString('pt-BR') : 'N/A';
+      document.getElementById('extend-days-used').textContent = extendedDays;
+      document.getElementById('extend-days-available').textContent = remaining;
+      
+      var availableSpan = document.getElementById('extend-days-available');
+      if (remaining <= 0) {
+        availableSpan.className = 'text-danger';
+        document.getElementById('extend-trial-form').style.display = 'none';
+        document.getElementById('extend-trial-limit-reached').style.display = 'block';
+        document.getElementById('btn-extend-trial').disabled = true;
+      } else {
+        availableSpan.className = 'text-success';
+        document.getElementById('extend-trial-form').style.display = 'block';
+        document.getElementById('extend-trial-limit-reached').style.display = 'none';
+        document.getElementById('btn-extend-trial').disabled = false;
+        
+        // Atualizar opções do select
+        var select = document.getElementById('extend-days');
+        select.innerHTML = '';
+        if (remaining >= 7) select.innerHTML += '<option value="7">7 dias</option>';
+        if (remaining >= 14) select.innerHTML += '<option value="14">14 dias</option>';
+        if (remaining >= 30) select.innerHTML += '<option value="30">30 dias</option>';
+        select.innerHTML += '<option value="custom">Personalizado (max: ' + remaining + ' dias)</option>';
+        
+        // Atualizar max do input custom
+        document.getElementById('custom-days').max = remaining;
+      }
+    });
+    
+    // Toggle custom days input
+    document.getElementById('extend-days').addEventListener('change', function() {
+      var container = document.getElementById('custom-days-container');
+      container.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+  }
+  
+  // Modal: Detalhes do Log
+  var logModal = document.getElementById('logDetailsModal');
+  if (logModal) {
+    logModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var changes = button.getAttribute('data-log-changes');
+      
+      try {
+        var parsed = JSON.parse(changes);
+        document.getElementById('log-changes-content').textContent = JSON.stringify(parsed, null, 2);
+      } catch (e) {
+        document.getElementById('log-changes-content').textContent = changes;
+      }
+    });
+  }
 })();
 </script>
 SCRIPTS;
