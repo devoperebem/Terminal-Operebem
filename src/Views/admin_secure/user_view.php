@@ -143,18 +143,26 @@ ob_start();
                     </a>
           </div>
           
-          <!-- NOVA SEÇÃO: Gerenciar Assinatura -->
+
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Gerenciar Assinatura -->
+  <div class="row g-3 mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Gerenciar Assinatura</h5>
+        </div>
+        <div class="card-body">
           <?php if ($activeSubscription): ?>
-          <div class="border-top pt-3 mt-3">
-            <h6 class="mb-3">
-              <i class="fas fa-cog me-2"></i>Gerenciar Assinatura
-            </h6>
-            
-            <div class="card mb-3">
+            <div class="card mb-0">
               <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <span>Assinatura Ativa #<?= $activeSubscription['id'] ?></span>
-                <a href="/secure/adm/subscriptions/view?id=<?= $activeSubscription['id'] ?>" 
-                   class="btn btn-sm btn-light" target="_blank">
+                <a href="/secure/adm/subscriptions/view?id=<?= $activeSubscription['id'] ?>" class="btn btn-sm btn-light" target="_blank">
                   Ver Detalhes <i class="fas fa-external-link-alt ms-1"></i>
                 </a>
               </div>
@@ -187,54 +195,46 @@ ob_start();
                 <div class="border-top pt-3">
                   <div class="d-flex flex-wrap gap-2">
                     <?php if (in_array($activeSubscription['status'], ['active', 'trialing', 'past_due'])): ?>
-                      <button type="button" class="btn btn-sm btn-danger" 
-                              data-bs-toggle="modal" 
-                              data-bs-target="#cancelSubscriptionModal"
-                              data-subscription-id="<?= $activeSubscription['id'] ?>"
-                              data-user-name="<?= htmlspecialchars($profile['name']) ?>">
+                      <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelSubscriptionModal" data-subscription-id="<?= $activeSubscription['id'] ?>" data-user-name="<?= htmlspecialchars($profile['name']) ?>">
                         <i class="fas fa-times-circle me-1"></i>Cancelar Assinatura
                       </button>
                     <?php endif; ?>
                     
                     <?php if ($activeSubscription['status'] === 'trialing'): ?>
-                      <button type="button" class="btn btn-sm btn-info text-white"
-                              data-bs-toggle="modal"
-                              data-bs-target="#extendTrialModal"
-                              data-subscription-id="<?= $activeSubscription['id'] ?>"
-                              data-trial-end="<?= $activeSubscription['trial_end'] ?>"
-                              data-trial-extended-days="<?= (int)($activeSubscription['trial_extended_days'] ?? 0) ?>">
+                      <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#extendTrialModal" data-subscription-id="<?= $activeSubscription['id'] ?>" data-trial-end="<?= $activeSubscription['trial_end'] ?>" data-trial-extended-days="<?= (int)($activeSubscription['trial_extended_days'] ?? 0) ?>">
                         <i class="fas fa-calendar-plus me-1"></i>Estender Trial
                       </button>
                     <?php endif; ?>
                     
-                    <a href="/secure/adm/subscriptions/payments?user_id=<?= $profile['id'] ?>" 
-                       class="btn btn-sm btn-outline-primary">
+                    <a href="/secure/adm/subscriptions/payments?user_id=<?= $profile['id'] ?>" class="btn btn-sm btn-outline-primary">
                       <i class="fas fa-cash-register me-1"></i>Ver Pagamentos
                     </a>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
           <?php else: ?>
-          <div class="border-top pt-3 mt-3">
-            <div class="alert alert-info">
+            <div class="alert alert-info mb-0">
               <i class="fas fa-info-circle me-2"></i>
               Este usuário não possui assinatura ativa.
-              <a href="/secure/adm/subscriptions/grant?user_id=<?= $profile['id'] ?>" 
-                 class="btn btn-sm btn-success ms-3">
+              <a href="/secure/adm/subscriptions/grant?user_id=<?= $profile['id'] ?>" class="btn btn-sm btn-success ms-3">
                 <i class="fas fa-crown me-1"></i>Conceder Tier Manual
               </a>
             </div>
-          </div>
           <?php endif; ?>
-          
-          <!-- NOVA SEÇÃO: Histórico de Ações / Logs de Auditoria -->
-          <div class="border-top pt-3 mt-3">
-            <h6 class="mb-3">
-              <i class="fas fa-history me-2"></i>Histórico de Ações / Logs
-            </h6>
-            
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Histórico de Logs -->
+  <div class="row g-3 mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Histórico de Ações / Logs</h5>
+        </div>
+        <div class="card-body">
             <?php
             // Buscar logs do usuário
             $logs = \App\Services\AuditLogService::getUserLogs((int)$profile['id'], 20);
@@ -242,13 +242,11 @@ ob_start();
             ?>
             
             <?php if (empty($logs)): ?>
-              <div class="alert alert-secondary">
+              <div class="alert alert-secondary mb-0">
                 <i class="fas fa-info-circle me-2"></i>
                 Nenhuma ação registrada para este usuário.
               </div>
             <?php else: ?>
-              <div class="card">
-                <div class="card-body">
                   <div class="timeline">
                     <?php foreach ($logs as $log): 
                       $formatted = \App\Services\AuditLogService::formatLogEntry($log);
@@ -303,14 +301,9 @@ ob_start();
                       <p class="text-muted mb-2">
                         Mostrando 20 de <?= number_format($totalLogs) ?> logs
                       </p>
-                      <!-- Implementar paginação se necessário -->
                     </div>
                   <?php endif; ?>
-                </div>
-              </div>
             <?php endif; ?>
-          </div>
-          
         </div>
       </div>
     </div>
