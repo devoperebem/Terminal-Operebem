@@ -186,4 +186,44 @@ class EmailService
         } catch (\Throwable $__) { /* fallback abaixo */ }
         return $this->sendMail($toEmail, $subject, $html, $text, $toName);
     }
+    public function sendPaymentFailedEmail(string $toEmail, string $toName, string $planName, string $amount): bool
+    {
+        $subject = 'Falha no pagamento da assinatura - Terminal Operebem';
+        $safeName = htmlspecialchars($toName, ENT_QUOTES, 'UTF-8');
+        $safePlan = htmlspecialchars($planName, ENT_QUOTES, 'UTF-8');
+        $baseUrl = (string)(Application::getInstance()->config('app.url') ?? 'https://terminal.operebem.com.br');
+        $text = "Olá $toName,\n\nHouve uma falha ao processar o pagamento da sua assinatura ($planName - $amount). Por favor, verifique seus dados de pagamento para evitar interrupção do serviço.";
+        
+        $html = '<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>'
+          . '<body style="margin:0;padding:0;background:#f6f8fb;">'
+          . '<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f6f8fb;">'
+          . '  <tr><td align="center" style="padding:24px;">'
+          . '    <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06);overflow:hidden;">'
+          . '      <tr><td style="padding:24px 24px 8px 24px; text-align:center;">'
+          . '        <img src="'.$baseUrl.'/assets/images/favicon.png" alt="OpereBem" width="40" height="40" style="border-radius:8px;display:block;margin:0 auto 12px;" />'
+          . '        <div style="font:600 18px/1.2 \'Inter\', Arial, sans-serif;color:#dc2626;">Falha no Pagamento</div>'
+          . '        <div style="font:400 14px/1.4 \'Inter\', Arial, sans-serif;color:#6b7280;margin-top:4px;">Terminal Operebem</div>'
+          . '      </td></tr>'
+          . '      <tr><td style="padding:0 24px 8px 24px;"><hr style="border:none;height:1px;background:#eef2f7;"></td></tr>'
+          . '      <tr><td style="padding:0 24px 24px 24px;">'
+          . '        <div style="font:400 14px/1.6 \'Inter\', Arial, sans-serif;color:#374151;">Olá <strong>'.$safeName.'</strong>,</div>'
+          . '        <div style="font:400 14px/1.6 \'Inter\', Arial, sans-serif;color:#374151;margin-top:8px;">Tentamos processar o pagamento da sua assinatura <strong>'.$safePlan.'</strong> no valor de <strong>'.$amount.'</strong>, mas ocorreu uma falha.</div>'
+          . '        <div style="margin:20px 0; text-align:center;">'
+          . '          <a href="'.$baseUrl.'/app/profile" style="display:inline-block;background:#dc2626;color:#ffffff;border-radius:6px;padding:12px 20px;font-weight:600;text-decoration:none;">Atualizar Pagamento</a>'
+          . '        </div>'
+          . '        <div style="font:400 12px/1.6 \'Inter\', Arial, sans-serif;color:#6b7280;margin-top:12px;">Se você já atualizou seus dados, ignore este email. Faremos uma nova tentativa em breve.</div>'
+          . '      </td></tr>'
+          . '    </table>'
+          . '    <div style="font:400 11px/1.4 \'Inter\', Arial, sans-serif;color:#9ca3af;margin-top:12px;">&copy; '.date('Y').' OpereBem</div>'
+          . '  </td></tr>'
+          . '</table>'
+          . '</body></html>';
+
+        try {
+            $ms = new MailService(); // Tentar usar o MailService legado se existir
+            if ($ms->send($toEmail, $subject, $html)) { return true; }
+        } catch (\Throwable $__) { }
+        
+        return $this->sendMail($toEmail, $subject, $html, $text, $toName);
+    }
 }

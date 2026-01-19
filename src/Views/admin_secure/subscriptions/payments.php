@@ -88,6 +88,7 @@ ob_start();
                             <th>Metodo</th>
                             <th>Data</th>
                             <th>Fatura</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -151,6 +152,13 @@ ob_start();
                                             -
                                         <?php endif; ?>
                                     </td>
+                                    <td>
+                                        <?php if ($payment['status'] === 'succeeded'): ?>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="openRefund(<?= $payment['id'] ?>)" title="Reembolsar">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </td>
                                 </tr>
                                 <?php if ($payment['failure_message']): ?>
                                     <tr class="table-danger">
@@ -208,6 +216,66 @@ ob_start();
         <?php endif; ?>
     </div>
 </div>
+
+<!-- Modal Reembolso -->
+<div class="modal fade" id="refundModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reembolsar Pagamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="refundForm">
+                    <input type="hidden" name="payment_id" id="refund_payment_id">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <div class="mb-3">
+                        <label class="form-label">Valor em Centavos (Opcional)</label>
+                        <input type="number" name="amount_cents" class="form-control" placeholder="Deixe vazio para reembolso total">
+                        <small class="text-muted">Ex: 1000 = R$ 10,00</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Motivo</label>
+                        <textarea name="reason" class="form-control" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="submitRefund()">Confirmar Reembolso</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openRefund(id) {
+    document.getElementById('refund_payment_id').value = id;
+    new bootstrap.Modal(document.getElementById('refundModal')).show();
+}
+
+function submitRefund() {
+    if(!confirm('Tem certeza? Esta ação é irreversível e devolverá o dinheiro ao cliente.')) return;
+    
+    const form = document.getElementById('refundForm');
+    const formData = new FormData(form);
+    
+    fetch('/secure/adm/subscriptions/refund', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) {
+            alert('Reembolso solicitado com sucesso!');
+            location.reload();
+        } else {
+            alert('Erro: ' + data.error);
+        }
+    })
+    .catch(err => alert('Erro de conexao'));
+}
+</script>
 
 <?php
 $content = ob_get_clean();

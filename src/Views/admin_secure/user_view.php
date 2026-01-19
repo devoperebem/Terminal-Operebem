@@ -195,9 +195,14 @@ ob_start();
                     <i class="fas fa-file-signature me-2"></i>
                     <?= $statusLabel ?> #<?= $activeSubscription['id'] ?>
                 </span>
-                <a href="/secure/adm/subscriptions/view?id=<?= $activeSubscription['id'] ?>" class="btn btn-sm btn-light text-dark shadow-sm" target="_blank">
-                  Ver Detalhes <i class="fas fa-external-link-alt ms-1"></i>
-                </a>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="syncSubscription()" class="btn btn-sm btn-outline-light" title="Sincronizar com Stripe">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <a href="/secure/adm/subscriptions/view?id=<?= $activeSubscription['id'] ?>" class="btn btn-sm btn-light text-dark shadow-sm" target="_blank">
+                      Ver Detalhes <i class="fas fa-external-link-alt ms-1"></i>
+                    </a>
+                </div>
               </div>
               <div class="card-body">
                 
@@ -757,7 +762,8 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $csrf = htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8');
-$scripts = <<<SCRIPTS
+ob_start();
+?>
 <div class="modal fade" id="confirmDeleteUserModal" tabindex="-1" aria-labelledby="confirmDeleteUserLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form class="modal-content" method="POST" action="/secure/adm/users/delete">
@@ -769,7 +775,7 @@ $scripts = <<<SCRIPTS
         Tem certeza que deseja excluir o usuário <span id="deleteUserName" class="fw-semibold">#</span>? Esta ação não pode ser desfeita.
       </div>
       <div class="modal-footer">
-        <input type="hidden" name="csrf_token" value="{$csrf}">
+        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
         <input type="hidden" name="id" id="deleteUserId" value="0">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" class="btn btn-danger">Excluir</button>
@@ -867,8 +873,33 @@ $scripts = <<<SCRIPTS
       }
     });
   }
+
+  // Sincronizar Subscription (Global)
+  window.syncSubscription = function() {
+      if(!confirm('Deseja forçar a atualização dos dados da assinatura com o Stripe?')) return;
+      
+      const formData = new FormData();
+      formData.append('user_id', '<?= $profile['id'] ?>');
+      formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+      
+      fetch('/secure/adm/subscriptions/sync', {
+          method: 'POST',
+          body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+          if(data.success) {
+              alert('Sincronização realizada com sucesso!');
+              location.reload();
+          } else {
+              alert('Erro ao sincronizar: ' + (data.error || 'Erro desconhecido'));
+          }
+      })
+      .catch(err => alert('Erro de conexão'));
+  };
 })();
 </script>
-SCRIPTS;
-include __DIR__ . '/../layouts/app.php';
+<?php
+$scripts = ob_get_clean();
+include __DIR__ . '/../../layouts/app.php';
 ?>

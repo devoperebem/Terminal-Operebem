@@ -544,4 +544,54 @@ class SubscriptionService
         
         return $tier;
     }
+    /**
+     * Sincroniza assinaturas do usuário com o Stripe manualmente
+     */
+    public function syncUserSubscription(int $userId): bool
+    {
+        $user = Database::fetch('SELECT stripe_customer_id FROM users WHERE id = ?', [$userId]);
+        if (!$user || empty($user['stripe_customer_id'])) {
+            return false;
+        }
+        
+        $stripe = new StripeService();
+        $result = $stripe->listSubscriptions($user['stripe_customer_id']);
+        
+        if (isset($result['error'])) {
+            return false;
+        }
+        
+        $subscriptions = $result['data'] ?? [];
+        $updatedCount = 0;
+        
+        foreach ($subscriptions as $sub) {
+            $existing = $this->getSubscriptionByStripeId($sub['id']);
+            if ($existing) {
+                // Atualizar dados
+                $status = $sub['status'];
+                $cancelAtPeriodEnd = $sub['cancel_at_period_end'] ?? false;
+                
+                $updateData = [
+                    'status' => $status,
+                    'cancel_at_period_end' => $cancelAtPeriodEnd ? 'true' : 'false',
+                ];
+                
+                if (isset($sub['current_period_end'])) {
+                    $updateData['current_period_end'] = date('Y-m-d H:i:s', $sub['current_period_end']);
+                }
+                
+                if (isset($sub['canceled_at'])) {
+                    $updateData['canceled_at'] = date('Y-m-d H:i:s', $sub['canceled_at']);
+                }
+                
+                $this->updateSubscription($existing['id'], $updateData);
+                $updatedCount++;
+            }
+        }
+        
+        // Sincronizar o tier do usuário baseado no status atualizado
+        $this->syncUserTier($userId);
+        
+        return true;
+    }
 }

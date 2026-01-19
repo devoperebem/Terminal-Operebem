@@ -217,6 +217,18 @@ class StripeService
         $result = $this->request('GET', '/subscriptions/' . $subscriptionId);
         return isset($result['error']) ? null : $result;
     }
+
+    /**
+     * Lista assinaturas de um cliente
+     */
+    public function listSubscriptions(string $customerId, string $status = 'all'): array
+    {
+        return $this->request('GET', '/subscriptions', [
+            'customer' => $customerId,
+            'status' => $status,
+            'limit' => 100,
+        ]);
+    }
     
     /**
      * Cancela uma assinatura ao fim do período
@@ -400,6 +412,29 @@ class StripeService
         }
         
         return $this->request('POST', '/prices', $params);
+    }
+
+    /**
+     * Reembolsa uma cobrança
+     * 
+     * @param string $chargeId ID da cobrança (ch_...) ou PaymentIntent (pi_...)
+     * @param int|null $amountCents Valor em centavos (null para reembolso total)
+     * @return array Resultado do reembolso
+     */
+    public function refundCharge(string $chargeId, ?int $amountCents = null): array
+    {
+        $params = ['charge' => $chargeId]; // Nota: Stripe aceita charge ou payment_intent ID aqui dependendo da versão, mas 'charge' é o padrão
+        
+        // Se for PI, usar payment_intent param
+        if (str_starts_with($chargeId, 'pi_')) {
+            $params = ['payment_intent' => $chargeId];
+        }
+
+        if ($amountCents) {
+            $params['amount'] = $amountCents;
+        }
+        
+        return $this->request('POST', '/refunds', $params);
     }
     
     // =========================================================================

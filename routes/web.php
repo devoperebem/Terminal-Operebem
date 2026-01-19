@@ -275,6 +275,8 @@ $router->post('/secure/adm/subscriptions/extend-trial', [\App\Controllers\Admin\
 $router->get('/secure/adm/subscriptions/payments', [\App\Controllers\Admin\SubscriptionAdminController::class, 'payments'], [SecureAdminMiddleware::class]);
 $router->post('/secure/adm/subscriptions/reset-trial', [\App\Controllers\Admin\SubscriptionAdminController::class, 'resetTrial'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/secure/adm/subscriptions/cancel', [\App\Controllers\Admin\SubscriptionAdminController::class, 'cancelSubscription'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/subscriptions/refund', [\App\Controllers\Admin\SubscriptionAdminController::class, 'refundPayment'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/subscriptions/sync', [\App\Controllers\Admin\SubscriptionAdminController::class, 'syncSubscription'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
 // Secure Admin - User Management Actions (Ações de Gerenciamento de Usuário)
 $router->post('/secure/adm/users/reset-password', [\App\Controllers\AdminSecureController::class, 'resetPassword'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);

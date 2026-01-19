@@ -274,7 +274,8 @@ ob_start();
 <?php
 $content = ob_get_clean();
 
-$scripts = <<<'SCRIPTS'
+ob_start();
+?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const discountModal = new bootstrap.Modal(document.getElementById('discountModal'));
@@ -385,6 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-SCRIPTS;
+<?php
+$scripts = ob_get_clean();
 
 include __DIR__ . '/../../layouts/app.php';
+?>

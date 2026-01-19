@@ -739,4 +739,118 @@ class SubscriptionAdminController
         header("Location: /secure/adm/users/view?id={$userId}");
         exit;
     }
+    /**
+     * Processa reembolso de pagamento
+     * POST /secure/adm/subscriptions/refund
+     */
+    public function refundPayment(): void
+    {
+        $admin = $this->adminAuthService->getCurrentAdmin();
+        
+        // Validar CSRF (via AJAX ou Form)
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            echo json_encode(['success' => false, 'error' => 'Token CSRF invalido']);
+            exit;
+        }
+        
+        $paymentId = (int)($_POST['payment_id'] ?? 0);
+        $amountCents = isset($_POST['amount_cents']) && $_POST['amount_cents'] !== '' ? (int)$_POST['amount_cents'] : null;
+        $reason = trim($_POST['reason'] ?? '');
+        
+        if (!$paymentId || empty($reason)) {
+            echo json_encode(['success' => false, 'error' => 'Dados invalidos']);
+            exit;
+        }
+        
+        // Buscar pagamento
+        $payment = Database::fetch('SELECT * FROM payment_history WHERE id = ?', [$paymentId]);
+        if (!$payment || !$payment['stripe_charge_id']) {
+             echo json_encode(['success' => false, 'error' => 'Pagamento nao encontrado ou nao reembolsavel (sem Charge ID)']);
+             exit;
+        }
+        
+        if ($payment['status'] === 'refunded') {
+             echo json_encode(['success' => false, 'error' => 'Pagamento ja reembolsado']);
+             exit;
+        }
+        
+        try {
+            $stripe = new \App\Services\StripeService();
+            // Charge ID ou PaymentIntent ID
+            $result = $stripe->refundCharge($payment['stripe_charge_id'], $amountCents);
+            
+            if (isset($result['error'])) {
+                echo json_encode(['success' => false, 'error' => 'Erro Stripe: ' . $result['error']['message']]);
+                exit;
+            }
+            
+            // Atualizar status no banco
+            Database::execute(
+                "UPDATE payment_history SET status = 'refunded', updated_at = NOW() WHERE id = ?",
+                [$paymentId]
+            );
+            
+            // Log auditoria
+             \App\Services\AuditLogService::logAdminAction([
+                'admin_id' => $admin['id'],
+                'admin_email' => $admin['email'],
+                'user_id' => $payment['user_id'],
+                'action_type' => 'payment_refunded',
+                'entity_type' => 'payment',
+                'entity_id' => $paymentId,
+                'description' => "Reembolso solicitado. Valor: " . ($amountCents ? $amountCents : 'Total') . ". Motivo: {$reason}",
+            ]);
+            
+            echo json_encode(['success' => true]);
+            
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'error' => 'Excecao: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    /**
+     * Sincroniza assinatura com Stripe
+     * POST /secure/adm/subscriptions/sync
+     */
+    public function syncSubscription(): void
+    {
+        $admin = $this->adminAuthService->getCurrentAdmin();
+        
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            echo json_encode(['success' => false, 'error' => 'Token CSRF invalido']);
+            exit;
+        }
+        
+        $userId = (int)($_POST['user_id'] ?? 0);
+        
+        if (!$userId) {
+            echo json_encode(['success' => false, 'error' => 'ID de usuario invalido']);
+            exit;
+        }
+        
+        try {
+            $result = $this->getSubscriptionService()->syncUserSubscription($userId);
+            
+            if ($result) {
+                 // Log auditoria
+                 \App\Services\AuditLogService::logAdminAction([
+                    'admin_id' => $admin['id'],
+                    'admin_email' => $admin['email'],
+                    'user_id' => $userId,
+                    'action_type' => 'subscription_synced',
+                    'entity_type' => 'user',
+                    'entity_id' => $userId,
+                    'description' => "Sincronizacao manual com Stripe executada",
+                ]);
+                 echo json_encode(['success' => true]);
+            } else {
+                 echo json_encode(['success' => false, 'error' => 'Sincronizacao falhou ou sem dados no Stripe']);
+            }
+
+        } catch (\Exception $e) {
+             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
 }

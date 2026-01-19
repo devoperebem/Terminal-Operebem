@@ -461,7 +461,28 @@ class StripeWebhookController
             'invoice_id' => $invoice['id'] ?? null,
         ]);
         
-        // TODO: Trigger email de falha de pagamento
+        // Enviar email de falha de pagamento
+        try {
+             $userData = Database::fetch('SELECT name, email FROM users WHERE id = ?', [$userId]);
+             if ($userData) {
+                 $emailService = new \App\Services\EmailService();
+                 $planName = $existing['plan_slug'] ?? 'Assinatura';
+                 // Tentar buscar nome bonito do plano
+                 if ($existing && $existing['plan_slug']) {
+                     $planDetails = Database::fetch('SELECT name FROM subscription_plans WHERE slug = ?', [$existing['plan_slug']]);
+                     if ($planDetails) {
+                         $planName = $planDetails['name'];
+                     }
+                 }
+                 
+                 $amount = 'R$ ' . number_format(($invoice['amount_due'] ?? 0) / 100, 2, ',', '.');
+                 $emailService->sendPaymentFailedEmail($userData['email'], $userData['name'], $planName, $amount);
+                 
+                 $this->log('Payment failed email sent', ['user_id' => $userId]);
+             }
+        } catch (\Throwable $e) {
+             $this->log('Failed to send failure email', ['error' => $e->getMessage()], 'error');
+        }
         
         return true;
     }
