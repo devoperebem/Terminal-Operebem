@@ -185,7 +185,7 @@ ob_start();
                                             <span class="badge bg-secondary">Stripe</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= formatDate($sub['created_at']) ?></td>
+                                    <td><?= date('d/m/Y H:i', strtotime($sub['created_at'])) ?></td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <a href="/secure/adm/subscriptions/view?id=<?= $sub['id'] ?>" class="btn btn-outline-primary" title="Ver detalhes">

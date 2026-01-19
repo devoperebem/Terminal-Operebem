@@ -467,7 +467,20 @@ class AdminSecureController extends BaseController
         try { $courseGrants = Database::fetchAll('SELECT ca.course_id, ca.expires_at, c.title FROM course_access ca JOIN courses c ON c.id = ca.course_id WHERE ca.user_id = :u ORDER BY c.title ASC', ['u'=>$id], 'aluno'); } catch (\Throwable $__) {}
         try { $lessonGrants = Database::fetchAll('SELECT la.lesson_id, la.expires_at, l.title, l.position, l.course_id, c.title AS course_title FROM lesson_access la JOIN lessons l ON l.id = la.lesson_id JOIN courses c ON c.id = l.course_id WHERE la.user_id = :u ORDER BY c.title ASC, l.position ASC', ['u'=>$id], 'aluno'); } catch (\Throwable $__) {}
         try { $lessonProgress = Database::fetchAll('SELECT p.lesson_id, p.last_second, p.completed, p.updated_at, l.title, l.position, l.duration_seconds, l.course_id, c.title AS course_title FROM lesson_progress p JOIN lessons l ON l.id = p.lesson_id JOIN courses c ON c.id = l.course_id WHERE p.user_id = :u ORDER BY p.updated_at DESC LIMIT 300', ['u'=>$id], 'aluno'); } catch (\Throwable $__) {}
-        $this->view('admin_secure/user_view', [ 'title' => 'Usuário #' . (int)$u['id'], 'profile' => $u, 'stats' => $stats, 'courseGrants' => $courseGrants, 'lessonGrants' => $lessonGrants, 'progress' => $lessonProgress, 'footerVariant' => 'admin-auth' ]);
+        // Buscar assinatura ativa do usuário
+        $activeSubscription = null;
+        try {
+            $activeSubscription = Database::fetch(
+                "SELECT s.*, p.name as plan_name 
+                 FROM subscriptions s 
+                 LEFT JOIN subscription_plans p ON s.plan_slug = p.slug 
+                 WHERE s.user_id = ? AND s.status IN ('active', 'trialing', 'past_due') 
+                 ORDER BY s.created_at DESC LIMIT 1",
+                [$id]
+            );
+        } catch (\Throwable $__) {}
+
+        $this->view('admin_secure/user_view', [ 'title' => 'Usuário #' . (int)$u['id'], 'profile' => $u, 'stats' => $stats, 'courseGrants' => $courseGrants, 'lessonGrants' => $lessonGrants, 'progress' => $lessonProgress, 'activeSubscription' => $activeSubscription, 'footerVariant' => 'admin-auth' ]);
     }
 
     public function editUser(): void
