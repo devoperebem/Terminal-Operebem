@@ -157,50 +157,118 @@ ob_start();
         <div class="card-header bg-white">
           <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Gerenciar Assinatura</h5>
         </div>
-        <div class="card-body">
-          <?php if ($activeSubscription): ?>
+<div class="card-body">
+          <?php if ($activeSubscription): 
+              $status = $activeSubscription['status'];
+              $statusColors = [
+                  'active' => 'bg-success',
+                  'trialing' => 'bg-info',
+                  'past_due' => 'bg-danger',
+                  'canceled' => 'bg-secondary',
+                  'incomplete' => 'bg-warning',
+                  'incomplete_expired' => 'bg-secondary',
+                  'unpaid' => 'bg-danger'
+              ];
+              $statusLabels = [
+                  'active' => 'Ativa',
+                  'trialing' => 'Em Período de Testes',
+                  'past_due' => 'Vencida / Pendente',
+                  'canceled' => 'Cancelada',
+                  'incomplete' => 'Incompleta',
+                  'incomplete_expired' => 'Expirada',
+                  'unpaid' => 'Não Paga'
+              ];
+              $cardColor = $statusColors[$status] ?? 'bg-primary';
+              $statusLabel = $statusLabels[$status] ?? strtoupper($status);
+              
+              $isTrial = $status === 'trialing';
+              $isCanceled = $status === 'canceled';
+              // Verifica se há cancelamento agendado (ex: status active mas com ends_at definido)
+              $cancelAtPeriodEnd = false;
+              if (!$isCanceled && !empty($activeSubscription['ends_at']) && strtotime($activeSubscription['ends_at']) > time()) {
+                  $cancelAtPeriodEnd = true;
+              }
+          ?>
             <div class="card mb-0">
-              <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <span>Assinatura Ativa #<?= $activeSubscription['id'] ?></span>
-                <a href="/secure/adm/subscriptions/view?id=<?= $activeSubscription['id'] ?>" class="btn btn-sm btn-light" target="_blank">
+              <div class="card-header <?= $cardColor ?> text-white d-flex justify-content-between align-items-center">
+                <span class="fw-bold">
+                    <i class="fas fa-file-signature me-2"></i>
+                    <?= $statusLabel ?> #<?= $activeSubscription['id'] ?>
+                </span>
+                <a href="/secure/adm/subscriptions/view?id=<?= $activeSubscription['id'] ?>" class="btn btn-sm btn-light text-dark shadow-sm" target="_blank">
                   Ver Detalhes <i class="fas fa-external-link-alt ms-1"></i>
                 </a>
               </div>
               <div class="card-body">
+                
+                <?php if ($cancelAtPeriodEnd): ?>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Cancelamento Agendado!</strong> Acesso até <?= date('d/m/Y', strtotime($activeSubscription['ends_at'])) ?>.
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($isCanceled): ?>
+                    <div class="alert alert-secondary">
+                        <i class="fas fa-ban me-2"></i>
+                        <strong>Assinatura Cancelada.</strong> O usuário não tem mais acesso aos benefícios.
+                    </div>
+                <?php endif; ?>
+
                 <div class="row g-3 mb-3">
                   <div class="col-md-3">
-                    <small class="text-muted">Plano</small>
-                    <div class="fw-bold"><?= htmlspecialchars($activeSubscription['plan_name'] ?? $activeSubscription['plan_slug']) ?></div>
-                  </div>
-                  <div class="col-md-4">
-                    <small class="text-muted">Stripe Subscription ID</small>
-                    <div class="font-monospace small"><?= htmlspecialchars($activeSubscription['stripe_subscription_id'] ?? 'Manual') ?></div>
+                    <small class="text-muted d-block text-uppercase" style="font-size:0.75rem">Plano</small>
+                    <div class="fw-bold fs-5"><?= htmlspecialchars($activeSubscription['plan_name'] ?? $activeSubscription['plan_slug']) ?></div>
                   </div>
                   <div class="col-md-3">
-                    <small class="text-muted">Data de Início</small>
-                    <div><?= date('d/m/Y', strtotime($activeSubscription['created_at'])) ?></div>
+                    <small class="text-muted d-block text-uppercase" style="font-size:0.75rem">Data de Início</small>
+                    <div class="fs-6"><?= date('d/m/Y', strtotime($activeSubscription['created_at'])) ?></div>
                   </div>
-                  <div class="col-md-2">
-                    <small class="text-muted">Próxima Cobrança</small>
-                    <div>
+
+                  <?php if ($isTrial): 
+                      $trialEnd = strtotime($activeSubscription['trial_end'] ?? '');
+                      $daysLeft = $trialEnd ? ceil(($trialEnd - time()) / 86400) : 0;
+                      $daysLeft = $daysLeft < 0 ? 0 : $daysLeft;
+                  ?>
+                  <div class="col-md-3">
+                    <small class="text-muted d-block text-uppercase" style="font-size:0.75rem">Fim do Trial</small>
+                    <div class="fw-bold fs-6 text-info">
+                        <?= $trialEnd ? date('d/m/Y H:i', $trialEnd) : 'N/A' ?>
+                        <?php if ($trialEnd): ?>
+                             <span class="badge bg-info text-white ms-1"><?= $daysLeft ?> dias rest.</span>
+                        <?php endif; ?>
+                    </div>
+                  </div>
+                  <?php else: ?>
+                  <div class="col-md-3">
+                    <small class="text-muted d-block text-uppercase" style="font-size:0.75rem">Próxima Cobrança/Fim</small>
+                    <div class="fs-6">
                       <?php if (!empty($activeSubscription['current_period_end'])): ?>
                         <?= date('d/m/Y', strtotime($activeSubscription['current_period_end'])) ?>
+                      <?php elseif (!empty($activeSubscription['ends_at'])): ?>
+                         <?= date('d/m/Y', strtotime($activeSubscription['ends_at'])) ?>
                       <?php else: ?>
                         —
                       <?php endif; ?>
                     </div>
                   </div>
+                  <?php endif; ?>
+
+                  <div class="col-md-3">
+                    <small class="text-muted d-block text-uppercase" style="font-size:0.75rem">Stripe ID</small>
+                    <div class="font-monospace small text-truncate" title="<?= htmlspecialchars($activeSubscription['stripe_subscription_id'] ?? 'Manual') ?>"><?= htmlspecialchars($activeSubscription['stripe_subscription_id'] ?? 'Manual') ?></div>
+                  </div>
                 </div>
                 
                 <div class="border-top pt-3">
                   <div class="d-flex flex-wrap gap-2">
-                    <?php if (in_array($activeSubscription['status'], ['active', 'trialing', 'past_due'])): ?>
-                      <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelSubscriptionModal" data-subscription-id="<?= $activeSubscription['id'] ?>" data-user-name="<?= htmlspecialchars($profile['name']) ?>">
+                    <?php if (!$isCanceled && !$cancelAtPeriodEnd && in_array($activeSubscription['status'], ['active', 'trialing', 'past_due'])): ?>
+                      <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelSubscriptionModal" data-subscription-id="<?= $activeSubscription['id'] ?>" data-user-name="<?= htmlspecialchars($profile['name']) ?>">
                         <i class="fas fa-times-circle me-1"></i>Cancelar Assinatura
                       </button>
                     <?php endif; ?>
                     
-                    <?php if ($activeSubscription['status'] === 'trialing'): ?>
+                    <?php if ($isTrial): ?>
                       <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#extendTrialModal" data-subscription-id="<?= $activeSubscription['id'] ?>" data-trial-end="<?= $activeSubscription['trial_end'] ?>" data-trial-extended-days="<?= (int)($activeSubscription['trial_extended_days'] ?? 0) ?>">
                         <i class="fas fa-calendar-plus me-1"></i>Estender Trial
                       </button>
@@ -214,9 +282,11 @@ ob_start();
               </div>
             </div>
           <?php else: ?>
-            <div class="alert alert-info mb-0">
-              <i class="fas fa-info-circle me-2"></i>
-              Este usuário não possui assinatura ativa.
+            <div class="alert alert-secondary mb-0 d-flex align-items-center justify-content-between">
+              <div>
+                  <i class="fas fa-info-circle me-2"></i>
+                  Este usuário nunca teve uma assinatura registrada.
+              </div>
               <a href="/secure/adm/subscriptions/grant?user_id=<?= $profile['id'] ?>" class="btn btn-sm btn-success ms-3">
                 <i class="fas fa-crown me-1"></i>Conceder Tier Manual
               </a>

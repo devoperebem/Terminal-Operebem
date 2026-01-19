@@ -471,10 +471,10 @@ class AdminSecureController extends BaseController
         $activeSubscription = null;
         try {
             $activeSubscription = Database::fetch(
-                "SELECT s.*, p.name as plan_name 
+                 "SELECT s.*, p.name as plan_name 
                  FROM subscriptions s 
                  LEFT JOIN subscription_plans p ON s.plan_slug = p.slug 
-                 WHERE s.user_id = ? AND s.status IN ('active', 'trialing', 'past_due') 
+                 WHERE s.user_id = ? 
                  ORDER BY s.created_at DESC LIMIT 1",
                 [$id]
             );
