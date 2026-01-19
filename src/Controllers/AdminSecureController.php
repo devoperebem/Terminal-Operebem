@@ -909,4 +909,137 @@ SQL);
         }
         exit;
     }
+
+    /**
+     * Reseta senha do usuário e envia por email
+     * POST /secure/adm/users/reset-password
+     */
+    public function resetPassword(): void
+    {
+        if (!$this->validateCsrf()) {
+            $_SESSION['error'] = 'Token CSRF inválido';
+            header('Location: /secure/adm/users');
+            exit;
+        }
+
+        $userId = (int)($_POST['user_id'] ?? 0);
+        $reason = trim($_POST['reason'] ?? '');
+        $logoutAll = isset($_POST['logout_all']) && $_POST['logout_all'] === '1';
+
+        if (!$userId || empty($reason)) {
+            $_SESSION['error'] = 'Dados inválidos';
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+
+        // Buscar usuário
+        $user = Database::fetch('SELECT * FROM users WHERE id = ?', [$userId]);
+        
+        if (!$user) {
+            $_SESSION['error'] = 'Usuário não encontrado';
+            header('Location: /secure/adm/users');
+            exit;
+        }
+
+        // Gerar senha aleatória de 12 caracteres
+        $newPassword = bin2hex(random_bytes(6));
+        $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        // Atualizar senha no banco
+        Database::execute(
+            'UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?',
+            [$passwordHash, $userId]
+        );
+
+        // Deslogar de todos dispositivos se solicitado
+        if ($logoutAll) {
+            Database::execute('DELETE FROM remember_tokens WHERE user_id = ?', [$userId]);
+        }
+
+        // Enviar email com nova senha
+        try {
+            $emailService = new EmailService();
+            $emailService->sendAdminNewPassword($user['name'], $newPassword, $user['email']);
+        } catch (\Throwable $e) {
+            error_log("[ADMIN] Erro ao enviar email de reset: " . $e->getMessage());
+        }
+
+        // Log de auditoria
+        $admin = $this->adminAuth->getCurrentAdmin();
+        \App\Services\AuditLogService::logAdminAction([
+            'admin_id' => $admin['id'],
+            'admin_email' => $admin['email'],
+            'user_id' => $userId,
+            'action_type' => 'password_reset_by_admin',
+            'entity_type' => 'user',
+            'entity_id' => $userId,
+            'description' => "Senha resetada pelo admin. Motivo: {$reason}",
+            'changes' => [
+                'logout_all' => $logoutAll,
+                'reason' => $reason
+            ]
+        ]);
+
+        error_log("[ADMIN] Senha do usuário #{$userId} resetada por {$admin['email']}. Motivo: {$reason}");
+
+        $_SESSION['success'] = 'Senha resetada com sucesso. Nova senha enviada por email.';
+        header("Location: /secure/adm/users/view?id={$userId}");
+        exit;
+    }
+
+    /**
+     * Desloga usuário de todos os dispositivos
+     * POST /secure/adm/users/logout-all-devices
+     */
+    public function logoutAllDevices(): void
+    {
+        if (!$this->validateCsrf()) {
+            $_SESSION['error'] = 'Token CSRF inválido';
+            header('Location: /secure/adm/users');
+            exit;
+        }
+
+        $userId = (int)($_POST['user_id'] ?? 0);
+        $reason = trim($_POST['reason'] ?? '');
+
+        if (!$userId || empty($reason)) {
+            $_SESSION['error'] = 'Dados inválidos';
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+
+        // Buscar usuário
+        $user = Database::fetch('SELECT * FROM users WHERE id = ?', [$userId]);
+        
+        if (!$user) {
+            $_SESSION['error'] = 'Usuário não encontrado';
+            header('Location: /secure/adm/users');
+            exit;
+        }
+
+        // Deletar todos remember_tokens do usuário
+        $deletedCount = Database::execute('DELETE FROM remember_tokens WHERE user_id = ?', [$userId]);
+
+        // Log de auditoria
+        $admin = $this->adminAuth->getCurrentAdmin();
+        \App\Services\AuditLogService::logAdminAction([
+            'admin_id' => $admin['id'],
+            'admin_email' => $admin['email'],
+            'user_id' => $userId,
+            'action_type' => 'logout_all_devices',
+            'entity_type' => 'user',
+            'entity_id' => $userId,
+            'description' => "Usuário deslogado de todos dispositivos. Motivo: {$reason}",
+            'changes' => [
+                'tokens_deleted' => $deletedCount,
+                'reason' => $reason
+            ]
+        ]);
+
+        error_log("[ADMIN] Usuário #{$userId} deslogado de todos dispositivos por {$admin['email']}. Motivo: {$reason}");
+
+        $_SESSION['success'] = 'Usuário deslogado de todos dispositivos com sucesso';
+        header("Location: /secure/adm/users/view?id={$userId}");
+        exit;
+    }
 }

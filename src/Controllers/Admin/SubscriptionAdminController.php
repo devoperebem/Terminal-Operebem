@@ -34,6 +34,14 @@ class SubscriptionAdminController
     }
     
     /**
+     * Valida token CSRF
+     */
+    private function validateCsrf(string $token): bool
+    {
+        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+    }
+    
+    /**
      * Lista todas as assinaturas
      * GET /secure/adm/subscriptions
      */
@@ -278,45 +286,6 @@ class SubscriptionAdminController
     }
     
     /**
-     * Processa extensão de trial
-     * POST /secure/adm/subscriptions/extend-trial
-     */
-    public function extendTrial(): void
-    {
-        $admin = $this->adminAuthService->getCurrentAdmin();
-        
-        // Validar CSRF
-        $token = $_POST['csrf_token'] ?? '';
-        if (!$this->validateCsrf($token)) {
-            header('Location: /secure/adm/subscriptions/extend-trial?error=csrf');
-            exit;
-        }
-        
-        $userId = (int)($_POST['user_id'] ?? 0);
-        $days = (int)($_POST['days'] ?? 0);
-        $reason = trim($_POST['reason'] ?? '');
-        
-        if (!$userId || $days < 1 || $days > 365) {
-            header('Location: /secure/adm/subscriptions/extend-trial?user_id=' . $userId . '&error=invalid');
-            exit;
-        }
-        
-        try {
-            $result = $this->getSubscriptionService()->extendTrial($userId, $days, $admin['id'], $reason);
-            
-            if ($result['success']) {
-                header('Location: /secure/adm/subscriptions?success=trial_extended');
-            } else {
-                header('Location: /secure/adm/subscriptions/extend-trial?user_id=' . $userId . '&error=' . urlencode($result['error']));
-            }
-        } catch (\Throwable $e) {
-            error_log("[SubscriptionAdmin] Erro ao estender trial: " . $e->getMessage());
-            header('Location: /secure/adm/subscriptions/extend-trial?user_id=' . $userId . '&error=exception');
-        }
-        exit;
-    }
-    
-    /**
      * Histórico de pagamentos geral
      * GET /secure/adm/subscriptions/payments
      */
@@ -511,11 +480,123 @@ class SubscriptionAdminController
     }
     
     /**
-     * Validação simples de CSRF
+     * Estende trial com validação de limite máximo
+     * POST /secure/adm/subscriptions/extend-trial
      */
-    private function validateCsrf(string $token): bool
+    public function extendTrial(): void
     {
-        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+        $admin = $this->adminAuthService->getCurrentAdmin();
+        
+        // Validar CSRF
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $_SESSION['error'] = 'Token CSRF inválido';
+            header('Location: /secure/adm/subscriptions');
+            exit;
+        }
+        
+        $subscriptionId = (int)($_POST['subscription_id'] ?? 0);
+        $userId = (int)($_POST['user_id'] ?? 0);
+        $additionalDays = (int)($_POST['additional_days'] ?? 0);
+        $reason = trim($_POST['reason'] ?? '');
+        
+        // Se escolheu "custom", usar o valor de custom_days
+        if ($additionalDays === 0 && isset($_POST['custom_days'])) {
+            $additionalDays = (int)$_POST['custom_days'];
+        }
+        
+        if (!$subscriptionId || !$additionalDays || empty($reason)) {
+            $_SESSION['error'] = 'Dados inválidos';
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+        
+        // Buscar assinatura
+        $subscription = Database::fetch(
+            'SELECT * FROM subscriptions WHERE id = ? AND user_id = ?',
+            [$subscriptionId, $userId]
+        );
+        
+        if (!$subscription || $subscription['status'] !== 'trialing') {
+            $_SESSION['error'] = 'Assinatura não encontrada ou não está em trial';
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+        
+        // Validar limite de extensão
+        $maxExtension = 60; // dias
+        $alreadyExtended = (int)($subscription['trial_extended_days'] ?? 0);
+        $remaining = $maxExtension - $alreadyExtended;
+        
+        if ($remaining <= 0) {
+            $_SESSION['error'] = 'Limite de extensão de trial atingido (máximo: 60 dias)';
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+        
+        if ($additionalDays > $remaining) {
+            $_SESSION['error'] = "Só é possível estender mais {$remaining} dias";
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+        
+        // Calcular nova data de trial_end
+        $currentTrialEnd = strtotime($subscription['trial_end']);
+        $newTrialEnd = $currentTrialEnd + ($additionalDays * 86400);
+        
+        // Atualizar no Stripe (se não for manual)
+        if ($subscription['stripe_subscription_id']) {
+            try {
+                $stripe = new \App\Services\StripeService();
+                $result = $stripe->updateSubscriptionTrial($subscription['stripe_subscription_id'], $newTrialEnd);
+                
+                if (isset($result['error'])) {
+                    error_log("[ADMIN] Erro ao estender trial no Stripe: " . $result['error']['message']);
+                    $_SESSION['error'] = 'Erro ao estender trial no Stripe';
+                    header("Location: /secure/adm/users/view?id={$userId}");
+                    exit;
+                }
+            } catch (\Exception $e) {
+                error_log("[ADMIN] Erro ao estender trial: " . $e->getMessage());
+                $_SESSION['error'] = 'Erro ao estender trial';
+                header("Location: /secure/adm/users/view?id={$userId}");
+                exit;
+            }
+        }
+        
+        // Atualizar no banco
+        Database::execute(
+            'UPDATE subscriptions 
+             SET trial_end = ?, 
+                 trial_extended_days = trial_extended_days + ?,
+                 updated_at = NOW()
+             WHERE id = ?',
+            [date('Y-m-d H:i:s', $newTrialEnd), $additionalDays, $subscriptionId]
+        );
+        
+        // Log de auditoria
+        $newTotalExtended = $alreadyExtended + $additionalDays;
+        \App\Services\AuditLogService::logAdminAction([
+            'admin_id' => $admin['id'],
+            'admin_email' => $admin['email'],
+            'user_id' => $userId,
+            'action_type' => 'trial_extended',
+            'entity_type' => 'subscription',
+            'entity_id' => $subscriptionId,
+            'description' => "Trial estendido: +{$additionalDays} dias. Total acumulado: {$newTotalExtended} dias (limite: 60). Motivo: {$reason}",
+            'changes' => [
+                'additional_days' => $additionalDays,
+                'old_trial_end' => $subscription['trial_end'],
+                'new_trial_end' => date('Y-m-d H:i:s', $newTrialEnd),
+                'total_extended_days' => $newTotalExtended,
+                'reason' => $reason
+            ]
+        ]);
+        
+        error_log("[ADMIN] Trial da assinatura #{$subscriptionId} estendido em {$additionalDays} dias por {$admin['email']}");
+        
+        $_SESSION['success'] = "Trial estendido com sucesso (+{$additionalDays} dias)";
+        header("Location: /secure/adm/users/view?id={$userId}");
+        exit;
     }
     
     /**
@@ -556,6 +637,106 @@ class SubscriptionAdminController
             error_log("[SubscriptionAdmin] Erro ao resetar trial: " . $e->getMessage());
             header('Location: /secure/adm/users/view?id=' . $userId . '&error=exception');
         }
+        exit;
+    }
+    
+    /**
+     * Cancela assinatura de um usuário
+     * POST /secure/adm/subscriptions/cancel
+     */
+    public function cancelSubscription(): void
+    {
+        $admin = $this->adminAuthService->getCurrentAdmin();
+        
+        // Validar CSRF
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $_SESSION['error'] = 'Token CSRF inválido';
+            header('Location: /secure/adm/users');
+            exit;
+        }
+        
+        $subscriptionId = (int)($_POST['subscription_id'] ?? 0);
+        $userId = (int)($_POST['user_id'] ?? 0);
+        $cancelType = $_POST['cancel_type'] ?? 'at_period_end';
+        $reason = trim($_POST['reason'] ?? '');
+        
+        if (!$subscriptionId || !$userId || empty($reason)) {
+            $_SESSION['error'] = 'Dados inválidos';
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+        
+        // Buscar assinatura
+        $subscription = Database::fetch(
+            'SELECT * FROM subscriptions WHERE id = ? AND user_id = ?',
+            [$subscriptionId, $userId]
+        );
+        
+        if (!$subscription) {
+            $_SESSION['error'] = 'Assinatura não encontrada';
+            header("Location: /secure/adm/users/view?id={$userId}");
+            exit;
+        }
+        
+        // Cancelar no Stripe (se não for manual)
+        $stripe = new \App\Services\StripeService();
+        $stripeCanceled = false;
+        
+        if ($subscription['stripe_subscription_id']) {
+            try {
+                if ($cancelType === 'immediately') {
+                    $result = $stripe->cancelSubscriptionImmediately($subscription['stripe_subscription_id']);
+                } else {
+                    $result = $stripe->cancelSubscriptionAtPeriodEnd($subscription['stripe_subscription_id']);
+                }
+                
+                $stripeCanceled = !isset($result['error']);
+            } catch (\Exception $e) {
+                error_log("[ADMIN] Erro ao cancelar no Stripe: " . $e->getMessage());
+            }
+        }
+        
+        // Atualizar status no banco
+        if ($cancelType === 'immediately' || !$subscription['stripe_subscription_id']) {
+            // Cancelamento imediato ou manual
+            Database::execute(
+                'UPDATE subscriptions SET status = ?, updated_at = NOW() WHERE id = ?',
+                ['canceled', $subscriptionId]
+            );
+            
+            Database::execute(
+                'UPDATE users SET tier = ? WHERE id = ?',
+                ['FREE', $userId]
+            );
+        } else {
+            // Cancelamento ao fim do período
+            Database::execute(
+                'UPDATE subscriptions SET cancel_at_period_end = TRUE, updated_at = NOW() WHERE id = ?',
+                [$subscriptionId]
+            );
+        }
+        
+        // Log de auditoria
+        \App\Services\AuditLogService::logAdminAction([
+            'admin_id' => $admin['id'],
+            'admin_email' => $admin['email'],
+            'user_id' => $userId,
+            'action_type' => 'subscription_canceled',
+            'entity_type' => 'subscription',
+            'entity_id' => $subscriptionId,
+            'description' => "Assinatura cancelada ({$cancelType}). Motivo: {$reason}",
+            'changes' => [
+                'cancel_type' => $cancelType,
+                'reason' => $reason,
+                'stripe_canceled' => $stripeCanceled,
+                'old_status' => $subscription['status']
+            ]
+        ]);
+        
+        error_log("[ADMIN] Assinatura #{$subscriptionId} cancelada ({$cancelType}) por {$admin['email']}. Motivo: {$reason}");
+        
+        $_SESSION['success'] = 'Assinatura cancelada com sucesso';
+        header("Location: /secure/adm/users/view?id={$userId}");
         exit;
     }
 }

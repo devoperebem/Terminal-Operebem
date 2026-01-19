@@ -134,6 +134,22 @@ class ProfileController extends BaseController
         $success = $this->authService->updateUserPreferences($user['id'], $preferences);
 
         if ($success) {
+            // Log de auditoria
+            \App\Services\AuditLogService::logUserAction([
+                'user_id' => $user['id'],
+                'user_email' => $user['email'],
+                'action_type' => 'profile_updated',
+                'entity_type' => 'user',
+                'entity_id' => $user['id'],
+                'description' => 'Preferências do perfil atualizadas',
+                'changes' => [
+                    'theme' => $preferences['theme'],
+                    'timezone' => $preferences['timezone'],
+                    'media_card' => $preferences['media_card'],
+                    'advanced_snapshot' => $preferences['advanced_snapshot']
+                ]
+            ]);
+            
             // Atualizar timezone na sessão
             $_SESSION['user_timezone'] = $timezone;
             
@@ -193,6 +209,16 @@ class ProfileController extends BaseController
                 'password' => $hashedPassword,
                 'updated_at' => date('Y-m-d H:i:s')
             ], ['id' => $user['id']]);
+
+            // Log de auditoria
+            \App\Services\AuditLogService::logUserAction([
+                'user_id' => $user['id'],
+                'user_email' => $user['email'],
+                'action_type' => 'password_changed',
+                'entity_type' => 'user',
+                'entity_id' => $user['id'],
+                'description' => 'Senha alterada pelo usuário'
+            ]);
 
             $this->json([
                 'success' => true,
@@ -265,6 +291,17 @@ class ProfileController extends BaseController
                     $this->json(['success' => false, 'message' => 'Não foi possível salvar a imagem enviada']);
                 }
             }
+            
+            // Log de auditoria
+            \App\Services\AuditLogService::logUserAction([
+                'user_id' => $user['id'],
+                'user_email' => $user['email'],
+                'action_type' => 'avatar_changed',
+                'entity_type' => 'user',
+                'entity_id' => $user['id'],
+                'description' => 'Foto de perfil alterada'
+            ]);
+            
             $url = '/uploads/avatars/' . $user['id'] . $ext . '?v=' . time();
             $this->json(['success' => true, 'message' => 'Foto de perfil atualizada!', 'url' => $url]);
         }
@@ -296,6 +333,16 @@ class ProfileController extends BaseController
         if (!$ok) {
             $this->json(['success' => false, 'message' => 'Erro ao salvar imagem']);
         }
+
+        // Log de auditoria
+        \App\Services\AuditLogService::logUserAction([
+            'user_id' => $user['id'],
+            'user_email' => $user['email'],
+            'action_type' => 'avatar_changed',
+            'entity_type' => 'user',
+            'entity_id' => $user['id'],
+            'description' => 'Foto de perfil alterada'
+        ]);
 
         $url = '/uploads/avatars/' . $user['id'] . '.png?v=' . time();
         $this->json(['success' => true, 'message' => 'Foto de perfil atualizada!', 'url' => $url]);
