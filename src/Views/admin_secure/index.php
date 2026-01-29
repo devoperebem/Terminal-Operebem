@@ -14,7 +14,6 @@ ob_start();
 .chart-container { position: relative; height: 300px; }
 .shortcut-btn { transition: all 0.2s; }
 .shortcut-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-.badge-xp { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 .table-sm td, .table-sm th { padding: 0.5rem; font-size: 0.875rem; }
 </style>
 
@@ -299,7 +298,7 @@ ob_start();
                           <?= htmlspecialchars($user['name'] ?? 'N/A') ?>
                         </a>
                       </td>
-                      <td class="text-center"><span class="badge bg-info"><?= $user['level'] ?? 0 ?></span></td>
+                      <td class="text-center"><span class="badge badge-level"><?= $user['level'] ?? 0 ?></span></td>
                       <td class="text-end"><strong><?= number_format($user['xp'] ?? 0, 0, ',', '.') ?></strong></td>
                     </tr>
                   <?php endforeach; ?>

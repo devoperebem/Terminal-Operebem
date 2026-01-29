@@ -223,3 +223,38 @@ html.dark-blue .hero-stat-icon { background: linear-gradient(135deg, #25486b, #1
   .hero-stats { flex-wrap: wrap; flex-direction: row; justify-content: center; gap: .75rem; }
   .hero-stat-card { min-width: auto; width: calc(50% - .5rem); padding: .9rem 1.1rem; }
 }
+
+/* Admin Dashboard Badges - Better contrast for dark themes */
+html.dark .badge-level,
+html.dark-blue .badge-level,
+html.all-black .badge-level {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+}
+
+html.dark .badge-xp,
+html.dark-blue .badge-xp,
+html.all-black .badge-xp {
+  background: linear-gradient(135deg, #4338ca 0%, #6b21a8 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+}
+
+html.dark .badge.bg-success,
+html.dark-blue .badge.bg-success,
+html.all-black .badge.bg-success {
+  background-color: #16a34a !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+html.dark .badge.bg-danger,
+html.dark-blue .badge.bg-danger,
+html.all-black .badge.bg-danger {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}

@@ -19,3 +19,18 @@ html.light .media-percentage.neutral { color: #6c757d; border-color: rgba(108,11
 
 /* Public header hover colors on light */
 html.light .modern-header .nav-link:hover { background: rgba(30,64,175,0.08); }
+
+/* Admin Dashboard Badges - Consistent styling for light theme */
+html.light .badge-level {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+}
+
+html.light .badge-xp {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+}
