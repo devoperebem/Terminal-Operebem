@@ -258,3 +258,18 @@ html.all-black .badge.bg-danger {
   color: #ffffff !important;
   font-weight: 600;
 }
+
+/* Admin Dashboard Table Headers - Fix sticky headers with bg-white */
+html.dark .table thead.sticky-top.bg-white,
+html.dark-blue .table thead.sticky-top.bg-white,
+html.all-black .table thead.sticky-top.bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+html.dark .table thead.sticky-top th,
+html.dark-blue .table thead.sticky-top th,
+html.all-black .table thead.sticky-top th {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 2px solid var(--border-color) !important;
+}
