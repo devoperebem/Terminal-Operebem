@@ -273,3 +273,81 @@ html.all-black .table thead.sticky-top th {
   color: var(--text-primary) !important;
   border-bottom: 2px solid var(--border-color) !important;
 }
+
+/* Admin Elements - Fix bg-white and bg-light contrast issues */
+html.dark .card-header.bg-white,
+html.dark-blue .card-header.bg-white,
+html.all-black .card-header.bg-white {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+html.dark .bg-light,
+html.dark-blue .bg-light,
+html.all-black .bg-light {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+html.dark .card.bg-light,
+html.dark-blue .card.bg-light,
+html.all-black .card.bg-light {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Fix pre and code elements with bg-light */
+html.dark pre.bg-light,
+html.dark-blue pre.bg-light,
+html.all-black pre.bg-light {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+html.dark code,
+html.dark-blue code,
+html.all-black code {
+  color: #f472b6 !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+/* Fix buttons with text-dark */
+html.dark .btn.text-dark,
+html.dark-blue .btn.text-dark,
+html.all-black .btn.text-dark {
+  color: var(--text-primary) !important;
+}
+
+html.dark .btn-light,
+html.dark-blue .btn-light,
+html.all-black .btn-light {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html.dark .btn-light:hover,
+html.dark-blue .btn-light:hover,
+html.all-black .btn-light:hover {
+  background-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix badge combinations with poor contrast */
+html.dark .badge.bg-info.text-dark,
+html.dark-blue .badge.bg-info.text-dark,
+html.all-black .badge.bg-info.text-dark {
+  background-color: #0ea5e9 !important;
+  color: #ffffff !important;
+}
+
+html.dark .badge.bg-secondary,
+html.dark-blue .badge.bg-secondary,
+html.all-black .badge.bg-secondary {
+  background-color: #64748b !important;
+  color: #ffffff !important;
+}
