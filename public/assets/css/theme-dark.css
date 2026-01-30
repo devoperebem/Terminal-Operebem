@@ -351,3 +351,47 @@ html.all-black .badge.bg-secondary {
   background-color: #64748b !important;
   color: #ffffff !important;
 }
+
+/* Fix alert-light and other alert variants */
+html.dark .alert-light,
+html.dark-blue .alert-light,
+html.all-black .alert-light {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.dark .alert-light .alert-heading,
+html.dark-blue .alert-light .alert-heading,
+html.all-black .alert-light .alert-heading {
+  color: var(--text-primary) !important;
+}
+
+html.dark .alert-light .text-muted,
+html.dark-blue .alert-light .text-muted,
+html.all-black .alert-light .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* Fix list-group items in dark theme */
+html.dark .list-group-item,
+html.dark-blue .list-group-item,
+html.all-black .list-group-item {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.dark .list-group-item-action:hover,
+html.dark-blue .list-group-item-action:hover,
+html.all-black .list-group-item-action:hover {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure text-muted is visible in dark themes */
+html.dark .text-muted,
+html.dark-blue .text-muted,
+html.all-black .text-muted {
+  color: var(--text-secondary) !important;
+}
