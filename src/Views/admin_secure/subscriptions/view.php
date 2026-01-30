@@ -1,5 +1,10 @@
 <?php
 ob_start();
+
+// Garantir que todas as variáveis existam para evitar erros
+$subscription = $subscription ?? ['id' => 0, 'status' => 'unknown'];
+$payments = $payments ?? [];
+$trialExtensions = $trialExtensions ?? [];
 ?>
 <style>
 .info-label { font-weight: 600; color: #6c757d; font-size: 0.85rem; }
@@ -8,7 +13,11 @@ ob_start();
 
 <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h1 class="h4 mb-0">
+        <div class="d-flex align-items-center gap-3">
+            <a href="/secure/adm/subscriptions" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Voltar
+            </a>
+            <h1 class="h4 mb-0">
             <i class="fas fa-credit-card me-2"></i>
             Assinatura #<?= $subscription['id'] ?>
             <?php
@@ -24,7 +33,8 @@ ob_start();
             $statusInfo = $statusBadges[$subscription['status']] ?? ['bg-secondary', $subscription['status']];
             ?>
             <span class="badge <?= $statusInfo[0] ?>"><?= $statusInfo[1] ?></span>
-        </h1>
+            </h1>
+        </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="/secure/adm/subscriptions/extend-trial?subscription_id=<?= $subscription['id'] ?>" class="btn btn-info btn-sm">
                 <i class="fas fa-calendar-plus me-2"></i>Estender Trial

@@ -24,7 +24,12 @@ ob_start();
     <?php endif; ?>
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h1 class="h4 mb-0"><i class="fas fa-credit-card me-2"></i>Assinaturas</h1>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/secure/adm/index" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Voltar
+            </a>
+            <h1 class="h4 mb-0"><i class="fas fa-credit-card me-2"></i>Assinaturas</h1>
+        </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="/secure/adm/subscriptions/grant" class="btn btn-success btn-sm">
                 <i class="fas fa-plus-circle me-2"></i>Dar Tier Manual

@@ -1,5 +1,13 @@
 <?php
 ob_start();
+
+// Garantir que todas as variáveis existam para evitar erros
+$profile = $profile ?? ['id' => 0, 'name' => 'N/A', 'email' => '', 'cpf' => '', 'tier' => 'FREE', 'xp' => 0, 'streak' => 0, 'created_at' => date('Y-m-d H:i:s'), 'last_login_at' => null];
+$stats = $stats ?? ['tickets_total' => 0, 'tickets_open' => 0, 'logins_total' => 0, 'logins_success_30d' => 0];
+$courseGrants = $courseGrants ?? [];
+$lessonGrants = $lessonGrants ?? [];
+$progress = $progress ?? [];
+$activeSubscription = $activeSubscription ?? null;
 ?>
 <div class="container my-4">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
