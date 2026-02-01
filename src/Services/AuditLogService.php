@@ -225,7 +225,10 @@ class AuditLogService
         }
         
         // Formatar data de forma legível
-        $log['created_at_formatted'] = date('d/m/Y H:i:s', strtotime($log['created_at']));
+        $timestamp = strtotime($log['created_at'] ?? '');
+        $log['created_at_formatted'] = $timestamp !== false
+            ? date('d/m/Y H:i:s', $timestamp)
+            : '-';
         $log['created_at_relative'] = self::getRelativeTime($log['created_at']);
         
         // Definir cor/ícone baseado no tipo de ação
@@ -291,7 +294,10 @@ class AuditLogService
      */
     private static function getRelativeTime(string $datetime): string
     {
-        $timestamp = strtotime($datetime);
+        $timestamp = strtotime($datetime ?? '');
+        if ($timestamp === false || empty($datetime)) {
+            return '-';
+        }
         $diff = time() - $timestamp;
         
         if ($diff < 60) {

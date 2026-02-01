@@ -8,6 +8,14 @@ $courseGrants = $courseGrants ?? [];
 $lessonGrants = $lessonGrants ?? [];
 $progress = $progress ?? [];
 $activeSubscription = $activeSubscription ?? null;
+
+// Helper para formatar datas com segurança
+$safeDate = function($dateString, $format = 'd/m/Y') {
+    if (empty($dateString)) return '-';
+    $timestamp = strtotime($dateString);
+    if ($timestamp === false) return '-';
+    return date($format, $timestamp);
+};
 ?>
 <div class="container my-4">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -193,7 +201,8 @@ $activeSubscription = $activeSubscription ?? null;
               $isCanceled = $status === 'canceled';
               // Verifica se há cancelamento agendado (ex: status active mas com ends_at definido)
               $cancelAtPeriodEnd = false;
-              if (!$isCanceled && !empty($activeSubscription['ends_at']) && strtotime($activeSubscription['ends_at']) > time()) {
+              $endsAtTimestamp = strtotime($activeSubscription['ends_at'] ?? '');
+              if (!$isCanceled && $endsAtTimestamp !== false && $endsAtTimestamp > time()) {
                   $cancelAtPeriodEnd = true;
               }
           ?>
@@ -217,7 +226,7 @@ $activeSubscription = $activeSubscription ?? null;
                 <?php if ($cancelAtPeriodEnd): ?>
                     <div class="alert alert-warning">
                         <i class="fas fa-clock me-2"></i>
-                        <strong>Cancelamento Agendado!</strong> Acesso até <?= date('d/m/Y', strtotime($activeSubscription['ends_at'])) ?>.
+                        <strong>Cancelamento Agendado!</strong> Acesso até <?= $safeDate($activeSubscription['ends_at'] ?? null) ?>.
                     </div>
                 <?php endif; ?>
 
@@ -235,7 +244,7 @@ $activeSubscription = $activeSubscription ?? null;
                   </div>
                   <div class="col-md-3">
                     <small class="text-muted d-block text-uppercase" style="font-size:0.75rem">Data de Início</small>
-                    <div class="fs-6"><?= date('d/m/Y', strtotime($activeSubscription['created_at'])) ?></div>
+                    <div class="fs-6"><?= $safeDate($activeSubscription['created_at'] ?? null) ?></div>
                   </div>
 
                   <?php if ($isTrial): 
@@ -257,9 +266,9 @@ $activeSubscription = $activeSubscription ?? null;
                     <small class="text-muted d-block text-uppercase" style="font-size:0.75rem">Próxima Cobrança/Fim</small>
                     <div class="fs-6">
                       <?php if (!empty($activeSubscription['current_period_end'])): ?>
-                        <?= date('d/m/Y', strtotime($activeSubscription['current_period_end'])) ?>
+                        <?= $safeDate($activeSubscription['current_period_end'] ?? null) ?>
                       <?php elseif (!empty($activeSubscription['ends_at'])): ?>
-                         <?= date('d/m/Y', strtotime($activeSubscription['ends_at'])) ?>
+                         <?= $safeDate($activeSubscription['ends_at'] ?? null) ?>
                       <?php else: ?>
                         —
                       <?php endif; ?>
@@ -336,8 +345,12 @@ $activeSubscription = $activeSubscription ?? null;
               </div>
             <?php else: ?>
                   <div class="timeline">
-                    <?php foreach ($logs as $log): 
-                      $formatted = \App\Services\AuditLogService::formatLogEntry($log);
+                    <?php foreach ($logs as $log):
+                      try {
+                        $formatted = \App\Services\AuditLogService::formatLogEntry($log);
+                      } catch (\Throwable $e) {
+                        continue; // Pula logs com erro de formatação
+                      }
                     ?>
                       <div class="timeline-item mb-3 pb-3 border-bottom">
                         <div class="d-flex justify-content-between align-items-start">
@@ -411,7 +424,11 @@ $activeSubscription = $activeSubscription ?? null;
                   <td><?= htmlspecialchars((string)$g['title'], ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= htmlspecialchars((string)($g['expires_at'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
                   <td>
-                    <?php $exp = $g['expires_at'] ?? null; $active = empty($exp) || (strtotime((string)$exp) > time()); ?>
+                    <?php
+                    $exp = $g['expires_at'] ?? null;
+                    $expTimestamp = strtotime((string)$exp);
+                    $active = empty($exp) || ($expTimestamp !== false && $expTimestamp > time());
+                    ?>
                     <?php if ($active): ?><span class="badge text-bg-success">Ativo</span><?php else: ?><span class="badge text-bg-secondary">Expirado</span><?php endif; ?>
                   </td>
                   <td class="text-end">
@@ -466,7 +483,11 @@ $activeSubscription = $activeSubscription ?? null;
                   <td><?= htmlspecialchars((string)$g['course_title'], ENT_QUOTES, 'UTF-8') ?> · #<?= (int)$g['position'] ?> <?= htmlspecialchars((string)$g['title'], ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= htmlspecialchars((string)($g['expires_at'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
                   <td>
-                    <?php $exp = $g['expires_at'] ?? null; $active = empty($exp) || (strtotime((string)$exp) > time()); ?>
+                    <?php
+                    $exp = $g['expires_at'] ?? null;
+                    $expTimestamp = strtotime((string)$exp);
+                    $active = empty($exp) || ($expTimestamp !== false && $expTimestamp > time());
+                    ?>
                     <?php if ($active): ?><span class="badge text-bg-success">Ativo</span><?php else: ?><span class="badge text-bg-secondary">Expirado</span><?php endif; ?>
                   </td>
                   <td class="text-end">
