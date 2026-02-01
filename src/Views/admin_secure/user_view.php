@@ -320,8 +320,13 @@ $activeSubscription = $activeSubscription ?? null;
         <div class="card-body">
             <?php
             // Buscar logs do usuário
-            $logs = \App\Services\AuditLogService::getUserLogs((int)$profile['id'], 20);
-            $totalLogs = \App\Services\AuditLogService::countUserLogs((int)$profile['id']);
+            try {
+                $logs = \App\Services\AuditLogService::getUserLogs((int)$profile['id'], 20);
+                $totalLogs = \App\Services\AuditLogService::countUserLogs((int)$profile['id']);
+            } catch (\Throwable $e) {
+                $logs = [];
+                $totalLogs = 0;
+            }
             ?>
             
             <?php if (empty($logs)): ?>
