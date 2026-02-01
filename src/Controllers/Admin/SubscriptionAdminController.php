@@ -140,7 +140,7 @@ class SubscriptionAdminController
             "SELECT s.*, u.name as user_name, u.email as user_email, u.cpf as user_cpf,
                     u.tier as user_tier, u.subscription_expires_at,
                     p.name as plan_name, p.price_cents,
-                    a.name as admin_granted_name
+                    a.username as admin_granted_name
              FROM subscriptions s
              JOIN users u ON s.user_id = u.id
              LEFT JOIN subscription_plans p ON s.plan_slug = p.slug
@@ -165,7 +165,7 @@ class SubscriptionAdminController
         
         // Extensões de trial
         $trialExtensions = Database::fetchAll(
-            "SELECT te.*, a.name as admin_name
+            "SELECT te.*, a.username as admin_name
              FROM trial_extensions te
              LEFT JOIN admin_users a ON te.granted_by = a.id
              WHERE te.subscription_id = ?
