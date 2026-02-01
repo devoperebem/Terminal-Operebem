@@ -31,7 +31,7 @@ ob_start();
                     <?php endif; ?>
 
                     <?php if (isset($subscription) && $subscription): ?>
-                        <div class="alert alert-light border mb-4">
+                        <div class="alert alert-light alert-permanent border mb-4">
                             <h6 class="alert-heading">Assinatura Atual</h6>
                             <div class="row">
                                 <div class="col-6">
