@@ -180,7 +180,7 @@ $trialExtensions = $trialExtensions ?? [];
 
                     <?php if ($subscription['canceled_at']): ?>
                         <hr>
-                        <div class="alert alert-warning mb-0">
+                        <div class="alert alert-warning alert-permanent mb-0">
                             <strong>Cancelado em:</strong> <?= $subscription['canceled_at'] ? date('d/m/Y H:i', strtotime($subscription['canceled_at'])) : '-' ?>
                             <?php if ($subscription['ended_at']): ?>
                                 <br><strong>Encerrado em:</strong> <?= $subscription['ended_at'] ? date('d/m/Y H:i', strtotime($subscription['ended_at'])) : '-' ?>
