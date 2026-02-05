@@ -1,6 +1,9 @@
 <?php
 ob_start();
 ?>
+<style>
+.bg-purple { background-color: #6f42c1 !important; color: #fff; }
+</style>
 
 <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">

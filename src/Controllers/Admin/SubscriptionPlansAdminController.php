@@ -7,18 +7,29 @@
 
 namespace App\Controllers\Admin;
 
+use App\Controllers\BaseController;
 use App\Core\Database;
 use App\Services\SubscriptionPlanService;
 use App\Services\AdminAuthService;
 
-class SubscriptionPlansAdminController
+class SubscriptionPlansAdminController extends BaseController
 {
     private ?SubscriptionPlanService $planService = null;
     private AdminAuthService $adminAuthService;
     
     public function __construct()
     {
+        parent::__construct();
         $this->adminAuthService = new AdminAuthService();
+    }
+    
+    /**
+     * Renderiza view admin com footerVariant correto
+     */
+    private function adminView(string $viewName, array $data = []): void
+    {
+        $data['footerVariant'] = 'admin-auth';
+        $this->view($viewName, $data);
     }
     
     /**
@@ -46,8 +57,7 @@ class SubscriptionPlansAdminController
         // Estatísticas gerais
         $stats = $this->getPlanService()->getGeneralStats();
         
-        // Renderizar view
-        require __DIR__ . '/../../Views/admin_secure/subscription_plans/index.php';
+        $this->adminView('admin_secure/subscription_plans/index', compact('admin', 'plans', 'stats'));
     }
     
     /**
@@ -70,8 +80,7 @@ class SubscriptionPlansAdminController
             exit;
         }
         
-        // Renderizar view
-        require __DIR__ . '/../../Views/admin_secure/subscription_plans/edit.php';
+        $this->adminView('admin_secure/subscription_plans/edit', compact('admin', 'plan'));
     }
     
     /**
@@ -83,7 +92,8 @@ class SubscriptionPlansAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Token CSRF inválido']);
             exit;
         }
@@ -126,7 +136,8 @@ class SubscriptionPlansAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Token CSRF inválido']);
             exit;
         }
@@ -168,7 +179,8 @@ class SubscriptionPlansAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Token CSRF inválido']);
             exit;
         }
@@ -200,7 +212,8 @@ class SubscriptionPlansAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Token CSRF inválido']);
             exit;
         }

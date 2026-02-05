@@ -89,7 +89,7 @@ ob_start();
                         <div class="mb-4">
                             <label class="form-label fw-bold">Quantidade de Dias</label>
                             <div class="input-group">
-                                <input type="number" name="days" class="form-control" min="1" max="365" value="7" required id="days_input">
+                                <input type="number" name="additional_days" class="form-control" min="1" max="365" value="7" required id="days_input">
                                 <span class="input-group-text">dias</span>
                             </div>
                             <div class="mt-2">
@@ -135,18 +135,19 @@ $scripts = <<<'SCRIPTS'
             const results = document.getElementById('search_results');
             results.innerHTML = '';
 
-            if (data.users && data.users.length > 0) {
-                data.users.slice(0, 10).forEach(user => {
+            if (data.data && data.data.length > 0) {
+                data.data.slice(0, 10).forEach(user => {
                     const item = document.createElement('button');
                     item.type = 'button';
                     item.className = 'list-group-item list-group-item-action';
+                    const tierClass = user.tier === 'PRO' ? 'warning' : (user.tier === 'PLUS' ? 'primary' : 'secondary');
                     item.innerHTML = `
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>${escapeHtml(user.name)}</strong>
                                 <small class="text-muted d-block">${escapeHtml(user.email)}</small>
                             </div>
-                            <span class="badge bg-${user.tier === 'PRO' ? 'warning' : (user.tier === 'PLUS' ? 'primary' : 'secondary')}">${user.tier}</span>
+                            <span class="badge bg-${tierClass}">${escapeHtml(user.tier || 'FREE')}</span>
                         </div>
                     `;
                     item.onclick = () => selectUser(user);

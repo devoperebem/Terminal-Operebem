@@ -157,9 +157,11 @@ $safeDate = function($dateString, $format = 'd/m/Y') {
                     <a href="/secure/adm/gamification/user/<?= (int)$profile['id'] ?>" class="btn btn-sm btn-outline-primary w-100">
                       Ver Detalhes
                     </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          
-
           
         </div>
       </div>

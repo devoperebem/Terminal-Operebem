@@ -294,7 +294,7 @@ ob_start();
                         <?php endif; ?>
                       </td>
                       <td>
-                        <a href="/secure/adm/users/<?= $user['id'] ?>" class="text-decoration-none">
+                        <a href="/secure/adm/users/view?id=<?= $user['id'] ?>" class="text-decoration-none">
                           <?= htmlspecialchars($user['name'] ?? 'N/A') ?>
                         </a>
                       </td>
@@ -332,7 +332,7 @@ ob_start();
                   <?php foreach (array_slice($recentXP, 0, 10) as $xp): ?>
                     <tr>
                       <td>
-                        <a href="/secure/adm/users/<?= $xp['user_id'] ?>" class="text-decoration-none small">
+                        <a href="/secure/adm/users/view?id=<?= $xp['user_id'] ?>" class="text-decoration-none small">
                           <?= htmlspecialchars(substr($xp['user_name'] ?? 'N/A', 0, 20)) ?>
                         </a>
                       </td>

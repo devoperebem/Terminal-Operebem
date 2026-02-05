@@ -94,7 +94,7 @@ ob_start();
                     <tbody>
                         <?php if (empty($payments)): ?>
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">
+                                <td colspan="8" class="text-center py-4 text-muted">
                                     Nenhum pagamento encontrado.
                                 </td>
                             </tr>
@@ -162,7 +162,7 @@ ob_start();
                                 </tr>
                                 <?php if ($payment['failure_message']): ?>
                                     <tr class="table-danger">
-                                        <td colspan="7">
+                                        <td colspan="8">
                                             <small>
                                                 <i class="fas fa-exclamation-triangle"></i>
                                                 <strong>Erro:</strong> <?= htmlspecialchars($payment['failure_message']) ?>

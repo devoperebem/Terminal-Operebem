@@ -7,6 +7,7 @@ ob_start();
 .stats-card.new { border-left-color: #0dcaf0; }
 .stats-card.revenue { border-left-color: #6f42c1; }
 .stats-card.plans { border-left-color: #0d6efd; }
+.bg-purple { background-color: #6f42c1 !important; color: #fff; }
 .discount-badge { 
     font-size: 0.75rem; 
     padding: 0.25rem 0.5rem; 
@@ -195,6 +196,7 @@ ob_start();
                                                     class="btn btn-outline-danger btn-discount" 
                                                     data-plan-id="<?= $plan['id'] ?>"
                                                     data-plan-name="<?= htmlspecialchars($plan['name']) ?>"
+                                                    data-has-discount="<?= !empty($plan['has_active_discount']) ? '1' : '0' ?>"
                                                     title="Aplicar Desconto">
                                                 <i class="fas fa-percent"></i>
                                             </button>
@@ -323,11 +325,14 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             const planId = this.dataset.planId;
             const planName = this.dataset.planName;
+            const hasDiscount = this.dataset.hasDiscount === '1';
             
-            document.getElementById('discount-plan-id').value = planId;
-            document.getElementById('discount-plan-name').textContent = planName;
             document.getElementById('discountForm').reset();
             document.getElementById('discount-plan-id').value = planId;
+            document.getElementById('discount-plan-name').textContent = planName;
+            
+            // Mostrar botao de remover desconto se plano ja tem desconto ativo
+            document.getElementById('btnRemoveDiscount').style.display = hasDiscount ? 'inline-block' : 'none';
             
             discountModal.show();
         });

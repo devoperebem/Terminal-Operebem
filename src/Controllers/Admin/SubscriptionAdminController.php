@@ -8,17 +8,19 @@
 
 namespace App\Controllers\Admin;
 
+use App\Controllers\BaseController;
 use App\Core\Database;
 use App\Services\SubscriptionService;
 use App\Services\AdminAuthService;
 
-class SubscriptionAdminController
+class SubscriptionAdminController extends BaseController
 {
     private ?SubscriptionService $subscriptionService = null;
     private AdminAuthService $adminAuthService;
     
     public function __construct()
     {
+        parent::__construct();
         $this->adminAuthService = new AdminAuthService();
     }
     
@@ -34,11 +36,12 @@ class SubscriptionAdminController
     }
     
     /**
-     * Valida token CSRF
+     * Renderiza view admin com footerVariant correto
      */
-    private function validateCsrf(string $token): bool
+    private function adminView(string $view, array $data = []): void
     {
-        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+        $data['footerVariant'] = 'admin-auth';
+        $this->view($view, $data);
     }
     
     /**
@@ -119,14 +122,14 @@ class SubscriptionAdminController
             'manual' => Database::fetchColumn("SELECT COUNT(*) FROM subscriptions WHERE source = 'admin'"),
         ];
         
-        require __DIR__ . '/../../Views/admin_secure/subscriptions/index.php';
+        $this->adminView('admin_secure/subscriptions/index', compact('admin', 'subscriptions', 'stats', 'status', 'tier', 'search', 'page', 'totalPages', 'total'));
     }
     
     /**
      * Visualiza detalhes de uma assinatura
      * GET /secure/adm/subscriptions/view?id=X
      */
-    public function view(): void
+    public function show(): void
     {
         $admin = $this->adminAuthService->getCurrentAdmin();
         $id = (int)($_GET['id'] ?? 0);
@@ -173,7 +176,7 @@ class SubscriptionAdminController
             [$id]
         );
         
-        require __DIR__ . '/../../Views/admin_secure/subscriptions/view.php';
+        $this->adminView('admin_secure/subscriptions/view', compact('admin', 'subscription', 'payments', 'trialExtensions'));
     }
     
     /**
@@ -193,7 +196,7 @@ class SubscriptionAdminController
         $error = $_GET['error'] ?? null;
         $success = $_GET['success'] ?? null;
         
-        require __DIR__ . '/../../Views/admin_secure/subscriptions/grant.php';
+        $this->adminView('admin_secure/subscriptions/grant', compact('admin', 'user', 'error', 'success'));
     }
     
     /**
@@ -205,8 +208,7 @@ class SubscriptionAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        $token = $_POST['csrf_token'] ?? '';
-        if (!$this->validateCsrf($token)) {
+        if (!$this->validateCsrf()) {
             header('Location: /secure/adm/subscriptions/grant?error=csrf');
             exit;
         }
@@ -282,7 +284,7 @@ class SubscriptionAdminController
         $error = $_GET['error'] ?? null;
         $success = $_GET['success'] ?? null;
         
-        require __DIR__ . '/../../Views/admin_secure/subscriptions/extend_trial.php';
+        $this->adminView('admin_secure/subscriptions/extend_trial', compact('admin', 'subscription', 'user', 'error', 'success'));
     }
     
     /**
@@ -346,7 +348,7 @@ class SubscriptionAdminController
             'total_amount' => Database::fetchColumn("SELECT COALESCE(SUM(amount_cents), 0) FROM payment_history WHERE status = 'succeeded'"),
         ];
         
-        require __DIR__ . '/../../Views/admin_secure/subscriptions/payments.php';
+        $this->adminView('admin_secure/subscriptions/payments', compact('admin', 'payments', 'stats', 'status', 'search', 'page', 'totalPages', 'total'));
     }
     
     /**
@@ -379,7 +381,7 @@ class SubscriptionAdminController
         $error = $_GET['error'] ?? null;
         $success = $_GET['success'] ?? null;
         
-        require __DIR__ . '/../../Views/admin_secure/subscriptions/coupons.php';
+        $this->adminView('admin_secure/subscriptions/coupons', compact('admin', 'coupons', 'error', 'success'));
     }
     
     /**
@@ -394,7 +396,7 @@ class SubscriptionAdminController
         
         $error = $_GET['error'] ?? null;
         
-        require __DIR__ . '/../../Views/admin_secure/subscriptions/coupon_create.php';
+        $this->adminView('admin_secure/subscriptions/coupon_create', compact('admin', 'plans', 'error'));
     }
     
     /**
@@ -406,8 +408,7 @@ class SubscriptionAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        $token = $_POST['csrf_token'] ?? '';
-        if (!$this->validateCsrf($token)) {
+        if (!$this->validateCsrf()) {
             header('Location: /secure/adm/coupons/create?error=csrf');
             exit;
         }
@@ -415,7 +416,7 @@ class SubscriptionAdminController
         $code = strtoupper(trim($_POST['code'] ?? ''));
         $discountType = $_POST['discount_type'] ?? 'percent';
         $discountValue = (int)($_POST['discount_value'] ?? 0);
-        $maxRedemptions = $_POST['max_redemptions'] ? (int)$_POST['max_redemptions'] : null;
+        $maxRedemptions = !empty($_POST['max_redemptions']) ? (int)$_POST['max_redemptions'] : null;
         $validUntil = $_POST['valid_until'] ?: null;
         $notes = trim($_POST['notes'] ?? '');
         
@@ -465,6 +466,11 @@ class SubscriptionAdminController
     {
         $admin = $this->adminAuthService->getCurrentAdmin();
         
+        if (!$this->validateCsrf()) {
+            header('Location: /secure/adm/coupons?error=csrf');
+            exit;
+        }
+        
         $id = (int)($_POST['id'] ?? 0);
         
         if ($id) {
@@ -488,7 +494,7 @@ class SubscriptionAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
             $_SESSION['error'] = 'Token CSRF inválido';
             header('Location: /secure/adm/subscriptions');
             exit;
@@ -608,8 +614,7 @@ class SubscriptionAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        $token = $_POST['csrf_token'] ?? '';
-        if (!$this->validateCsrf($token)) {
+        if (!$this->validateCsrf()) {
             header('Location: /secure/adm/subscriptions?error=csrf');
             exit;
         }
@@ -649,7 +654,7 @@ class SubscriptionAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
             $_SESSION['error'] = 'Token CSRF inválido';
             header('Location: /secure/adm/users');
             exit;
@@ -748,7 +753,8 @@ class SubscriptionAdminController
         $admin = $this->adminAuthService->getCurrentAdmin();
         
         // Validar CSRF (via AJAX ou Form)
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Token CSRF invalido']);
             exit;
         }
@@ -817,7 +823,8 @@ class SubscriptionAdminController
     {
         $admin = $this->adminAuthService->getCurrentAdmin();
         
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        if (!$this->validateCsrf()) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => 'Token CSRF invalido']);
             exit;
         }

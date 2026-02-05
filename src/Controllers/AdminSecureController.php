@@ -29,7 +29,7 @@ class AdminSecureController extends BaseController
         if ($q === '') { echo json_encode(['success'=>true,'data'=>[]]); return; }
         $like = '%' . $q . '%';
         try {
-            $rows = Database::fetchAll('SELECT id, name, email FROM users WHERE name LIKE ? OR email LIKE ? ORDER BY id DESC LIMIT ' . (int)$limit, [$like, $like]);
+            $rows = Database::fetchAll('SELECT id, name, email, tier FROM users WHERE name LIKE ? OR email LIKE ? ORDER BY id DESC LIMIT ' . (int)$limit, [$like, $like]);
             echo json_encode(['success'=>true,'data'=>$rows]);
         } catch (\Throwable $t) {
             http_response_code(500);

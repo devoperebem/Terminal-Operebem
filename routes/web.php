@@ -267,7 +267,7 @@ $router->post('/secure/adm/gamification/settings', [\App\Controllers\Admin\Gamif
 
 // Secure Admin - Subscriptions Management (Assinaturas)
 $router->get('/secure/adm/subscriptions', [\App\Controllers\Admin\SubscriptionAdminController::class, 'index'], [SecureAdminMiddleware::class]);
-$router->get('/secure/adm/subscriptions/view', [\App\Controllers\Admin\SubscriptionAdminController::class, 'view'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/subscriptions/view', [\App\Controllers\Admin\SubscriptionAdminController::class, 'show'], [SecureAdminMiddleware::class]);
 $router->get('/secure/adm/subscriptions/grant', [\App\Controllers\Admin\SubscriptionAdminController::class, 'grantForm'], [SecureAdminMiddleware::class]);
 $router->post('/secure/adm/subscriptions/grant', [\App\Controllers\Admin\SubscriptionAdminController::class, 'grant'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->get('/secure/adm/subscriptions/extend-trial', [\App\Controllers\Admin\SubscriptionAdminController::class, 'extendTrialForm'], [SecureAdminMiddleware::class]);

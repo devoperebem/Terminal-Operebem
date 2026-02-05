@@ -165,18 +165,19 @@ $scripts = <<<'SCRIPTS'
             const results = document.getElementById('search_results');
             results.innerHTML = '';
 
-            if (data.users && data.users.length > 0) {
-                data.users.slice(0, 10).forEach(user => {
+            if (data.data && data.data.length > 0) {
+                data.data.slice(0, 10).forEach(user => {
                     const item = document.createElement('button');
                     item.type = 'button';
                     item.className = 'list-group-item list-group-item-action';
+                    const tierClass = user.tier === 'PRO' ? 'warning' : (user.tier === 'PLUS' ? 'primary' : 'secondary');
                     item.innerHTML = `
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>${escapeHtml(user.name)}</strong>
                                 <small class="text-muted d-block">${escapeHtml(user.email)}</small>
                             </div>
-                            <span class="badge bg-${user.tier === 'PRO' ? 'warning' : (user.tier === 'PLUS' ? 'primary' : 'secondary')}">${user.tier}</span>
+                            <span class="badge bg-${tierClass}">${escapeHtml(user.tier || 'FREE')}</span>
                         </div>
                     `;
                     item.onclick = () => selectUser(user);
@@ -195,10 +196,11 @@ $scripts = <<<'SCRIPTS'
         document.getElementById('search_results').innerHTML = '';
         document.getElementById('user_search').classList.add('d-none');
         document.getElementById('selected_user').classList.remove('d-none');
+        const tierClass = user.tier === 'PRO' ? 'warning' : (user.tier === 'PLUS' ? 'primary' : 'secondary');
         document.getElementById('selected_user_info').innerHTML = `
             <strong>${escapeHtml(user.name)}</strong><br>
             <small class="text-muted">${escapeHtml(user.email)}</small>
-            <span class="badge bg-${user.tier === 'PRO' ? 'warning' : (user.tier === 'PLUS' ? 'primary' : 'secondary')} ms-2">${user.tier}</span>
+            <span class="badge bg-${tierClass} ms-2">${escapeHtml(user.tier || 'FREE')}</span>
         `;
     }
 
