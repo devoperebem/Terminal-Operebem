@@ -69,7 +69,6 @@ if (str_starts_with($path, '/dev/')) {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../src/Helpers/html_helpers.php';
-require_once __DIR__ . '/../src/Helpers/dev_helpers.php';
 
 use App\Core\Application;
 use App\Core\Database;
