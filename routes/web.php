@@ -124,8 +124,6 @@ $router->get('/api/news/noticias', [NewsController::class, 'noticias'], [AuthMid
 
 // Profile (protected)
 $router->get('/app/profile', [ProfileController::class, 'index'], [AuthMiddleware::class]);
-// Profile Dev (protected)
-$router->get('/dev/profile', [ProfileController::class, 'indexDev'], [AuthMiddleware::class]);
 
 // Community Discord (protected)
 $router->get('/app/community', [\App\Controllers\CommunityController::class, 'index'], [AuthMiddleware::class]);
@@ -454,24 +452,22 @@ $router->get('/api/market-clock/{code}', [MarketClockController::class, 'show'])
 $router->post('/api/market-clock/update-statuses', [MarketClockController::class, 'updateStatuses'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 
 // ============================================================================
-// SUBSCRIPTION (Assinaturas) - Apenas via /dev/ (ambiente de desenvolvimento)
+// SUBSCRIPTION (Assinaturas)
 // ============================================================================
 
 use App\Controllers\SubscriptionController;
 use App\Controllers\StripeWebhookController;
 
-// Rotas de callback do Stripe (sempre disponíveis - precisam funcionar quando Stripe redireciona)
+// Rotas de callback do Stripe (sem auth - Stripe redireciona o navegador do usuário)
 $router->get('/subscription/success', [SubscriptionController::class, 'success']);
 $router->get('/subscription/canceled', [SubscriptionController::class, 'canceled']);
 
-// Rotas de assinatura só acessíveis via /dev/
-if (defined('IS_DEV_ENVIRONMENT') && IS_DEV_ENVIRONMENT === true) {
-    $router->get('/subscription/plans', [SubscriptionController::class, 'plans']);
-    $router->post('/subscription/checkout', [SubscriptionController::class, 'checkout'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
-    $router->get('/subscription/manage', [SubscriptionController::class, 'manage'], [AuthMiddleware::class]);
-    $router->post('/subscription/cancel', [SubscriptionController::class, 'cancel'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
-    $router->post('/subscription/validate-coupon', [SubscriptionController::class, 'validateCoupon'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
-}
+// Rotas de assinatura
+$router->get('/subscription/plans', [SubscriptionController::class, 'plans']);
+$router->post('/subscription/checkout', [SubscriptionController::class, 'checkout'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
+$router->get('/subscription/manage', [SubscriptionController::class, 'manage'], [AuthMiddleware::class]);
+$router->post('/subscription/cancel', [SubscriptionController::class, 'cancel'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
+$router->post('/subscription/validate-coupon', [SubscriptionController::class, 'validateCoupon'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
 
 // Stripe Webhook (sempre disponível - validado por assinatura do Stripe)
 $router->post('/api/stripe/webhook', [StripeWebhookController::class, 'handle']);

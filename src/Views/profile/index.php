@@ -106,7 +106,7 @@ ob_start();
                             </div>
                         <?php endif; ?>
                         
-                        <a href="/dev/subscription/manage" class="btn btn-outline-primary btn-sm w-100">
+                        <a href="/subscription/manage" class="btn btn-outline-primary btn-sm w-100">
                             <i class="fas fa-cog me-1"></i>Gerenciar Assinatura
                         </a>
                     <?php else: ?>
@@ -115,11 +115,12 @@ ob_start();
                             <div class="mb-3">
                                 <span class="badge bg-secondary px-3 py-2"><?= $effectiveTier ?></span>
                             </div>
+                            <h6 class="mb-2">Plano Gratuito</h6>
                             <p class="text-muted small mb-3">
-                                <?= $effectiveTier === 'FREE' ? 'Acesso durante o período beta' : 'Sem assinatura ativa' ?>
+                                Voce esta no plano gratuito com acesso basico ao terminal. Faca upgrade para desbloquear dashboards exclusivos, dados em tempo real e muito mais.
                             </p>
-                            <a href="/dev/subscription/plans" class="btn btn-primary btn-sm w-100">
-                                <i class="fas fa-rocket me-1"></i>Ver Planos
+                            <a href="/subscription/plans" class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-rocket me-1"></i>Conhecer Planos
                             </a>
                         </div>
                     <?php endif; ?>

@@ -111,7 +111,7 @@ $effectiveTier = $effectiveTier ?? 'FREE';
                     <i class="fas fa-credit-card me-2"></i>Minha Assinatura
                 </h1>
                 <div class="d-flex gap-2">
-                    <a href="/dev/subscription/plans" class="btn btn-primary">
+                    <a href="/subscription/plans" class="btn btn-primary">
                         <i class="fas fa-rocket me-2"></i>Ver Planos
                     </a>
                     <a href="/app/dashboard" class="btn btn-outline-secondary">
@@ -212,7 +212,7 @@ $effectiveTier = $effectiveTier ?? 'FREE';
                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                 <h5>Você não tem uma assinatura ativa</h5>
                 <p class="text-muted">Assine um plano para desbloquear funcionalidades premium!</p>
-                <a href="/dev/subscription/plans" class="btn btn-primary">
+                <a href="/subscription/plans" class="btn btn-primary">
                     <i class="fas fa-rocket me-2"></i>Ver Planos
                 </a>
             </div>

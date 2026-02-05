@@ -36,7 +36,7 @@ $stripePublicKey = $stripePublicKey ?? '';
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                            <div class="bg-success bg-opacity-25 rounded-circle p-3">
                                 <i class="fas fa-check-circle text-success fa-2x"></i>
                             </div>
                             <div>
@@ -51,7 +51,7 @@ $stripePublicKey = $stripePublicKey ?? '';
                                 </p>
                             </div>
                         </div>
-                        <a href="/dev/subscription/manage" class="btn btn-outline-success">
+                        <a href="/subscription/manage" class="btn btn-outline-success">
                             <i class="fas fa-cog me-2"></i>Gerenciar Assinatura
                         </a>
                     </div>
@@ -154,7 +154,7 @@ $stripePublicKey = $stripePublicKey ?? '';
                         <!-- Botão -->
                         <div class="mt-auto">
                             <?php if ($isCurrent): ?>
-                                <a href="/dev/subscription/manage" class="btn btn-outline-success w-100">
+                                <a href="/subscription/manage" class="btn btn-outline-success w-100">
                                     <i class="fas fa-cog me-2"></i>Gerenciar
                                 </a>
                             <?php else: ?>
@@ -171,33 +171,13 @@ $stripePublicKey = $stripePublicKey ?? '';
         <?php endforeach; ?>
     </div>
 
-    <!-- Cupom Section -->
-    <div class="row mt-5">
-        <div class="col-lg-6 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-title mb-3"><i class="fas fa-tags me-2"></i>Tem um cupom?</h6>
-                    <div class="input-group">
-                        <input type="text" id="couponCode" class="form-control" placeholder="Digite seu cupom" maxlength="20">
-                        <button class="btn btn-outline-primary" onclick="validateCoupon()">
-                            <i class="fas fa-check me-1"></i>Aplicar
-                        </button>
-                    </div>
-                    <div id="couponResult" class="mt-2"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <script>
 const csrfToken = '<?= htmlspecialchars($csrf_token ?? '') ?>';
-let appliedCoupon = null;
-let selectedPlan = null;
 
 async function startCheckout(planSlug) {
-    selectedPlan = planSlug;
-    
     const btn = document.querySelector(`button[data-plan="${planSlug}"]`);
     const originalText = btn.innerHTML;
     btn.disabled = true;
@@ -208,11 +188,7 @@ async function startCheckout(planSlug) {
         formData.append('plan', planSlug);
         formData.append('csrf_token', csrfToken);
         
-        if (appliedCoupon) {
-            formData.append('coupon', appliedCoupon);
-        }
-        
-        const response = await fetch('checkout', {
+        const response = await fetch('/subscription/checkout', {
             method: 'POST',
             body: formData
         });
@@ -233,56 +209,6 @@ async function startCheckout(planSlug) {
         btn.innerHTML = originalText;
     }
 }
-
-async function validateCoupon() {
-    const code = document.getElementById('couponCode').value.trim();
-    const resultDiv = document.getElementById('couponResult');
-    
-    if (!code) {
-        resultDiv.innerHTML = '<div class="alert alert-warning py-2"><small>Digite um código de cupom</small></div>';
-        return;
-    }
-    
-    if (!selectedPlan) {
-        resultDiv.innerHTML = '<div class="alert alert-info py-2"><small>Clique em um plano primeiro para aplicar o cupom</small></div>';
-        return;
-    }
-    
-    try {
-        const formData = new FormData();
-        formData.append('code', code);
-        formData.append('plan', selectedPlan);
-        formData.append('csrf_token', csrfToken);
-        
-        const response = await fetch('validate-coupon', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.valid) {
-            appliedCoupon = code;
-            const discount = data.discount_type === 'percent' 
-                ? `${data.discount_value}%` 
-                : `R$ ${(data.discount_amount_cents / 100).toFixed(2).replace('.', ',')}`;
-            
-            resultDiv.innerHTML = `<div class="alert alert-success py-2"><small><i class="fas fa-check-circle me-1"></i>Cupom aplicado! Desconto de ${discount}</small></div>`;
-        } else {
-            appliedCoupon = null;
-            resultDiv.innerHTML = `<div class="alert alert-danger py-2"><small>${data.error || 'Cupom inválido'}</small></div>`;
-        }
-    } catch (error) {
-        resultDiv.innerHTML = '<div class="alert alert-danger py-2"><small>Erro ao validar cupom</small></div>';
-    }
-}
-
-// Se clicar em um plano, guardar qual é
-document.querySelectorAll('button[data-plan]').forEach(btn => {
-    btn.addEventListener('click', () => {
-        selectedPlan = btn.dataset.plan;
-    });
-});
 </script>
 
 <?php

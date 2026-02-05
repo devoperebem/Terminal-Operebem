@@ -209,7 +209,7 @@ $plan = $plan ?? null;
         <a href="/app/dashboard" class="btn-dashboard">
             <i class="fas fa-rocket me-2"></i>Acessar Dashboard
         </a>
-        <a href="/dev/subscription/manage" class="btn-manage">
+        <a href="/subscription/manage" class="btn-manage">
             <i class="fas fa-cog me-2"></i>Gerenciar Assinatura
         </a>
     </div>
