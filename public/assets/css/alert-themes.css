@@ -28,3 +28,53 @@
     border-color: rgba(76, 175, 80, 0.5) !important;
     color: #a5d6a7 !important;
 }
+
+/* ==================== DARK BLUE THEME - ALERTS (complemento) ==================== */
+.dark-blue .alert-secondary {
+    background: rgba(108, 117, 125, 0.15);
+    border-color: rgba(108, 117, 125, 0.4);
+    color: #adb5bd;
+}
+
+.dark-blue .alert-warning {
+    background: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.4);
+    color: #ffda6a;
+}
+
+.dark-blue .alert-danger {
+    background: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.4);
+    color: #f5a3ab;
+}
+
+.dark-blue .alert-primary {
+    background: rgba(13, 110, 253, 0.15);
+    border-color: rgba(13, 110, 253, 0.4);
+    color: #6ea8fe;
+}
+
+/* ==================== ALL BLACK THEME - ALERTS (complemento) ==================== */
+.all-black .alert-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border-color: rgba(108, 117, 125, 0.5);
+    color: #adb5bd;
+}
+
+.all-black .alert-warning {
+    background: rgba(255, 193, 7, 0.2);
+    border-color: rgba(255, 193, 7, 0.5);
+    color: #ffda6a;
+}
+
+.all-black .alert-danger {
+    background: rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.5);
+    color: #f5a3ab;
+}
+
+.all-black .alert-primary {
+    background: rgba(13, 110, 253, 0.2);
+    border-color: rgba(13, 110, 253, 0.5);
+    color: #6ea8fe;
+}

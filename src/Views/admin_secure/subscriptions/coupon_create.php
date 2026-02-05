@@ -17,7 +17,7 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if (isset($error) && $error): ?>
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger alert-auto-dismiss">
                             <?php
                             $errorMessages = [
                                 'csrf' => 'Token de segurança inválido. Tente novamente.',

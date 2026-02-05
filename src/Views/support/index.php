@@ -47,10 +47,10 @@ $csrf = htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8');
     </div>
     <div class="col-12">
       <?php if ($ok): ?>
-        <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Ticket enviado com sucesso! Nossa equipe retornará em breve.</div>
+        <div class="alert alert-success alert-auto-dismiss"><i class="fas fa-check-circle me-2"></i>Ticket enviado com sucesso! Nossa equipe retornará em breve.</div>
       <?php endif; ?>
       <?php if (!empty($err) || !empty($errMsg)): ?>
-        <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($errMsg ?: 'Preencha todos os campos obrigatórios.', ENT_QUOTES, 'UTF-8') ?></div>
+        <div class="alert alert-danger alert-auto-dismiss"><i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($errMsg ?: 'Preencha todos os campos obrigatórios.', ENT_QUOTES, 'UTF-8') ?></div>
       <?php endif; ?>
     </div>
   </div>

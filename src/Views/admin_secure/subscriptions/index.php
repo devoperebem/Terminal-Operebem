@@ -11,7 +11,7 @@ ob_start();
 
 <div class="container my-4">
     <?php if (isset($_GET['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show">
+        <div class="alert alert-success alert-dismissible alert-auto-dismiss fade show">
             <?php
             $msgs = [
                 'tier_granted' => 'Tier concedido com sucesso!',

@@ -17,7 +17,7 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if (isset($error) && $error): ?>
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger alert-auto-dismiss">
                             <?php
                             $errorMessages = [
                                 'csrf' => 'Token de segurança inválido. Tente novamente.',
@@ -32,7 +32,7 @@ ob_start();
                     <?php endif; ?>
 
                     <?php if (isset($success) && $success): ?>
-                        <div class="alert alert-success">
+                        <div class="alert alert-success alert-auto-dismiss">
                             Tier concedido com sucesso!
                         </div>
                     <?php endif; ?>

@@ -16,10 +16,10 @@ ob_start();
   </div>
 
   <?php if (!empty($ok)): ?>
-    <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Ação concluída com sucesso.</div>
+    <div class="alert alert-success alert-auto-dismiss"><i class="fas fa-check-circle me-2"></i>Ação concluída com sucesso.</div>
   <?php endif; ?>
   <?php if (!empty($err)): ?>
-    <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($err) ?></div>
+    <div class="alert alert-danger alert-auto-dismiss"><i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($err) ?></div>
   <?php endif; ?>
 
   <div class="row g-4">

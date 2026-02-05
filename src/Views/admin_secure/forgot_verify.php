@@ -17,7 +17,7 @@ ob_start();
             $hasPendingRecovery = !empty($_SESSION['adm_fp']) && !empty($_SESSION['adm_fp']['username']);
             ?>
             <?php if (!empty($ok) || $hasPendingRecovery): ?>
-              <div class="alert alert-success alert-permanent">
+              <div class="alert alert-success">
                 <?php if ($ok === 'sent'): ?>
                   Código enviado com sucesso! Verifique seu email e insira o código abaixo.
                 <?php elseif ($hasPendingRecovery): ?>
@@ -26,7 +26,7 @@ ob_start();
               </div>
             <?php endif; ?>
             <?php if (!empty($error)): ?>
-              <div class="alert alert-danger">
+              <div class="alert alert-danger alert-auto-dismiss">
                 <?php if ($error === 'csrf'): ?>
                   Erro de validação. Por favor, tente novamente.
                 <?php elseif ($error === 'ratelimit'): ?>
@@ -50,7 +50,7 @@ ob_start();
                 </div>
                 <div class="form-text">Digite o código de 6 dígitos recebido por email</div>
               </div>
-              <div class="alert alert-info alert-permanent">
+              <div class="alert alert-info">
                 <small>
                   <strong>ℹ️ Importante:</strong> Após verificar o código, uma nova senha será gerada automaticamente e enviada para o seu email.
                 </small>

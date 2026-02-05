@@ -8,7 +8,7 @@ ob_start();
   </div>
 
   <?php if (!empty($ok)): ?>
-    <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Mensagem enviada com sucesso.</div>
+    <div class="alert alert-success alert-auto-dismiss"><i class="fas fa-check-circle me-2"></i>Mensagem enviada com sucesso.</div>
   <?php endif; ?>
 
   <?php if (empty($tickets)): ?>

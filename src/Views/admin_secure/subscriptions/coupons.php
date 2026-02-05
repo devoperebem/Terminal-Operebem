@@ -13,7 +13,7 @@ ob_start();
 
 <div class="container my-4">
     <?php if (isset($success) && $success): ?>
-        <div class="alert alert-success alert-dismissible fade show">
+        <div class="alert alert-success alert-dismissible alert-auto-dismiss fade show">
             <?php
             $successMessages = [
                 'created' => 'Cupom criado com sucesso!',
@@ -26,7 +26,7 @@ ob_start();
     <?php endif; ?>
 
     <?php if (isset($error) && $error): ?>
-        <div class="alert alert-danger alert-dismissible fade show">
+        <div class="alert alert-danger alert-dismissible alert-auto-dismiss fade show">
             Erro: <?= htmlspecialchars($error) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>

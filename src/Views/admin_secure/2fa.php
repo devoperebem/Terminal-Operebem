@@ -14,7 +14,7 @@ ob_start();
           <?php if ($error === 'email'): ?>
             <div class="alert alert-warning">Não foi possível enviar o email com o código 2FA. Verifique sua caixa de spam ou tente novamente mais tarde.</div>
           <?php else: ?>
-            <div class="alert alert-danger">Falha na verificação (<?= htmlspecialchars($error) ?>)</div>
+            <div class="alert alert-danger alert-auto-dismiss">Falha na verificação (<?= htmlspecialchars($error) ?>)</div>
           <?php endif; ?>
         <?php endif; ?>
         <div class="card shadow-lg border-0 rounded-4">

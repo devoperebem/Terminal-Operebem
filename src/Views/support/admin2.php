@@ -7,10 +7,10 @@ ob_start();
   </div>
 
   <?php if (!empty($flashOk)): ?>
-    <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($flashOk) ?></div>
+    <div class="alert alert-success alert-auto-dismiss"><i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($flashOk) ?></div>
   <?php endif; ?>
   <?php if (!empty($flashErr)): ?>
-    <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($flashErr) ?></div>
+    <div class="alert alert-danger alert-auto-dismiss"><i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($flashErr) ?></div>
   <?php endif; ?>
 
   <div class="row g-3 mb-4">

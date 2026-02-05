@@ -10,7 +10,7 @@ $meta = $meta ?? ['created'=>0,'updated'=>0,'course_id'=>0];
     <a href="/secure/adm/aluno/courses" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
   </div>
   <?php if ($ok): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-auto-dismiss">
       
       <?php if ($ok === 'import'): ?>Importação concluída. Criadas: <?= (int)$meta['created'] ?> · Atualizadas: <?= (int)$meta['updated'] ?> · Curso #<?= (int)$meta['course_id'] ?>
       <?php elseif ($ok === 'import_default'): ?>Coleções padrão importadas (verifique cursos para detalhes).
@@ -19,7 +19,7 @@ $meta = $meta ?? ['created'=>0,'updated'=>0,'course_id'=>0];
     </div>
   <?php endif; ?>
   <?php if ($err): ?>
-    <div class="alert alert-danger">
+    <div class="alert alert-danger alert-auto-dismiss">
       <?php if ($err === 'csrf'): ?>CSRF inválido. Recarregue a página.
       <?php elseif ($err === 'bunny_env'): ?>Credenciais da Bunny ausentes no .env.
       <?php elseif ($err === 'missing'): ?>Informe nome da coleção ou ID.

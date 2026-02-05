@@ -24,7 +24,7 @@ ob_start();
               ];
               $message = $errorMessages[$error] ?? 'Erro desconhecido (' . htmlspecialchars($error) . '). Entre em contato com o suporte.';
               ?>
-              <div class="alert alert-danger">
+              <div class="alert alert-danger alert-auto-dismiss">
                 <strong><i class="fas fa-exclamation-triangle me-2"></i>Erro no Login</strong><br>
                 <?= $message ?>
               </div>

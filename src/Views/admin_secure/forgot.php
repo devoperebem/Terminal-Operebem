@@ -13,10 +13,10 @@ ob_start();
         <div class="card shadow-lg border-0 rounded-4">
           <div class="card-body p-4 p-md-5">
             <?php if (!empty($ok)): ?>
-              <div class="alert alert-success">Se o usuário existir, enviamos um código de verificação para o email cadastrado.</div>
+              <div class="alert alert-success alert-auto-dismiss">Se o usuário existir, enviamos um código de verificação para o email cadastrado.</div>
             <?php endif; ?>
             <?php if (!empty($error)): ?>
-              <div class="alert alert-danger">Não foi possível processar (<?= htmlspecialchars($error) ?>)</div>
+              <div class="alert alert-danger alert-auto-dismiss">Não foi possível processar (<?= htmlspecialchars($error) ?>)</div>
             <?php endif; ?>
             <form method="POST" action="/secure/adm/forgot" class="needs-validation" novalidate>
               <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">

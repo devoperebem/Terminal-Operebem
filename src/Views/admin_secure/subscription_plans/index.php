@@ -20,14 +20,14 @@ ob_start();
 
 <div class="container my-4">
     <?php if (isset($_GET['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show">
+        <div class="alert alert-success alert-dismissible alert-auto-dismiss fade show">
             Operacao realizada com sucesso!
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
     
     <?php if (isset($_GET['error'])): ?>
-        <div class="alert alert-danger alert-dismissible fade show">
+        <div class="alert alert-danger alert-dismissible alert-auto-dismiss fade show">
             <?= htmlspecialchars($_GET['error']) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>

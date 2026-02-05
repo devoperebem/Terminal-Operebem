@@ -329,15 +329,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } catch(_) {}
     
-    // Auto-hide alerts após 5 segundos
-    const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-    alerts.forEach(alert => {
+    // Auto-hide apenas alerts de feedback (com classe .alert-auto-dismiss) após 10 segundos
+    const autoDismissAlerts = document.querySelectorAll('.alert-auto-dismiss');
+    autoDismissAlerts.forEach(alert => {
         setTimeout(() => {
             if (alert.parentNode) {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             }
-        }, 5000);
+        }, 10000);
     });
     
     // Smooth scroll para links âncora
