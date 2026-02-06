@@ -49,7 +49,7 @@
     <!-- reCAPTCHA v3 (async load) -->
     <?php $SITE_KEY_V3 = $_ENV['RECAPTCHA_V3_SITE_KEY'] ?? ''; ?>
     <meta name="recaptcha-site-key" content="<?= htmlspecialchars($SITE_KEY_V3, ENT_QUOTES, 'UTF-8') ?>">
-    <meta name="csrf-token" content="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+    <meta name="csrf-token" content="<?= htmlspecialchars($csrf_token ?? ($_SESSION['csrf_token'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
     <?php if (!empty($SITE_KEY_V3)): ?>
     <script src="https://www.google.com/recaptcha/api.js?render=<?= htmlspecialchars($SITE_KEY_V3, ENT_QUOTES, 'UTF-8') ?>" async defer></script>
     <?php endif; ?>
