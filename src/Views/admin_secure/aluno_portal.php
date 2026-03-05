@@ -11,6 +11,18 @@ ob_start();
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card h-100">
         <div class="card-body d-grid gap-2">
+          <h2 class="h6"><i class="fas fa-tags me-2"></i>Pricing</h2>
+          <a href="/secure/adm/aluno/pricing" class="btn btn-outline-primary"><i class="fas fa-list me-2"></i>Gerenciar planos</a>
+          <form method="post" action="/secure/adm/aluno/pricing/sync" class="d-grid">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            <button type="submit" class="btn btn-outline-secondary"><i class="fas fa-rotate me-2"></i>Sincronizar pricing</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card h-100">
+        <div class="card-body d-grid gap-2">
           <h2 class="h6"><i class="fas fa-book me-2"></i>Cursos</h2>
           <a href="/secure/adm/aluno/courses" class="btn btn-outline-primary"><i class="fas fa-list me-2"></i>Listar cursos</a>
           <a href="/secure/adm/aluno/courses/create" class="btn btn-outline-secondary"><i class="fas fa-plus me-2"></i>Novo curso</a>
