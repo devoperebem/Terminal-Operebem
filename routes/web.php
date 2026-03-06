@@ -28,12 +28,16 @@ use App\Controllers\ReviewsController;
 use App\Controllers\AdminReviewsController;
 use App\Controllers\MarketClockController;
 use App\Controllers\AdminAlunoController;
+use App\Controllers\AdminAlunoPricingController;
+use App\Controllers\AdminAlunoMaterialsController;
+use App\Controllers\AdminAlunoSyncAuditController;
 use App\Controllers\AdminAlunoCoursesController;
 use App\Controllers\AdminAlunoAccessController;
 use App\Controllers\AdminAlunoBunnyController;
 use App\Controllers\AdminAlunoLessonsController;
 use App\Controllers\AdminAlunoEnrollmentsController;
 use App\Controllers\OBIndicesController;
+use App\Controllers\FeatureAccessController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
 use App\Middleware\CsrfMiddleware;
@@ -41,6 +45,7 @@ use App\Middleware\AdminMiddleware;
 use App\Middleware\SecureAdminMiddleware;
 use App\Middleware\DebugOnlyMiddleware;
 use App\Middleware\SameOriginAjaxMiddleware;
+use App\Middleware\TierMiddleware;
 
 $router = new Router();
 
@@ -53,7 +58,7 @@ $router->get('/reset-password', [AuthController::class, 'showResetPassword'], [G
 // CSRF utility
 $router->get('/csrf/token', [SecurityController::class, 'token']);
 // Public self-tests page (developer use)
-$router->get('/selftest', [SelfTestController::class, 'index']);
+$router->get('/selftest', [SelfTestController::class, 'index'], [SecureAdminMiddleware::class]);
 // Public status page (no sensitive data)
 $router->get('/status', [SelfTestController::class, 'publicStatus']);
 // Public shortcut to Aluno portal courses via SSO
@@ -66,7 +71,7 @@ $router->post('/csp-report', [SecurityController::class, 'cspReport']);
 // Client logs from browser (Same-Origin only)
 $router->post('/api/client-log', [SecurityController::class, 'clientLog'], [SameOriginAjaxMiddleware::class]);
 // Gold dashboard data endpoint
-$router->post('/api/quotes/gold-boot', [QuotesController::class, 'goldBoot'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
+$router->post('/api/quotes/gold-boot', [QuotesController::class, 'goldBoot'], [AuthMiddleware::class, TierMiddleware::class, SameOriginAjaxMiddleware::class]);
 
 // Rotas de autenticação (POST)
 $router->post('/login', [AuthController::class, 'login'], [GuestMiddleware::class, SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
@@ -87,7 +92,7 @@ $router->post('/register/reenviar-codigo', [AuthController::class, 'reenviarCodi
 // Dashboard routes (protected)
 $router->get('/app/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
 // Dashboard Gold (protected)
-$router->get('/app/dashboard/gold', [DashboardController::class, 'gold'], [AuthMiddleware::class]);
+$router->get('/app/dashboard/gold', [DashboardController::class, 'gold'], [AuthMiddleware::class, TierMiddleware::class]);
 // SSO start (public): se não autenticado, envia para modal de login; se autenticado, emite token e redireciona para o Portal do Aluno
 $router->get('/sso/start', [SsoController::class, 'start']);
 // SSO start para Diário Operebem (public): mesma lógica, mas redireciona para o Diário
@@ -106,10 +111,10 @@ $router->get('/app/indicators/fed', [IndicatorsController::class, 'fed'], [AuthM
 $router->get('/app/market-clock', [IndicatorsController::class, 'marketClock'], [AuthMiddleware::class]);
 
 // OB Indices (protected)
-$router->get('/app/indicators/ob-indices', [OBIndicesController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/app/indicators/ob-indices', [OBIndicesController::class, 'index'], [AuthMiddleware::class, TierMiddleware::class]);
 // OB Indices API
-$router->get('/api/indices', [OBIndicesController::class, 'getIndices'], [AuthMiddleware::class]);
-$router->get('/api/indices/{name}', [OBIndicesController::class, 'getIndex'], [AuthMiddleware::class]);
+$router->get('/api/indices', [OBIndicesController::class, 'getIndices'], [AuthMiddleware::class, TierMiddleware::class]);
+$router->get('/api/indices/{name}', [OBIndicesController::class, 'getIndex'], [AuthMiddleware::class, TierMiddleware::class]);
 // Página de auto-teste
 $router->get('/tools/indices-selftest', [OBIndicesController::class, 'selfTest'], [AuthMiddleware::class]);
 
@@ -124,6 +129,7 @@ $router->get('/api/news/noticias', [NewsController::class, 'noticias'], [AuthMid
 
 // Profile (protected)
 $router->get('/app/profile', [ProfileController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/app/feature-locked', [FeatureAccessController::class, 'locked'], [AuthMiddleware::class]);
 
 // Community Discord (protected)
 $router->get('/app/community', [\App\Controllers\CommunityController::class, 'index'], [AuthMiddleware::class]);
@@ -133,14 +139,14 @@ $router->post('/app/community/regenerate-code', [\App\Controllers\CommunityContr
 
 // Quotes API routes (protected)
 // Endpoint protegido para uso interno do app (dashboard)
-$router->post('/actions/boot.php', [QuotesController::class, 'boot'], [AuthMiddleware::class]);
+$router->post('/actions/boot.php', [QuotesController::class, 'boot'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
 
 // Endpoint público somente para listar (home) com proteção same-origin + rate-limit
 $router->post('/actions/quotes-public', [QuotesController::class, 'listarPublic'], [SameOriginAjaxMiddleware::class]);
 $router->get('/actions/quotes-public', [QuotesController::class, 'listarPublic'], [SameOriginAjaxMiddleware::class]);
 
 // Endpoint protegido específico do Dashboard Ouro (somente ativos necessários)
-$router->post('/actions/gold-boot.php', [QuotesController::class, 'goldBoot'], [AuthMiddleware::class, SameOriginAjaxMiddleware::class]);
+$router->post('/actions/gold-boot.php', [QuotesController::class, 'goldBoot'], [AuthMiddleware::class, TierMiddleware::class, SameOriginAjaxMiddleware::class]);
 
 $router->post('/app/profile/preferences', [ProfileController::class, 'updatePreferences'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/app/profile/change-password', [ProfileController::class, 'changePassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
@@ -152,7 +158,7 @@ $router->post('/app/profile/avatar/delete', [ProfileController::class, 'deleteAv
 $router->get('/api/profile/gamification', [ProfileController::class, 'getGamificationStats'], [AuthMiddleware::class]);
 
 // Logout
-$router->post('/logout', [AuthController::class, 'logout'], [AuthMiddleware::class]);
+$router->post('/logout', [AuthController::class, 'logout'], [AuthMiddleware::class, CsrfMiddleware::class]);
 // User token refresh (no AuthMiddleware): CSRF + SameOrigin only
 $router->post('/app/token/refresh', [AuthController::class, 'refreshToken'], [SameOriginAjaxMiddleware::class, CsrfMiddleware::class]);
 
@@ -214,6 +220,25 @@ $router->get('/secure/adm/reviews', [AdminSecureController::class, 'reviews'], [
 
 // Secure Admin - Aluno: Cursos (CRUD básico)
 $router->get('/secure/adm/aluno', [AdminAlunoController::class, 'portal'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/aluno/status', [AdminAlunoController::class, 'status'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/aluno/pricing', [AdminAlunoPricingController::class, 'index'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/aluno/pricing/create', [AdminAlunoPricingController::class, 'create'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/aluno/pricing/edit', [AdminAlunoPricingController::class, 'edit'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/aluno/pricing/store', [AdminAlunoPricingController::class, 'store'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/pricing/update', [AdminAlunoPricingController::class, 'update'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/pricing/delete', [AdminAlunoPricingController::class, 'delete'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/pricing/sync', [AdminAlunoPricingController::class, 'sync'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/secure/adm/aluno/materials', [AdminAlunoMaterialsController::class, 'index'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/aluno/materials/create', [AdminAlunoMaterialsController::class, 'create'], [SecureAdminMiddleware::class]);
+$router->get('/secure/adm/aluno/materials/edit', [AdminAlunoMaterialsController::class, 'edit'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/aluno/materials/store', [AdminAlunoMaterialsController::class, 'store'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/materials/update', [AdminAlunoMaterialsController::class, 'update'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/materials/delete', [AdminAlunoMaterialsController::class, 'delete'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/materials/sync-course', [AdminAlunoMaterialsController::class, 'syncCourse'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/secure/adm/aluno/sync-audit', [AdminAlunoSyncAuditController::class, 'index'], [SecureAdminMiddleware::class]);
+$router->post('/secure/adm/aluno/sync-audit/check', [AdminAlunoSyncAuditController::class, 'checkPortal'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/sync-audit/retry-pricing', [AdminAlunoSyncAuditController::class, 'retryPricing'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/secure/adm/aluno/sync-audit/retry-materials', [AdminAlunoSyncAuditController::class, 'retryMaterialsCourse'], [SecureAdminMiddleware::class, CsrfMiddleware::class]);
 $router->get('/secure/adm/aluno/courses', [AdminAlunoCoursesController::class, 'index'], [SecureAdminMiddleware::class]);
 $router->get('/secure/adm/aluno/courses/create', [AdminAlunoCoursesController::class, 'create'], [SecureAdminMiddleware::class]);
 $router->get('/secure/adm/aluno/courses/edit', [AdminAlunoCoursesController::class, 'edit'], [SecureAdminMiddleware::class]);
@@ -480,14 +505,14 @@ $router->get('/api/stripe/ping', function() {
         $result = $stripe->ping();
         echo json_encode($result);
     } catch (Throwable $e) {
+        try { \App\Core\Application::getInstance()->logger()->error('[StripePing] error: ' . $e->getMessage()); } catch (Throwable $__) {}
         echo json_encode([
             'success' => false,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'error' => 'Erro ao validar comunicacao com Stripe'
         ]);
     }
     exit;
-});
+}, [SecureAdminMiddleware::class]);
 
 // Debug: testar instanciação do SubscriptionController
 $router->get('/api/debug/subscription-controller', function() {
@@ -499,15 +524,13 @@ $router->get('/api/debug/subscription-controller', function() {
             'message' => 'SubscriptionController instanciado com sucesso'
         ]);
     } catch (Throwable $e) {
+        try { \App\Core\Application::getInstance()->logger()->error('[SubscriptionControllerDebug] error: ' . $e->getMessage()); } catch (Throwable $__) {}
         echo json_encode([
             'success' => false,
-            'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => $e->getTraceAsString()
+            'error' => 'Falha ao instanciar SubscriptionController'
         ]);
     }
     exit;
-});
+}, [SecureAdminMiddleware::class]);
 
 return $router;
