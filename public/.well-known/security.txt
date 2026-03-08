@@ -1,0 +1,7 @@
+Contact: mailto:security@operebem.com.br
+Contact: https://terminal.operebem.com.br/support
+Expires: 2026-12-31T23:59:59Z
+Preferred-Languages: pt-BR, en
+Policy: https://group.operebem.com.br/terminal/privacy-policy
+Acknowledgments: https://group.operebem.com.br/terminal/security-acknowledgments
+Hiring: https://group.operebem.com.br/careers

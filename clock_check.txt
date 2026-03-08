@@ -1,0 +1,63 @@
+=== VERIFICAÇÃO DO RELÓGIO DE MERCADOS GLOBAIS ===
+
+Data/Hora atual: 2025-12-28 22:00:07 (horário do servidor)
+Dia da semana: Sunday (numérico: 1)
+
+====================================================================================================
+Nome     | Código | Na Clock?    | trading_days    | Horário Local  | Horário BRT    | Status
+----------------------------------------------------------------------------------------------------
+B3       | XBSP   | SIM          | 23456           | 10:00:00-17:55:00 | 10:00-17:55     | ✅ OK
+NYSE     | XNYS   | SIM          | 23456           | 09:30:00-16:00:00 | 10:30-17:00     | ✅ OK
+NASDAQ   | XNAS   | SIM          | 23456           | 09:30:00-16:00:00 | 10:30-17:00     | ✅ OK
+TSX      | XTSE   | SIM          | 23456           | 09:30:00-16:00:00 | 10:30-17:00     | ✅ OK
+LSE      | XLON   | SIM          | 23456           | 08:00:00-16:30:00 | 04:00-12:30     | ✅ OK
+FWB      | XETR   | SIM          | 23456           | 09:00:00-17:30:00 | 04:00-12:30     | ✅ OK
+SIX      | XSWX   | SIM          | 23456           | 09:00:00-17:30:00 | 04:00-12:30     | ✅ OK
+JPX      | XTKS   | SIM          | 23456           | 09:00:00-15:00:00 | 21:00-03:00     | ✅ OK
+ASX      | XASX   | SIM          | 23456           | 10:00:00-16:00:00 | 20:00-02:00     | ✅ OK
+HKEX     | XHKG   | SIM          | 23456           | 09:30:00-16:00:00 | 22:30-01:00, 02:00-05:00 | ✅ OK
+SSE      | XSHG   | SIM          | 23456           | 09:30:00-15:00:00 | 22:30-04:00     | ✅ OK
+SGX      | XSES   | SIM          | 23456           | 09:00:00-17:00:00 | 22:00-06:00     | ✅ OK
+NZX      | XNZX   | NÃO         | N/A             | N/A             | 19:00-01:00     | ❌ Não existe na clock
+====================================================================================================
+
+=== PROBLEMAS ENCONTRADOS ===
+
+- NZX (XNZX): Não existe na tabela clock
+- NZX (XNZX): Não existe na tabela clock - PRECISA SER ADICIONADO
+
+=== EXCHANGES NA TABELA CLOCK ===
+
+XNYS    : New York Stock Exchange                  | dias: 23456      | 09:30:00-16:00:00 | America/New_York
+XNAS    : NASDAQ                                   | dias: 23456      | 09:30:00-16:00:00 | America/New_York
+IFUS    : ICE Futures US                           | dias: 23456      | 08:00:00-17:00:00 | America/New_York
+XJSE    : Johannesburg Stock Exchange              | dias: 23456      | 09:00:00-17:00:00 | Africa/Johannesburg
+XMIL    : Borsa Italiana (Milan)                   | dias: 23456      | 09:00:00-17:30:00 | Europe/Rome
+CRYPTO  : Criptomoedas (24/7)                      | dias: 1234567    | 00:00:00-23:59:59 | UTC
+XCME    : CME Group                                | dias: 23456      | 09:30:00-16:15:00 | America/Chicago
+XCBT    : ICE / CBOT / NYMEX / COMEX               | dias: 23456      | 09:30:00-16:00:00 | America/New_York
+XIST    : Borsa Istanbul                           | dias: 23456      | 09:40:00-18:10:00 | Europe/Istanbul
+MISX    : Moscow Exchange                          | dias: 23456      | 10:30:00-18:50:00 | Europe/Moscow
+XSTO    : Nasdaq Stockholm                         | dias: 23456      | 09:00:00-17:25:00 | Europe/Stockholm
+XSWX    : SIX Swiss Exchange                       | dias: 23456      | 09:00:00-17:30:00 | Europe/Zurich
+XMAD    : BME - Bolsa de Madrid                    | dias: 23456      | 09:00:00-17:30:00 | Europe/Madrid
+XLIM    : Bolsa de Valores de Lima                 | dias: 23456      | 09:00:00-13:00:00 | America/Lima
+XSGO    : Santiago Stock Exchange                  | dias: 23456      | 09:30:00-16:00:00 | America/Santiago
+XPAR    : Euronext (Paris)                         | dias: 23456      | 09:00:00-17:30:00 | Europe/Paris
+XBUE    : BYMA (Bolsa y Mercados Argentinos)       | dias: 23456      | 11:30:00-17:00:00 | America/Argentina/Buenos_Aires
+XLON    : London Stock Exchange                    | dias: 23456      | 08:00:00-16:30:00 | Europe/London
+XBOG    : Bolsa de Valores de Colombia             | dias: 23456      | 09:30:00-16:00:00 | America/Bogota
+XETR    : Deutsche Börse / Xetra                  | dias: 23456      | 09:00:00-17:30:00 | Europe/Berlin
+XTSE    : Toronto Stock Exchange                   | dias: 23456      | 09:30:00-16:00:00 | America/Toronto
+XBSP    : B3 (Brasil Bolsa Balcão)                | dias: 23456      | 10:00:00-17:55:00 | America/Sao_Paulo
+XBOM    : Bombay Stock Exchange                    | dias: 23456      | 09:15:00-15:30:00 | Asia/Kolkata
+ICE     : ICE (Intercontinental Exchange)          | dias: 23456      | 01:00:00-23:00:00 | Europe/London
+XSES    : Singapore Exchange                       | dias: 23456      | 09:00:00-17:00:00 | Asia/Singapore
+XSAU    : Tadawul (Saudi Exchange)                 | dias: 23456      | 10:00:00-15:00:00 | Asia/Riyadh
+CRIPTO  : CRIPTO                                   | dias: 1234567    | 00:00:00-23:59:59 | UTC
+XASX    : Australian Securities Exchange           | dias: 23456      | 10:00:00-16:00:00 | Australia/Sydney
+XTKS    : Tokyo Stock Exchange                     | dias: 23456      | 09:00:00-15:00:00 | Asia/Tokyo
+XKRX    : Korea Exchange                           | dias: 23456      | 09:00:00-15:30:00 | Asia/Seoul
+XSHG    : Shanghai Stock Exchange                  | dias: 23456      | 09:30:00-15:00:00 | Asia/Shanghai
+XSHE    : Shenzhen Stock Exchange                  | dias: 23456      | 09:30:00-15:00:00 | Asia/Shanghai
+XHKG    : Hong Kong Exchange                       | dias: 23456      | 09:30:00-16:00:00 | Asia/Hong_Kong

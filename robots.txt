@@ -1,0 +1,114 @@
+User-agent: Googlebot
+Allow: /
+Disallow: /app/
+Disallow: /api/
+Disallow: /actions/
+Disallow: /admin/
+Disallow: /tests/
+Disallow: /testes/
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /database/
+Disallow: /scripts/
+Disallow: /cleanup.php
+Disallow: /composer*
+Disallow: /phpunit*
+Disallow: /.env*
+
+User-agent: Bingbot
+Allow: /
+Disallow: /app/
+Disallow: /api/
+Disallow: /actions/
+Disallow: /admin/
+Disallow: /tests/
+Disallow: /testes/
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /database/
+Disallow: /scripts/
+Disallow: /cleanup.php
+Disallow: /composer*
+Disallow: /phpunit*
+Disallow: /.env*
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /app/
+Disallow: /api/
+Disallow: /actions/
+Disallow: /admin/
+Disallow: /tests/
+Disallow: /testes/
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /database/
+Disallow: /scripts/
+Disallow: /cleanup.php
+Disallow: /composer*
+Disallow: /phpunit*
+Disallow: /.env*
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: Yandex
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MauiBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: *
+Allow: /assets/
+Allow: /widgets/
+Allow: /favicon.ico
+Allow: /sitemap.xml
+Allow: /robots.txt
+Disallow: /app/
+Disallow: /api/
+Disallow: /actions/
+Disallow: /admin/
+Disallow: /secure/adm/
+Disallow: /tests/
+Disallow: /testes/
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /database/
+Disallow: /scripts/
+Disallow: /config/
+Disallow: /src/
+Disallow: /cleanup.php
+Disallow: /composer*
+Disallow: /phpunit*
+Disallow: /.env*
+Disallow: /*?*
+Crawl-delay: 10
+
+Sitemap: https://terminal.operebem.com.br/sitemap.xml
